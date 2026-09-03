@@ -317,17 +317,24 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
             <?php endif; ?>
 
             <?php if ($can_review): ?>
-            <!-- School-Specific Report Action -->
-            <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='flex'" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2,132,199,0.2);">
-                <span class="dashicons dashicons-building" style="font-size: 16px; width: 16px; height: 16px; color: #fff;"></span>
-                <span>تقرير مدرسة محددة</span>
-            </button>
-
-            <!-- Administrative Non-Submission Report Action (Red Token) -->
-            <button type="button" onclick="window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=non_submission_lesson_prep'); ?>', '_blank')" class="sm-btn" style="background: #dc2626; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(220,38,38,0.2);">
-                <span class="dashicons dashicons-dismiss" style="font-size: 16px; width: 16px; height: 16px; color: #fff;"></span>
-                <span>تقرير غير المغطين للتحضير</span>
-            </button>
+            <!-- Unified Print Report Dropdown Action -->
+            <div style="position: relative; display: inline-block;">
+                <button type="button" onclick="const d=document.getElementById('eess-print-report-dropdown'); d.style.display = d.style.display==='none'?'block':'none'; event.stopPropagation();" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2,132,199,0.2);">
+                    <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; color: #fff;"></span>
+                    <span>طباعة التقرير</span>
+                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; color: #fff;"></span>
+                </button>
+                <div id="eess-print-report-dropdown" style="display: none; position: absolute; right: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 230px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <a href="javascript:void(0)" onclick="document.getElementById('eess-print-report-dropdown').style.display='none'; document.getElementById('eess-school-prep-report-modal').style.display='flex';" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">
+                        <span class="dashicons dashicons-building" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                        <span>طباعة تقرير مدرسة محددة</span>
+                    </a>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=non_submission_lesson_prep'); ?>" target="_blank" onclick="document.getElementById('eess-print-report-dropdown').style.display='none';" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #dc2626; font-size: 12px; font-weight: 700; text-decoration: none;">
+                        <span class="dashicons dashicons-dismiss" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                        <span>طباعة تقرير غير المغطين للتحضير</span>
+                    </a>
+                </div>
+            </div>
 
             <!-- Reports Dropdown Container -->
             <div style="position: relative; display: inline-block;">
@@ -351,17 +358,16 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
             </div>
 
             <?php if ($is_admin): ?>
-            <!-- Assign Ready-Made Lesson Prep to Teacher Button (System Admin Only) -->
+            <!-- Assign Ready-Made Lesson Prep Button (System Admin Only) -->
             <button type="button" onclick="document.getElementById('eess-assign-prep-modal').style.display='flex'" class="sm-btn" style="background: #0f172a; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-user-freelance" style="font-size: 16px; width: 16px; height: 16px; color: #38bdf8;"></span>
-                <span>إسناد تحضير لمعلم</span>
+                <span>إسناد التحضير</span>
             </button>
             <?php endif; ?>
 
-            <!-- Settings Gear Icon Button -->
-            <button type="button" onclick="document.getElementById('prep-settings-modal').style.display='flex'" class="sm-btn sm-btn-outline" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px !important; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12.5px; padding: 0 16px;">
-                <span class="dashicons dashicons-admin-generic" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #475569;"></span>
-                <span>إعدادات التحضير</span>
+            <!-- Settings Gear Icon Button (Icon Only) -->
+            <button type="button" onclick="document.getElementById('prep-settings-modal').style.display='flex'" title="إعدادات التحضير" class="sm-btn sm-btn-outline" style="width: 38px; height: 38px; border-radius: 50% !important; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; padding: 0;">
+                <span class="dashicons dashicons-admin-generic" style="font-size: 18px; width: 18px; height: 18px; margin: 0; color: #475569;"></span>
             </button>
             <?php endif; ?>
         </div>

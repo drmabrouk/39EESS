@@ -8069,14 +8069,16 @@ class SM_Public {
                         overflow: hidden;
                     }
                     .card-header {
+                        background: #881337;
+                        color: #ffffff;
+                        padding: 4px 8px;
+                        border-radius: 6px 6px 0 0;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        border-bottom: 2px solid #881337;
-                        padding-bottom: 4px;
                     }
-                    .card-title-main { font-size: 10px; font-weight: 900; color: #881337; text-transform: uppercase; letter-spacing: 0.5px; }
-                    .card-school-name { font-size: 8px; font-weight: 700; color: #475569; }
+                    .card-title-main { font-size: 11px; font-weight: 900; color: #ffffff; }
+                    .card-school-name { font-size: 8px; font-weight: 700; color: #fecdd3; }
                     .card-body { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex: 1; }
                     .card-photo {
                         width: 48px;
@@ -8087,7 +8089,7 @@ class SM_Public {
                         background: #f1f5f9;
                     }
                     .card-info { flex: 1; line-height: 1.25; }
-                    .card-stu-name { font-size: 11px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+                    .card-stu-name { font-size: 11px; font-weight: 900; color: #0f172a; margin-bottom: 2px; }
                     .card-row { font-size: 8.5px; color: #334155; font-weight: 600; display: flex; gap: 4px; }
                     .card-label { color: #64748b; font-weight: 700; }
                     .card-qr { width: 44px; height: 44px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px; }
@@ -8119,14 +8121,14 @@ class SM_Public {
                         if (!$st) continue;
                         $sch_obj = $st->school_id ? EESS_Org_Helper::get_school_by_id($st->school_id) : null;
                         $s_name = $sch_obj ? $sch_obj->name : ($school_info['school_name'] ?? 'مدرسة EESS التعليمية');
-                        $serial = 'SN-' . str_pad($st->id, 6, '0', STR_PAD_LEFT);
+                        $serial = $st->student_code;
                         $qr_svg = $this->eess_generate_qr_code_svg($serial);
                         $photo = !empty($st->photo_url) ? esc_url($st->photo_url) : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="58" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
                     ?>
                     <div class="id-card">
                         <div class="card-header">
                             <div>
-                                <div class="card-title-main">Student Exit Card / تصريح الخروج</div>
+                                <div class="card-title-main">بطاقة خروج طالب</div>
                                 <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
                             </div>
                             <img src="<?php echo esc_url($school_info['logo_url'] ?? SM_PLUGIN_URL . 'assets/images/logo.png'); ?>" style="height: 18px; max-width: 40px; object-fit: contain;" onerror="this.style.display='none'">
@@ -8135,10 +8137,10 @@ class SM_Public {
                             <img src="<?php echo $photo; ?>" class="card-photo">
                             <div class="card-info">
                                 <div class="card-stu-name"><?php echo esc_html($st->name); ?></div>
-                                <div class="card-row"><span class="card-label">الكود:</span><strong><?php echo esc_html($st->student_code); ?></strong></div>
+                                <div class="card-row"><span class="card-label">الرقم الأكاديمي:</span><strong><?php echo esc_html($st->student_code); ?></strong></div>
                                 <div class="card-row"><span class="card-label">الرقم التسلسلي:</span><strong><?php echo esc_html($serial); ?></strong></div>
-                                <div class="card-row"><span class="card-label">الصف / الشعبة:</span><span><?php echo esc_html($st->class_name); ?> (<?php echo esc_html($st->section ?: 'أ'); ?>)</span></div>
-                                <div class="card-row"><span class="card-label">العام / الانتهاء:</span><span><?php echo esc_html($acad_year); ?> | <?php echo $expiry_date; ?></span></div>
+                                <div class="card-row"><span class="card-label">الصف والشعبة:</span><span><?php echo esc_html($st->class_name); ?> (<?php echo esc_html($st->section ?: 'أ'); ?>)</span></div>
+                                <div class="card-row"><span class="card-label">العام والتاريخ:</span><span><?php echo esc_html($acad_year); ?> | <?php echo $expiry_date; ?></span></div>
                             </div>
                             <div class="card-qr" title="<?php echo esc_attr($serial); ?>"><?php echo $qr_svg; ?></div>
                         </div>

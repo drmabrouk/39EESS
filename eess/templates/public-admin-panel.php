@@ -984,8 +984,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                 </div>
                             </div>
 
-                            <!-- Institutions Cards Grid Container -->
-                            <div id="eess-institutions-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
+                            <!-- Institutions Cards Grid Container (3 Cards Per Row) -->
+                            <div id="eess-institutions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                                 <?php if (empty($institutions)): ?>
                                     <div style="grid-column: 1 / -1; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; padding: 40px; text-align: center; color: #64748b;">
                                         <span class="dashicons dashicons-bank" style="font-size: 40px; width: 40px; height: 40px; color: #cbd5e1; margin-bottom: 10px;"></span>
@@ -1032,9 +1032,14 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                                     <?php endif; ?>
                                                     <div>
                                                         <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.3;"><?php echo esc_html($inst->name); ?></h3>
-                                                        <span style="display: inline-block; padding: 2px 10px; border-radius: 9999px; background: <?php echo $type_badge_bg; ?>; color: <?php echo $type_badge_col; ?>; font-size: 10.5px; font-weight: 800;">
-                                                            <?php echo esc_html($inst->type); ?>
-                                                        </span>
+                                                        <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                                                            <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
+                                                                معرف المؤسسة / الكود: <?php echo intval($inst->code ?: $inst->id); ?>
+                                                            </span>
+                                                            <span style="display: inline-block; padding: 2px 8px; border-radius: 9999px; background: <?php echo $type_badge_bg; ?>; color: <?php echo $type_badge_col; ?>; font-size: 10.5px; font-weight: 800;">
+                                                                <?php echo esc_html($inst->type); ?>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
