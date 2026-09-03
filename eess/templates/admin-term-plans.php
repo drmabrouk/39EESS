@@ -88,17 +88,24 @@ $arabic_term_names = array(
 
 
             <?php if ($is_admin || $is_activities_sup || $is_reviewer): ?>
-            <!-- School-Specific Plan Report Button -->
-            <button type="button" onclick="document.getElementById('eess-school-plan-report-modal').style.display='flex'" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2,132,199,0.2);">
-                <span class="dashicons dashicons-building" style="font-size: 16px; width: 16px; height: 16px; color: #fff;"></span>
-                <span>تقرير مدرسة محددة</span>
-            </button>
-
-            <!-- Non-Submission Administrative Report Button (Red Token) -->
-            <button type="button" onclick="document.getElementById('eess-non-submission-plan-modal').style.display='flex'" class="sm-btn" style="background: #dc2626; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(220,38,38,0.2);">
-                <span class="dashicons dashicons-dismiss" style="font-size: 16px; width: 16px; height: 16px; color: #fff;"></span>
-                <span>تقرير غير المغطين للخطط</span>
-            </button>
+            <!-- Unified Print Report Dropdown Action -->
+            <div style="position: relative; display: inline-block;">
+                <button type="button" onclick="const d=document.getElementById('eess-plan-report-dropdown'); d.style.display = d.style.display==='none'?'block':'none'; event.stopPropagation();" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2,132,199,0.2);">
+                    <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; color: #fff;"></span>
+                    <span>طباعة التقرير</span>
+                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; color: #fff;"></span>
+                </button>
+                <div id="eess-plan-report-dropdown" style="display: none; position: absolute; right: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 230px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <a href="javascript:void(0)" onclick="document.getElementById('eess-plan-report-dropdown').style.display='none'; document.getElementById('eess-school-plan-report-modal').style.display='flex';" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">
+                        <span class="dashicons dashicons-building" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                        <span>طباعة تقرير مدرسة محددة</span>
+                    </a>
+                    <a href="javascript:void(0)" onclick="document.getElementById('eess-plan-report-dropdown').style.display='none'; document.getElementById('eess-non-submission-plan-modal').style.display='flex';" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #dc2626; font-size: 12px; font-weight: 700; text-decoration: none;">
+                        <span class="dashicons dashicons-dismiss" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                        <span>طباعة تقرير غير المغطين للخطط</span>
+                    </a>
+                </div>
+            </div>
             <?php endif; ?>
 
             <?php if ($is_admin): ?>

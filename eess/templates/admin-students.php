@@ -108,35 +108,32 @@ $to_num = min($offset + $limit, $total_students_count);
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <!-- Dedicated Export Student Affairs Data Button -->
-            <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_students_csv&nonce=' . wp_create_nonce('sm_admin_action')); ?>" class="eess-hdr-btn" style="background: #f8fafc !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                <span class="dashicons dashicons-download" style="font-size: 18px; width: 18px; height: 18px; color: #881337;"></span>
-                <span style="color: #1e293b !important;">تصدير بيانات شؤون الطلاب (Excel/CSV)</span>
-            </a>
-
-            <!-- Export / Print Reports Dropdown -->
+            <!-- Single Unified Import / Export Dropdown Button -->
             <div style="position: relative; display: inline-block;">
-                <button type="button" onclick="const d = document.getElementById('eess-students-export-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="eess-hdr-btn" style="background: #f8fafc !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                    <span class="dashicons dashicons-download" style="font-size: 18px; width: 18px; height: 18px; color: #334155;"></span>
-                    <span style="color: #334155 !important;">تصدير التقارير</span>
-                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 12px; width: 12px; height: 12px; color: #334155;"></span>
+                <button type="button" onclick="const d = document.getElementById('eess-students-import-export-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="eess-hdr-btn" style="background: #f8fafc !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                    <span class="dashicons dashicons-database" style="font-size: 18px; width: 18px; height: 18px; color: #881337;"></span>
+                    <span>استيراد / تصدير</span>
+                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; color: #475569;"></span>
                 </button>
 
-                <div id="eess-students-export-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
-                    <div style="padding: 6px 16px; font-size: 11px; color: #94a3b8; font-weight: 800; border-bottom: 1px solid #f1f5f9;">تصدير واستيراد البيانات (Excel/CSV)</div>
-                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_students_csv&nonce=' . wp_create_nonce('sm_admin_action')); ?>" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 600; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <span class="dashicons dashicons-table-col-before" style="font-size: 16px; width: 16px; height: 16px;"></span>
-                        <span>تصدير جميع الطلاب (Excel/CSV)</span>
+                <div id="eess-students-import-export-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 270px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
+                    <div style="padding: 6px 16px; font-size: 11px; color: #94a3b8; font-weight: 800; border-bottom: 1px solid #f1f5f9;">عمليات استيراد وتصدير بيانات الطلاب</div>
+                    <a href="javascript:void(0)" onclick="const f=document.getElementById('csv-import-form'); f.style.display='block'; document.getElementById('eess-students-import-export-dropdown').style.display='none';" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px; color: #0284c7;"></span>
+                        <span>استيراد بيانات شؤون الطلاب (Excel/CSV)</span>
                     </a>
-                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_download_student_import_template'); ?>" target="_blank" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 600; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px;"></span>
-                        <span>تحميل نموذج الاستيراد الرسمي (11 عمود)</span>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_students_csv&nonce=' . wp_create_nonce('sm_admin_action')); ?>" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; color: #881337;"></span>
+                        <span>تصدير بيانات شؤون الطلاب (Excel/CSV)</span>
                     </a>
-
-                    <div style="padding: 6px 16px; font-size: 11px; color: #94a3b8; font-weight: 800; border-bottom: 1px solid #f1f5f9;">طباعة البطاقات والتقارير</div>
+                    <a href="<?php echo admin_url('admin-ajax.php?action=sm_download_student_import_template'); ?>" target="_blank" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <span class="dashicons dashicons-media-document" style="font-size: 16px; width: 16px; height: 16px; color: #16a34a;"></span>
+                        <span>تحميل نموذج الاستيراد الرسمي (16 عمود)</span>
+                    </a>
+                    <div style="padding: 6px 16px; font-size: 11px; color: #94a3b8; font-weight: 800; border-bottom: 1px solid #f1f5f9;">تصدير التقارير والبطاقات</div>
                     <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=id_card'); ?>" target="_blank" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #15803d; font-size: 12px; font-weight: 700; text-decoration: none; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                        <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px;"></span>
-                        <span>طباعة بطاقات الهوية الأكاديمية</span>
+                        <span class="dashicons dashicons-id" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                        <span>طباعة بطاقات تصريح الخروج للمدرسة</span>
                     </a>
                 </div>
             </div>
@@ -148,12 +145,6 @@ $to_num = min($offset + $limit, $total_students_count);
             <button type="button" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='flex'" class="eess-hdr-btn" style="background: #f8fafc !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <span class="dashicons dashicons-id" style="font-size: 18px; width: 18px; height: 18px; color: #0284c7;"></span>
                 <span style="color: #0284c7 !important;">طلبات بطاقات الخروج (<?php echo $exit_req_count; ?>)</span>
-            </button>
-
-            <!-- Secondary Action: Import -->
-            <button type="button" onclick="const f=document.getElementById('csv-import-form'); f.style.display = f.style.display==='none'?'block':'none';" class="eess-hdr-btn" style="background: #f8fafc !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                <span class="dashicons dashicons-upload" style="font-size: 18px; width: 18px; height: 18px; color: #334155;"></span>
-                <span style="color: #334155 !important;">استيراد</span>
             </button>
 
             <!-- Primary Action: Add Student (Wine Red) -->
