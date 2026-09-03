@@ -427,6 +427,29 @@ class SM_Activator {
             PRIMARY KEY (id),
             KEY student_id (student_id),
             KEY teacher_id (teacher_id)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}sm_parent_summons (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            student_id bigint(20) NOT NULL,
+            parent_user_id bigint(20) DEFAULT NULL,
+            reason varchar(255) NOT NULL,
+            summons_date date NOT NULL,
+            summons_time time DEFAULT NULL,
+            department_requester varchar(100) DEFAULT 'شؤون الطلاب' NOT NULL,
+            notes text DEFAULT NULL,
+            status varchar(50) DEFAULT 'draft' NOT NULL,
+            actual_visit_date datetime DEFAULT NULL,
+            visit_notes text DEFAULT NULL,
+            discussion_summary text DEFAULT NULL,
+            staff_handler_id bigint(20) DEFAULT NULL,
+            parent_cooperation varchar(50) DEFAULT NULL,
+            evaluation_comments text DEFAULT NULL,
+            created_by bigint(20) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY (id),
+            KEY student_id (student_id),
+            KEY status (status)
         ) $charset_collate;";
 
         // System Announcements Table
@@ -640,6 +663,7 @@ class SM_Activator {
             $discipline_sup->add_cap($caps['add_violation']);
             $discipline_sup->add_cap($caps['manage_violations']);
             $discipline_sup->add_cap($caps['manage_students']);
+            $discipline_sup->add_cap($caps['manage_parents']);
             $discipline_sup->add_cap('read');
         }
 

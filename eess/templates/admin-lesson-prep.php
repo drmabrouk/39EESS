@@ -1292,10 +1292,10 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     $all_schools_list = class_exists('EESS_Org_Helper') ? EESS_Org_Helper::get_all_schools() : array();
                     if (!empty($all_schools_list)):
                         foreach ($all_schools_list as $sch): ?>
-                            <option value="<?php echo esc_attr($sch->name); ?>"><?php echo esc_html($sch->name); ?></option>
+                            <option value="<?php echo esc_attr($sch->id); ?>"><?php echo esc_html($sch->name); ?></option>
                         <?php endforeach;
                     else: ?>
-                        <option value="المدرسة الرئيسية">المدرسة الرئيسية</option>
+                        <option value="1">المدرسة الرئيسية</option>
                     <?php endif; ?>
                 </select>
             </div>
@@ -1309,10 +1309,10 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
 <script>
 function eessGenerateSchoolPrepReport() {
-    var schName = document.getElementById('eess_target_school_prep').value;
-    if (!schName) return;
+    var schId = document.getElementById('eess_target_school_prep').value;
+    if (!schId) return;
     document.getElementById('eess-school-prep-report-modal').style.display = 'none';
-    window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=school_lesson_prep_report&school_name='); ?>' + encodeURIComponent(schName), '_blank');
+    window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=school_lesson_prep_report&school_id='); ?>' + encodeURIComponent(schId), '_blank');
 }
 </script>
 

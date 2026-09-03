@@ -206,29 +206,91 @@
         }
     })();
     </script>
+    <!-- PARENT SUMMONS & APPOINTMENT REQUEST MODAL -->
     <div id="call-in-modal" class="sm-modal-overlay">
-        <div class="sm-modal-content" style="max-width: 500px;">
+        <div class="sm-modal-content" style="max-width: 580px;">
             <div class="sm-modal-header">
-                <h3>إرسال طلب استدعاء ولي أمر</h3>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #881337;">إصدار وثيقة استدعاء رسمي لولي الأمر</h3>
                 <button class="sm-modal-close" onclick="document.getElementById('call-in-modal').style.display='none'">&times;</button>
             </div>
-            <div style="text-align: center; padding: 20px 0;">
-                <p style="font-size: 1.1em; margin-bottom: 25px;">إرسال طلب حضور للمدرسة لولي الأمر:<br><strong id="call_in_parent_name" style="color: var(--sm-primary-color); font-size: 1.2em;"></strong></p>
+            <form id="eess-parent-summons-form" style="padding: 10px 0;">
+                <input type="hidden" id="summons_parent_id" name="parent_id">
+                <p style="font-size: 13px; color: #475569; margin-bottom: 15px;">استدعاء رسمية لولي الأمر: <strong id="call_in_parent_name" style="color: #881337;"></strong></p>
 
-                <div class="sm-form-group" style="text-align: right;">
-                    <label class="sm-label">نص الرسالة المقترح:</label>
-                    <textarea id="call_in_msg_text" class="sm-textarea" rows="4">تحية طيبة، نرجو منكم التكرم بزيارة مكتب الإرشاد الطلابي بالمدرسة في أقرب وقت ممكن لمناقشة أمور هامة تخص ابنكم/ابنتكم. شكراً لتعاونكم.</textarea>
+                <div class="sm-form-group" style="text-align: right; margin-bottom: 12px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700;">اختر الطالب المعني بالاستدعاء:</label>
+                    <select id="summons_student_id" name="student_id" class="sm-input" style="height: 40px; font-size: 13px;" required>
+                        <!-- Populated dynamically in JS -->
+                    </select>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;">
-                    <button onclick="sendCallViaWhatsApp()" class="sm-btn" style="background: #25D366; gap: 10px;">
-                        <span class="dashicons dashicons-whatsapp"></span> واتساب
-                    </button>
-                    <button onclick="sendCallViaEmail()" class="sm-btn" style="background: #111F35; gap: 10px;">
-                        <span class="dashicons dashicons-email"></span> بريد إلكتروني
-                    </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; text-align: right;">
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700;">تاريخ الموعد:</label>
+                        <input type="date" id="summons_date" name="summons_date" class="sm-input" value="<?php echo date('Y-m-d'); ?>" style="height: 40px; font-size: 12.5px;" required>
+                    </div>
+                    <div>
+                        <label class="sm-label" style="font-size: 12px; font-weight: 700;">توقيت الموعد:</label>
+                        <input type="time" id="summons_time" name="summons_time" class="sm-input" value="10:00" style="height: 40px; font-size: 12.5px;" required>
+                    </div>
                 </div>
+
+                <div class="sm-form-group" style="text-align: right; margin-bottom: 12px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700;">سبب الاستدعاء الرسمي:</label>
+                    <input type="text" id="summons_reason" name="reason" class="sm-input" placeholder="مثال: لمناقشة المستوى السلوكي والانضباطي للطالب" style="height: 40px; font-size: 12.5px;" required>
+                </div>
+
+                <div class="sm-form-group" style="text-align: right; margin-bottom: 15px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700;">نص الرسالة الموجهة لولي الأمر:</label>
+                    <textarea id="call_in_msg_text" class="sm-textarea" rows="3" style="font-size: 12px; line-height: 1.6;">تحية طيبة، نرجو منكم التكرم بزيارة إدارة المدرسة لمناقشة أمور هامة تخص ابنكم/ابنتكم. شكراً لتعاونكم.</textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                    <button type="submit" class="sm-btn" style="background: #881337; color: white; width: auto; height: 38px; padding: 0 20px; font-weight: 800; font-size: 12.5px;">حفظ وإصدار الاستدعاء</button>
+                    <button type="button" onclick="sendCallViaWhatsApp()" class="sm-btn" style="background: #16a34a; color: white; width: auto; height: 38px; padding: 0 16px; font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="dashicons dashicons-whatsapp"></span> إرسال عبر واتساب
+                    </button>
+                    <button type="button" onclick="document.getElementById('call-in-modal').style.display='none'" class="sm-btn sm-btn-outline" style="width: auto; height: 38px; padding: 0 15px; font-size: 12px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PARENT VISIT RECORD & EVALUATION MODAL -->
+    <div id="eess-parent-visit-modal" class="sm-modal-overlay" style="display: none;">
+        <div class="sm-modal-content" style="max-width: 580px;">
+            <div class="sm-modal-header">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #16a34a;">تحويل الاستدعاء إلى محضر زيارة رسمية وتقييم اللقاء</h3>
+                <button class="sm-modal-close" onclick="document.getElementById('eess-parent-visit-modal').style.display='none'">&times;</button>
             </div>
+            <form id="eess-parent-visit-form" style="padding: 10px 0;">
+                <input type="hidden" id="visit_summons_id" name="summons_id">
+
+                <div class="sm-form-group" style="text-align: right; margin-bottom: 12px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700;">خلاصة المناقشة وما تم الاتفاق عليه خلال الزيارة:</label>
+                    <textarea id="visit_discussion_summary" name="discussion_summary" class="sm-textarea" rows="3" style="font-size: 12.5px;" placeholder="تدوين ما تم التوصل إليه مع ولي الأمر وتوصيات اللقاء..." required></textarea>
+                </div>
+
+                <div class="sm-form-group" style="text-align: right; margin-bottom: 12px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700;">تقييم مدى تعاون ولي الأمر (Parent Cooperation):</label>
+                    <select id="visit_parent_cooperation" name="parent_cooperation" class="sm-input" style="height: 40px; font-size: 12.5px; font-weight: 700;">
+                        <option value="ممتاز">ممتاز (Excellent) — متجاوب ومتعاون بشكل كامل</option>
+                        <option value="جيد">جيد (Good) — متعاون بشكل إيجابي</option>
+                        <option value="مقبول">مقبول (Satisfactory) — استجابة رسمية محايدة</option>
+                        <option value="يحتاج تحسين">يحتاج تحسين (Needs Improvement) — عدم التجاوب الكافي</option>
+                    </select>
+                </div>
+
+                <div class="sm-form-group" style="text-align: right; margin-bottom: 15px;">
+                    <label class="sm-label" style="font-size: 12px; font-weight: 700;">ملاحظات تقييمية إضافية:</label>
+                    <textarea id="visit_evaluation_comments" name="evaluation_comments" class="sm-textarea" rows="2" style="font-size: 12px;" placeholder="أي توصيات أو متابعات لاحقة مع إدارة المدرسة..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="submit" class="sm-btn" style="background: #16a34a; color: white; width: auto; height: 38px; padding: 0 20px; font-weight: 800; font-size: 12.5px;">تأكيد وتوثيق محضر الزيارة</button>
+                    <button type="button" onclick="document.getElementById('eess-parent-visit-modal').style.display='none'" class="sm-btn sm-btn-outline" style="width: auto; height: 38px; padding: 0 15px; font-size: 12px;">إلغاء</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -238,8 +300,69 @@
     function requestCallIn(id, name, email, phone) {
         currentParentData = { id, name, email, phone };
         document.getElementById('call_in_parent_name').innerText = name;
+        document.getElementById('summons_parent_id').value = id;
+
+        // Populate student options for this parent
+        const stuSelect = document.getElementById('summons_student_id');
+        stuSelect.innerHTML = '<option value="">جاري تحميل الأبناء المرتبطين...</option>';
+
+        fetch('<?php echo admin_url('admin-ajax.php?action=sm_get_student&parent_user_id='); ?>' + id)
+        .then(r => r.json())
+        .then(res => {
+            if (res.success && res.data && res.data.length > 0) {
+                stuSelect.innerHTML = res.data.map(s => `<option value="${s.id}">${s.name} (${s.class_name} - ${s.section})</option>`).join('');
+            } else {
+                stuSelect.innerHTML = '<option value="0">لم يتم العثور على طالب مرتبط مباشر</option>';
+            }
+        })
+        .catch(() => {
+            stuSelect.innerHTML = '<option value="0">افتراضي - جميع أبناء ولي الأمر</option>';
+        });
+
         document.getElementById('call-in-modal').style.display = 'flex';
     }
+
+    document.getElementById('eess-parent-summons-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.append('action', 'sm_create_parent_summons');
+        formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_message_action"); ?>');
+
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                if (typeof smShowNotification === 'function') smShowNotification(res.data.message);
+                else alert(res.data.message);
+                document.getElementById('call-in-modal').style.display = 'none';
+                if (res.data.summons_id) {
+                    window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=parent_summons&summons_id='); ?>' + res.data.summons_id, '_blank');
+                }
+            } else {
+                alert(res.data || 'حدث خطأ أثناء إصدار الاستدعاء');
+            }
+        });
+    });
+
+    document.getElementById('eess-parent-visit-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.append('action', 'sm_convert_summons_visit');
+        formData.append('sm_nonce', '<?php echo wp_create_nonce("sm_message_action"); ?>');
+
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                if (typeof smShowNotification === 'function') smShowNotification(res.data.message);
+                else alert(res.data.message);
+                document.getElementById('eess-parent-visit-modal').style.display = 'none';
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert(res.data || 'حدث خطأ أثناء توثيق محضر الزيارة');
+            }
+        });
+    });
 
     function sendCallViaWhatsApp() {
         const msg = encodeURIComponent(document.getElementById('call_in_msg_text').value);
