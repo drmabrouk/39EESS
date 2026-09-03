@@ -562,36 +562,51 @@ function renderSelectedStudents() {
             }
 
             reader.style.display = 'block';
-            if (typeof Html5Qrcode !== 'undefined') {
-                const html5QrCode = new Html5Qrcode("reader");
-                html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess)
-                .catch(err => {
-                    alert('تعذر الوصول للكاميرا: ' + err);
-                    reader.style.display = 'none';
-                });
-
-                function onScanSuccess(decodedText) {
-                    html5QrCode.stop().then(() => {
+            function startScannerInstance() {
+                if (typeof Html5Qrcode !== 'undefined') {
+                    const html5QrCode = new Html5Qrcode("reader");
+                    html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess)
+                    .catch(err => {
+                        alert('تعذر الوصول للكاميرا: ' + err);
                         reader.style.display = 'none';
+                    });
 
-                        const formData = new FormData();
-                        formData.append('action', 'sm_get_student');
-                        formData.append('code', decodedText);
+                    function onScanSuccess(decodedText) {
+                        html5QrCode.stop().then(() => {
+                            reader.style.display = 'none';
 
-                        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
-                        .then(r => r.json())
-                        .then(res => {
-                            if (res.success && res.data) {
-                                selectStudent(res.data);
-                            } else {
-                                alert('عذراً، كود غير معروف أو طالب غير مسجل: ' + decodedText);
-                            }
-                        });
-                    }).catch(() => { reader.style.display = 'none'; });
+                            const formData = new FormData();
+                            formData.append('action', 'sm_get_student');
+                            formData.append('code', decodedText.trim());
+
+                            fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+                            .then(r => r.json())
+                            .then(res => {
+                                if (res.success && res.data) {
+                                    selectStudent(res.data);
+                                } else {
+                                    alert('عذراً، الرقم التسلسلي غير معروف أو الطالب غير مسجل: ' + decodedText);
+                                }
+                            });
+                        }).catch(() => { reader.style.display = 'none'; });
+                    }
+                } else {
+                    alert('جاري تحميل مكتبة الماسح الضوئي... يرجى المحاولة بعد ثوانٍ.');
+                    reader.style.display = 'none';
                 }
+            }
+
+            if (typeof Html5Qrcode === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/html5-qrcode';
+                script.onload = startScannerInstance;
+                script.onerror = function() {
+                    alert('عذراً، تعذر تحميل مكتبة الماسح الضوئي عبر الشبكة.');
+                    reader.style.display = 'none';
+                };
+                document.head.appendChild(script);
             } else {
-                alert('مكتبة الماسح الضوئي غير محملة بالجلسة.');
-                reader.style.display = 'none';
+                startScannerInstance();
             }
         });
     }

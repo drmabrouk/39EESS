@@ -1,6 +1,9 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <?php
-$is_admin = current_user_can('شؤون_الطلاب') || current_user_can('manage_options');
+$current_user = wp_get_current_user();
+$roles = (array) $current_user->roles;
+$is_discipline_sup = in_array('sm_discipline_supervisor', $roles);
+$is_admin = current_user_can('شؤون_الطلاب') || current_user_can('manage_options') || current_user_can('manage_students') || $is_discipline_sup;
 $import_results = get_transient('sm_import_results_' . get_current_user_id());
 if ($import_results) {
     delete_transient('sm_import_results_' . get_current_user_id());
