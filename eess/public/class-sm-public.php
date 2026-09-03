@@ -3416,6 +3416,13 @@ class SM_Public {
             if (isset($_POST['department'])) {
                 update_user_meta($user_id, 'eess_department', sanitize_text_field($_POST['department']));
             }
+            if (isset($_POST['appointment_year'])) {
+                $app_yr = intval($_POST['appointment_year']);
+                if ($app_yr >= 1970 && $app_yr <= intval(date('Y'))) {
+                    update_user_meta($user_id, 'eess_appointment_year', $app_yr);
+                    update_user_meta($user_id, 'sm_appointment_year', $app_yr);
+                }
+            }
 
             $school_id = isset($_POST['institution']) ? intval($_POST['institution']) : 0;
             if ($school_id) {
@@ -7725,7 +7732,15 @@ class SM_Public {
                 wp_die('عفواً، لا تمتلك الصلاحية الكافية للوصول لتقرير المدرسة المحددة.');
             }
 
-            $target_school = isset($_GET['school_name']) ? sanitize_text_field($_GET['school_name']) : 'المدرسة الرئيسية';
+            $target_school_id = isset($_GET['school_id']) ? intval($_GET['school_id']) : 0;
+            $target_school = 'المدرسة الرئيسية';
+            if ($target_school_id > 0 && class_exists('EESS_Org_Helper')) {
+                $sch_obj = EESS_Org_Helper::get_school_by_id($target_school_id);
+                if ($sch_obj) $target_school = $sch_obj->name;
+            } elseif (isset($_GET['school_name'])) {
+                $target_school = sanitize_text_field($_GET['school_name']);
+            }
+
             $term_num = isset($_GET['term_number']) ? intval($_GET['term_number']) : 1;
             if ($term_num < 1 || $term_num > 3) $term_num = 1;
 
@@ -7733,9 +7748,13 @@ class SM_Public {
             $acad_struct = SM_Settings::get_academic_structure();
             $acad_year = $acad_struct['academic_year'] ?? '2027/2026';
 
-            // Filter teachers strictly by target school name
+            // Filter teachers strictly by target school ID or Name
             $all_teachers = get_users(array('role' => 'sm_teacher', 'orderby' => 'display_name', 'order' => 'ASC'));
-            $school_teachers = array_filter($all_teachers, function($t) use ($target_school) {
+            $school_teachers = array_filter($all_teachers, function($t) use ($target_school_id, $target_school) {
+                if ($target_school_id > 0) {
+                    $u_sch_id = get_user_meta($t->ID, 'eess_school_id', true);
+                    if ($u_sch_id && intval($u_sch_id) === $target_school_id) return true;
+                }
                 $sch = get_user_meta($t->ID, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
                 return (trim($sch) === trim($target_school));
             });
@@ -7924,6 +7943,81 @@ class SM_Public {
                         <?php echo $rows_html; ?>
                     </tbody>
                 </table>
+            </body>
+            </html>
+            <?php
+            exit;
+        } elseif ($print_type === 'parent_summons') {
+            $summons_id = intval($_GET['summons_id'] ?? 0);
+            global $wpdb;
+            $summons = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_parent_summons WHERE id = %d", $summons_id));
+            if (!$summons) wp_die('وثيقة الاستدعاء غير موجودة.');
+
+            $student = SM_DB::get_student_by_id($summons->student_id);
+            if (!$student) wp_die('الطالب المعني غير موجود.');
+
+            $school_info = SM_Settings::get_school_info();
+            $sch_obj = $student->school_id ? EESS_Org_Helper::get_school_by_id($student->school_id) : null;
+            $school_name = $sch_obj ? $sch_obj->name : ($school_info['school_name'] ?? 'مدرسة EESS التعليمية');
+
+            ?>
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>استدعاء ولي أمر رسمية — <?php echo esc_html($student->name); ?></title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+                <style>
+                    body { font-family: 'Cairo', sans-serif; padding: 40px; color: #0f172a; background: white; line-height: 1.8; direction: rtl; text-align: right; }
+                    .document-card { max-width: 800px; margin: 0 auto; border: 2px solid #0f172a; border-radius: 16px; padding: 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+                    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #881337; padding-bottom: 20px; margin-bottom: 25px; }
+                    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+                    .meta-table th, .meta-table td { border: 1px solid #cbd5e1; padding: 12px 16px; font-size: 13px; text-align: right; }
+                    .meta-table th { background: #f8fafc; font-weight: bold; width: 25%; color: #334155; }
+                    .footer-sig { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
+                    @media print { .no-print { display: none !important; } body { padding: 0; } .document-card { border: none; box-shadow: none; width: 100%; } }
+                </style>
+            </head>
+            <body onload="window.print()">
+                <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="window.print()" style="background: #881337; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: 'Cairo';">🖨️ طباعة طي الاستدعاء الرسمي A4</button>
+                </div>
+                <div class="document-card">
+                    <div class="header">
+                        <div>
+                            <h2 style="margin: 0; font-size: 20px; font-weight: 900; color: #0f172a;"><?php echo esc_html($school_name); ?></h2>
+                            <div style="font-size: 13px; color: #881337; font-weight: 800; margin-top: 4px;"><?php echo esc_html($summons->department_requester); ?> — إشعار استدعاء ولي أمر رسمية</div>
+                        </div>
+                        <img src="<?php echo esc_url($school_info['logo_url'] ?? SM_PLUGIN_URL . 'assets/images/logo.png'); ?>" style="height: 50px; max-width: 120px; object-fit: contain;" onerror="this.style.display='none'">
+                    </div>
+
+                    <div style="background: #fff8f8; border: 1px solid #fecdd3; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px;">
+                        <h4 style="margin: 0 0 6px 0; color: #881337; font-size: 15px; font-weight: 800;">المكرم ولي أمر الطالب / الطالبة: <?php echo esc_html($student->name); ?></h4>
+                        <p style="margin: 0; font-size: 13px; color: #334155;">تحية طيبة وبعد،،، يرجى تكرمكم بالحضور لمقر إدارة المدرسة لمقابلة المسئولين لمناقشة أمور هامة تتعلق بالطالب.</p>
+                    </div>
+
+                    <table class="meta-table">
+                        <tr><th>اسم الطالب:</th><td><strong><?php echo esc_html($student->name); ?></strong></td><th>الكود / الصف:</th><td><?php echo esc_html($student->student_code . ' | ' . $student->class_name . ' (' . ($student->section ?: 'أ') . ')'); ?></td></tr>
+                        <tr><th>تاريخ الموعد:</th><td><strong><?php echo esc_html($summons->summons_date); ?></strong></td><th>توقيت الحضور:</th><td><strong><?php echo esc_html($summons->summons_time ?: '10:00 صباحاً'); ?></strong></td></tr>
+                        <tr><th>الجهة الطالبة:</th><td><?php echo esc_html($summons->department_requester); ?></td><th>سبب الاستدعاء:</th><td><strong><?php echo esc_html($summons->reason); ?></strong></td></tr>
+                        <?php if (!empty($summons->notes)): ?>
+                            <tr><th>ملاحظات وتوجيهات:</th><td colspan="3"><?php echo esc_html($summons->notes); ?></td></tr>
+                        <?php endif; ?>
+                    </table>
+
+                    <div class="footer-sig">
+                        <div>
+                            <div>الجهة المصدرة للاستدعاء</div>
+                            <div style="margin-top: 35px; font-weight: 800;"><?php echo esc_html($summons->department_requester); ?></div>
+                        </div>
+                        <div>
+                            <div>ختم واعتماد إدارة المدرسة</div>
+                            <div style="margin-top: 35px; font-weight: 800;"><?php echo esc_html($school_name); ?></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 40px; text-align: center; border-top: 1px solid #cbd5e1; padding-top: 10px; font-size: 10px; color: #64748b;">Powered by Educational Electronic Systems Solutions (EESS) — eess.online</div>
+                </div>
             </body>
             </html>
             <?php
@@ -8559,6 +8653,18 @@ class SM_Public {
         $user_id = get_current_user_id();
         $plan_id = intval($_POST['plan_id'] ?? 0);
         $planning_method = sanitize_text_field($_POST['planning_method'] ?? 'create');
+
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $device_cat = 'computer';
+        if (preg_match('/(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/i', $user_agent)) {
+            $device_cat = 'tablet';
+        } elseif (preg_match('/(mobi|ipod|phone|blackberry|opera mini|fennec|minimo|symbian|psp|nokia|samsung|android)/i', $user_agent)) {
+            $device_cat = 'mobile';
+        }
+
+        if (strpos($planning_method, 'mobile') === false && strpos($planning_method, 'tablet') === false && strpos($planning_method, 'computer') === false) {
+            $planning_method .= '_' . $device_cat;
+        }
         $academic_year = sanitize_text_field($_POST['academic_year'] ?? '');
         $subject = sanitize_text_field($_POST['subject'] ?? '');
 
@@ -9405,6 +9511,108 @@ class SM_Public {
         SM_Logger::log('ملاحظة سريعة لولي الأمر', "أرسل المعلم {$user->display_name} ملاحظة لولي أمر الطالب {$student->name}: $note");
 
         wp_send_json_success(array('message' => 'تم إرسال الملاحظة بنجاح إلى ولي أمر الطالب ' . $student->name));
+    }
+
+    public function ajax_create_parent_summons() {
+        if (!is_user_logged_in() || (!current_user_can('إدارة_أولياء_الأمور') && !current_user_can('manage_options'))) {
+            wp_send_json_error('عفواً، لا تمتلك الصلاحيات المطلوبة لإصدار استدعاء ولي أمر.');
+        }
+
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_message_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('فشل التوثيق الأمني.');
+        }
+
+        $student_id = intval($_POST['student_id'] ?? 0);
+        $reason     = sanitize_text_field($_POST['reason'] ?? '');
+        $date       = sanitize_text_field($_POST['summons_date'] ?? current_time('Y-m-d'));
+        $time       = sanitize_text_field($_POST['summons_time'] ?? '10:00');
+        $dept       = sanitize_text_field($_POST['department_requester'] ?? 'شؤون الطلاب');
+        $notes      = sanitize_textarea_field($_POST['notes'] ?? '');
+
+        if (!$student_id || empty($reason)) {
+            wp_send_json_error('يرجى اختيار الطالب وتدوين سبب الاستدعاء.');
+        }
+
+        $student = SM_DB::get_student_by_id($student_id);
+        if (!$student) wp_send_json_error('الطالب غير موجود.');
+
+        global $wpdb;
+        $inserted = $wpdb->insert("{$wpdb->prefix}sm_parent_summons", array(
+            'student_id'           => $student_id,
+            'parent_user_id'       => $student->parent_user_id,
+            'reason'               => $reason,
+            'summons_date'         => $date,
+            'summons_time'         => $time,
+            'department_requester' => $dept,
+            'notes'                => $notes,
+            'status'               => 'sent',
+            'created_by'           => get_current_user_id(),
+            'created_at'           => current_time('mysql')
+        ));
+
+        if ($inserted) {
+            $summons_id = $wpdb->insert_id;
+            SM_Logger::log('إصدار استدعاء ولي أمر', "تم إصدار استدعاء لولي أمر الطالب: {$student->name} (ID: $student_id) بسبب: $reason");
+            wp_send_json_success(array('summons_id' => $summons_id, 'message' => 'تم تسجيل وإصدار استدعاء ولي الأمر بنجاح.'));
+        } else {
+            wp_send_json_error('فشل حفظ وثيقة الاستدعاء في قاعدة البيانات.');
+        }
+    }
+
+    public function ajax_convert_summons_visit() {
+        if (!is_user_logged_in() || (!current_user_can('إدارة_أولياء_الأمور') && !current_user_can('manage_options'))) {
+            wp_send_json_error('عفواً، لا تمتلك الصلاحيات المطلوبة لتسجيل محضر الزيارة.');
+        }
+
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_message_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('فشل التوثيق الأمني.');
+        }
+
+        $summons_id    = intval($_POST['summons_id'] ?? 0);
+        $summary       = sanitize_textarea_field($_POST['discussion_summary'] ?? '');
+        $visit_notes   = sanitize_textarea_field($_POST['visit_notes'] ?? '');
+        $cooperation   = sanitize_text_field($_POST['parent_cooperation'] ?? 'ممتاز');
+        $eval_comments = sanitize_textarea_field($_POST['evaluation_comments'] ?? '');
+
+        if (!$summons_id) wp_send_json_error('معرف الاستدعاء غير صحيح.');
+
+        global $wpdb;
+        $updated = $wpdb->update("{$wpdb->prefix}sm_parent_summons", array(
+            'status'               => 'Attended',
+            'actual_visit_date'    => current_time('mysql'),
+            'discussion_summary'   => $summary,
+            'visit_notes'          => $visit_notes,
+            'staff_handler_id'     => get_current_user_id(),
+            'parent_cooperation'   => $cooperation,
+            'evaluation_comments' => $eval_comments
+        ), array('id' => $summons_id));
+
+        if ($updated !== false) {
+            SM_Logger::log('توثيق زيارة ولي أمر', "تم تحويل الاستدعاء ID: $summons_id إلى محضر زيارة ومناقشة تقييم التعاون: $cooperation");
+            wp_send_json_success(array('message' => 'تم توثيق زيارة ولي الأمر وتقييم اللقاء بنجاح.'));
+        } else {
+            wp_send_json_error('فشل حفظ محضر الزيارة.');
+        }
+    }
+
+    public function ajax_update_summons_status() {
+        if (!is_user_logged_in() || (!current_user_can('إدارة_أولياء_الأمور') && !current_user_can('manage_options'))) {
+            wp_send_json_error('عفواً، لا تمتلك الصلاحيات المطلوبة.');
+        }
+
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_message_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('فشل التوثيق الأمني.');
+        }
+
+        $summons_id = intval($_POST['summons_id'] ?? 0);
+        $new_status = sanitize_text_field($_POST['status'] ?? 'sent');
+
+        global $wpdb;
+        $wpdb->update("{$wpdb->prefix}sm_parent_summons", array('status' => $new_status), array('id' => $summons_id));
+        wp_send_json_success(array('message' => 'تم تحديث حالة الاستدعاء بنجاح.'));
     }
 
     public function ajax_send_message() {
