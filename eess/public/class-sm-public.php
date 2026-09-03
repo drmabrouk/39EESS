@@ -8055,13 +8055,13 @@ class SM_Public {
                     body { font-family: 'Cairo', sans-serif; background: #e2e8f0; color: #0f172a; padding: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                     .cards-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
 
-                    /* Standard CR80 Personal ID Card Dimensions: 85.6mm x 53.98mm */
+                    /* Standard CR80 Personal ID Card Dimensions: 85.6mm x 53.98mm with realistic plastic rounded corners (3.18mm) */
                     .id-card {
                         width: 85.6mm;
                         height: 53.98mm;
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
-                        border-radius: 8mm;
+                        border-radius: 3.18mm;
                         position: relative;
                         display: flex;
                         flex-direction: column;
@@ -8069,8 +8069,23 @@ class SM_Public {
                         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
                         page-break-inside: avoid;
                         overflow: hidden;
-                        background-image: radial-gradient(#f1f5f9 1px, transparent 1px);
-                        background-size: 8px 8px;
+                    }
+
+                    /* Subtle Background Watermark Identity Element */
+                    .card-watermark {
+                        position: absolute;
+                        inset: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        pointer-events: none;
+                        z-index: 0;
+                        opacity: 0.05;
+                    }
+                    .card-watermark img {
+                        width: 50mm;
+                        height: 50mm;
+                        object-fit: contain;
                     }
 
                     /* Header spanning full width edge-to-edge */
@@ -8083,19 +8098,22 @@ class SM_Public {
                         justify-content: space-between;
                         align-items: center;
                         border-bottom: 2px solid #e11d48;
+                        position: relative;
+                        z-index: 1;
                     }
                     .card-header-right { display: flex; align-items: center; gap: 6px; }
                     .card-sys-logo { height: 22px; max-width: 45px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
                     .card-header-titles { line-height: 1.1; }
-                    .card-title-main { font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: -0.2px; }
+                    .card-title-main { font-size: 11.5px; font-weight: 900; color: #ffffff; letter-spacing: -0.2px; }
                     .card-school-name { font-size: 8px; font-weight: 700; color: #fecdd3; }
+                    .card-acad-year-badge { font-size: 9.5px; color: #ffffff; font-weight: 900; text-align: left; background: rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
 
-                    .card-body { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px 4px 8px; flex: 1; }
+                    .card-body { display: flex; gap: 8px; align-items: center; padding: 4px 8px; flex: 1; position: relative; z-index: 1; }
 
-                    /* Student Photo */
+                    /* Student Photo Centered Vertically */
                     .card-photo {
-                        width: 22mm;
-                        height: 28mm;
+                        width: 21mm;
+                        height: 27mm;
                         border-radius: 4px;
                         object-fit: cover;
                         border: 1.5px solid #0f172a;
@@ -8104,19 +8122,18 @@ class SM_Public {
                         flex-shrink: 0;
                     }
 
-                    /* Student Info Layout */
-                    .card-info { flex: 1; min-width: 0; line-height: 1.25; }
+                    /* Student Info Layout — Vertically Centered with EXACT Hierarchy */
+                    .card-info { flex: 1; min-width: 0; line-height: 1.3; display: flex; flex-direction: column; justify-content: center; padding-right: 2px; }
                     .card-stu-name { font-size: 11.5px; font-weight: 900; color: #0f172a; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                    .card-field { font-size: 8.5px; color: #334155; font-weight: 700; margin-bottom: 1.5px; display: flex; gap: 3px; }
-                    .card-field-label { color: #64748b; font-weight: 600; width: 34px; flex-shrink: 0; }
+                    .card-field { font-size: 8.5px; color: #334155; font-weight: 700; margin-bottom: 2px; display: flex; gap: 4px; align-items: center; }
+                    .card-field-label { color: #64748b; font-weight: 600; width: 38px; flex-shrink: 0; }
                     .card-field-val { color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-                    /* Barcode / Serial / Expiry Stack */
-                    .card-qr-stack { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 22mm; flex-shrink: 0; text-align: center; }
-                    .card-qr-box { width: 19mm; height: 19mm; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px; background: #ffffff; }
+                    /* Barcode / Serial Stack Vertically Centered */
+                    .card-qr-stack { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 21mm; flex-shrink: 0; text-align: center; }
+                    .card-qr-box { width: 18.5mm; height: 18.5mm; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px; background: #ffffff; }
                     .card-qr-box svg { width: 100%; height: 100%; display: block; }
-                    .card-serial-text { font-size: 7.5px; font-weight: 900; color: #881337; margin-top: 2px; letter-spacing: 0.2px; line-height: 1; }
-                    .card-expiry-text { font-size: 6.5px; font-weight: 700; color: #64748b; margin-top: 1.5px; line-height: 1; }
+                    .card-serial-text { font-size: 8px; font-weight: 900; color: #881337; margin-top: 2px; letter-spacing: 0.3px; line-height: 1; }
 
                     /* Footer Area */
                     .card-footer {
@@ -8157,6 +8174,9 @@ class SM_Public {
                         $photo = !empty($st->photo_url) ? esc_url($st->photo_url) : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="58" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
                     ?>
                     <div class="id-card">
+                        <div class="card-watermark">
+                            <img src="<?php echo esc_url($system_logo); ?>" alt="">
+                        </div>
                         <div class="card-header">
                             <div class="card-header-right">
                                 <img src="<?php echo esc_url($system_logo); ?>" class="card-sys-logo" alt="System Logo" onerror="this.style.display='none'">
@@ -8165,7 +8185,7 @@ class SM_Public {
                                     <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
                                 </div>
                             </div>
-                            <div style="font-size: 7px; color: #fecdd3; font-weight: 800; text-align: left;">
+                            <div class="card-acad-year-badge">
                                 <?php echo esc_html($acad_year); ?>
                             </div>
                         </div>
@@ -8183,19 +8203,18 @@ class SM_Public {
                                     <span class="card-field-val"><?php echo esc_html($st->section ?: 'أ'); ?></span>
                                 </div>
                                 <div class="card-field">
-                                    <span class="card-field-label">الجنسية:</span>
-                                    <span class="card-field-val"><?php echo esc_html($st->nationality ?: 'سعودي'); ?></span>
+                                    <span class="card-field-label">رقم الطالب:</span>
+                                    <span class="card-field-val" style="color: #881337;"><?php echo esc_html($serial); ?></span>
                                 </div>
                             </div>
                             <div class="card-qr-stack">
                                 <div class="card-qr-box" title="<?php echo esc_attr($serial); ?>"><?php echo $qr_svg; ?></div>
-                                <div class="card-serial-text">الرقم: <?php echo esc_html($serial); ?></div>
-                                <div class="card-expiry-text">الانتهاء: <?php echo $expiry_date; ?></div>
+                                <div class="card-serial-text"><?php echo esc_html($serial); ?></div>
                             </div>
                         </div>
 
                         <div class="card-footer">
-                            <span class="card-footer-auth">✓ تصريح تصريح رسمي معتمد</span>
+                            <span class="card-footer-auth">✓ تصريح خروج رسمي معتمد</span>
                             <span>EESS — eess.online</span>
                         </div>
                     </div>
