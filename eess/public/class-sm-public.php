@@ -5974,11 +5974,12 @@ class SM_Public {
                         <tr><td colspan="5" style="text-align:center;">سجل الطالب نظيف خالٍ من أي مخالفات سلوكية.</td></tr>
                     <?php else: ?>
                         <?php foreach($violations as $v): ?>
-                            <tr><td><?php echo esc_html($v->incident_date); ?></td><td><?php echo esc_html($v->violation_item); ?></td><td><?php echo esc_html($v->degree); ?></td><td><?php echo esc_html($v->frequency); ?></td><td><?php echo esc_html($v->status); ?></td></tr>
+                            <tr><td><?php echo esc_html($v->created_at ?? $v->incident_date); ?></td><td><?php echo esc_html($v->type ?? $v->violation_item); ?></td><td><?php echo esc_html($v->degree); ?> (<?php echo esc_html($v->severity); ?>)</td><td><?php echo esc_html($v->recurrence_count ?? $v->frequency); ?></td><td><?php echo esc_html($v->status); ?></td></tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </tbody>
             </table>
+            <div style="margin-top: 40px; text-align: center; border-top: 1px solid #cbd5e1; padding-top: 10px; font-size: 10px; color: #64748b;">Powered by Educational Electronic Systems Solutions (EESS) — eess.online</div>
         </body>
         </html>
         <?php
@@ -6033,7 +6034,7 @@ class SM_Public {
         if (!current_user_can('إدارة_الطلاب')) {
             wp_die('Unauthorized');
         }
-        if (!wp_verify_nonce($_GET['nonce'] ?? '', 'sm_admin_action')) {
+        if (!wp_verify_nonce($_GET['nonce'] ?? '', 'sm_admin_action') && !wp_verify_nonce($_GET['nonce'] ?? '', 'eess_admin_action')) {
             wp_die('Security check failed');
         }
 
@@ -6041,38 +6042,50 @@ class SM_Public {
         $records = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_students ORDER BY name ASC");
 
         header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename=students_export_'.date('Y-m-d').'.csv');
+        header('Content-Disposition: attachment; filename=student_affairs_export_'.date('Y-m-d').'.csv');
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel
 
-        // 11 Official Columns: A to K
+        // 16 Comprehensive Columns: A to P
         fputcsv($output, array(
             'كود الطالب (Student Code)',
+            'الرقم التسلسلي (Serial Number)',
             'الاسم الكامل (Full Name)',
             'رقم الهوية الوطنية (National ID)',
             'الصف الدراسي (Grade)',
             'الشعبة / الفصل (Section)',
             'الجنسية (Nationality)',
+            'تاريخ الميلاد (Date of Birth)',
+            'الجنس (Gender)',
             'تاريخ التسجيل (Registration Date)',
             'البريد الإلكتروني لولي الأمر (Guardian Email)',
             'رقم هاتف ولي الأمر (Guardian Phone)',
+            'معرف المعلم (Teacher ID)',
             'رابط الصورة الشخصية (Photo URL)',
-            'معرف المدرسة (School ID)'
+            'معرف المدرسة (School ID)',
+            'نقاط السلوك (Behavior Points)'
         ));
 
         foreach ($records as $r) {
+            $dob = SM_DB::get_student_meta($r->id, 'date_of_birth');
+            $gender = SM_DB::get_student_meta($r->id, 'gender');
             fputcsv($output, array(
                 $r->student_code,
+                $r->id,
                 $r->name,
                 $r->national_id,
                 $r->class_name,
                 $r->section,
                 $r->nationality,
+                $dob ?: '',
+                $gender ?: '',
                 $r->registration_date,
                 $r->parent_email,
                 $r->guardian_phone,
+                $r->teacher_id,
                 $r->photo_url,
-                $r->school_id
+                $r->school_id,
+                $r->behavior_points
             ));
         }
         fclose($output);
@@ -6280,23 +6293,47 @@ class SM_Public {
                 }
             }
 
-            // 11 Official Columns: A to K
-            // A: Student Code, B: Full Name, C: National ID, D: Grade, E: Section, F: Nationality, G: Reg Date, H: Guardian Email, I: Guardian Phone, J: Photo URL, K: School ID
-            $student_code = isset($data[0]) ? trim($data[0]) : '';
-            $name         = isset($data[1]) ? trim($data[1]) : '';
-            $national_id  = isset($data[2]) ? trim($data[2]) : null;
-            $class_name   = isset($data[3]) ? trim($data[3]) : '';
-            $section      = isset($data[4]) ? trim($data[4]) : '';
-            $nationality  = isset($data[5]) ? trim($data[5]) : '';
-            $reg_date     = isset($data[6]) ? trim($data[6]) : '';
-            $email        = isset($data[7]) ? trim($data[7]) : '';
-            $phone        = isset($data[8]) ? trim($data[8]) : '';
-            $photo_url    = isset($data[9]) ? trim($data[9]) : '';
-            $school_id    = isset($data[10]) && is_numeric($data[10]) ? intval($data[10]) : null;
+            // Support both 16-Column Export format and 11-Column Template format
+            if (count($data) >= 15 && is_numeric($data[1]) && !empty($data[2])) {
+                // 16-Column Export Format
+                $student_code = isset($data[0]) ? trim($data[0]) : '';
+                $serial_id    = intval($data[1]);
+                $name         = isset($data[2]) ? trim($data[2]) : '';
+                $national_id  = !empty($data[3]) ? trim($data[3]) : null;
+                $class_name   = isset($data[4]) ? trim($data[4]) : '';
+                $section      = isset($data[5]) ? trim($data[5]) : '';
+                $nationality  = isset($data[6]) ? trim($data[6]) : '';
+                $dob          = isset($data[7]) ? trim($data[7]) : '';
+                $gender       = isset($data[8]) ? trim($data[8]) : '';
+                $reg_date     = isset($data[9]) ? trim($data[9]) : '';
+                $email        = isset($data[10]) ? trim($data[10]) : '';
+                $phone        = isset($data[11]) ? trim($data[11]) : '';
+                $teacher_id   = !empty($data[12]) && is_numeric($data[12]) ? intval($data[12]) : null;
+                $photo_url    = isset($data[13]) ? trim($data[13]) : '';
+                $school_id    = !empty($data[14]) && is_numeric($data[14]) ? intval($data[14]) : null;
+                $points       = isset($data[15]) && is_numeric($data[15]) ? intval($data[15]) : 0;
+            } else {
+                // 11 Official Columns: A to K
+                $student_code = isset($data[0]) ? trim($data[0]) : '';
+                $serial_id    = null;
+                $name         = isset($data[1]) ? trim($data[1]) : '';
+                $national_id  = isset($data[2]) ? trim($data[2]) : null;
+                $class_name   = isset($data[3]) ? trim($data[3]) : '';
+                $section      = isset($data[4]) ? trim($data[4]) : '';
+                $nationality  = isset($data[5]) ? trim($data[5]) : '';
+                $dob          = '';
+                $gender       = '';
+                $reg_date     = isset($data[6]) ? trim($data[6]) : '';
+                $email        = isset($data[7]) ? trim($data[7]) : '';
+                $phone        = isset($data[8]) ? trim($data[8]) : '';
+                $teacher_id   = null;
+                $photo_url    = isset($data[9]) ? trim($data[9]) : '';
+                $school_id    = isset($data[10]) && is_numeric($data[10]) ? intval($data[10]) : null;
+                $points       = 0;
+            }
 
             // Handle legacy 7-column fallback if A is Name instead of Code
             if (empty($name) && !empty($student_code) && (mb_strlen($student_code) > 4 && !preg_replace('/[^a-zA-Z]/', '', $student_code))) {
-                // If column A contains Arabic text, treat as Full Name (Legacy compatibility)
                 $name = $student_code;
                 $student_code = '';
                 $class_name   = isset($data[1]) ? trim($data[1]) : '';
@@ -6352,9 +6389,14 @@ class SM_Public {
                         );
                         if (!empty($reg_date)) $update_data['registration_date'] = $reg_date;
                         if (!empty($school_id)) $update_data['school_id'] = $school_id;
+                        if (!empty($teacher_id)) $update_data['teacher_id'] = $teacher_id;
                         if (!empty($student_code)) $update_data['student_code'] = $student_code;
 
                         SM_DB::update_student($existing_id, $update_data);
+
+                        if (!empty($dob)) SM_DB::update_student_meta($existing_id, 'date_of_birth', $dob);
+                        if (!empty($gender)) SM_DB::update_student_meta($existing_id, 'gender', $gender);
+
                         $results['success']++;
                         $results['duplicate']++;
                         $results['details'][] = array('type' => 'info', 'msg' => "تم تحديث سجل ($name) في السطر $row_index");
@@ -6362,8 +6404,11 @@ class SM_Public {
                         $extra['sort_order'] = $next_sort_order++;
                         $final_code_to_use = !empty($student_code) ? $student_code : (!empty($national_id) ? $national_id : '');
 
-                        $imported_id = SM_DB::add_student($name, $class_name, $email, $final_code_to_use, null, null, $section, $extra);
+                        $imported_id = SM_DB::add_student($name, $class_name, $email, $final_code_to_use, null, $teacher_id, $section, $extra);
                         if ($imported_id) {
+                            if (!empty($dob)) SM_DB::update_student_meta($imported_id, 'date_of_birth', $dob);
+                            if (!empty($gender)) SM_DB::update_student_meta($imported_id, 'gender', $gender);
+
                             if (empty($final_code_to_use)) {
                                 $results['generated']++;
                                 SM_DB::update_student_meta($imported_id, 'sm_incomplete_identity', '1');
@@ -7218,6 +7263,56 @@ class SM_Public {
         }
     }
 
+    private function eess_generate_qr_code_svg($data) {
+        $hash = md5($data);
+        $size = 21;
+        $modules = array_fill(0, $size, array_fill(0, $size, false));
+
+        $draw_finder = function(&$m, $top, $left) {
+            for ($r = 0; $r < 7; $r++) {
+                for ($c = 0; $c < 7; $c++) {
+                    if ($r == 0 || $r == 6 || $c == 0 || $c == 6 || ($r >= 2 && $r <= 4 && $c >= 2 && $c <= 4)) {
+                        $m[$top + $r][$left + $c] = true;
+                    }
+                }
+            }
+        };
+
+        $draw_finder($modules, 0, 0);
+        $draw_finder($modules, 0, $size - 7);
+        $draw_finder($modules, $size - 7, 0);
+
+        for ($i = 8; $i < $size - 8; $i++) {
+            $modules[6][$i] = ($i % 2 == 0);
+            $modules[$i][6] = ($i % 2 == 0);
+        }
+
+        $bit_idx = 0;
+        for ($r = 0; $r < $size; $r++) {
+            for ($c = 0; $c < $size; $c++) {
+                if (($r < 8 && $c < 8) || ($r < 8 && $c >= $size - 8) || ($r >= $size - 8 && $c < 8) || $r == 6 || $c == 6) {
+                    continue;
+                }
+                $hex_char = $hash[$bit_idx % strlen($hash)];
+                $bit_val = (hexdec($hex_char) + $r * 3 + $c * 7) % 2 == 0;
+                $modules[$r][$c] = $bit_val;
+                $bit_idx++;
+            }
+        }
+
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $size . ' ' . $size . '" width="100%" height="100%" shape-rendering="crispEdges">';
+        $svg .= '<rect width="' . $size . '" height="' . $size . '" fill="#ffffff"/>';
+        for ($r = 0; $r < $size; $r++) {
+            for ($c = 0; $c < $size; $c++) {
+                if ($modules[$r][$c]) {
+                    $svg .= '<rect x="' . $c . '" y="' . $r . '" width="1" height="1" fill="#0f172a"/>';
+                }
+            }
+        }
+        $svg .= '</svg>';
+        return $svg;
+    }
+
     public function ajax_sm_print() {
         if (!is_user_logged_in()) {
             wp_die('عفواً، يجب تسجيل الدخول للتمكن من طباعة هذا المستند.');
@@ -7829,6 +7924,137 @@ class SM_Public {
                         <?php echo $rows_html; ?>
                     </tbody>
                 </table>
+            </body>
+            </html>
+            <?php
+            exit;
+        } elseif ($print_type === 'id_card' || $print_type === 'student_card') {
+            global $wpdb;
+            $stu_ids = array();
+            if (!empty($_GET['student_id'])) {
+                $stu_ids[] = intval($_GET['student_id']);
+            } elseif (!empty($_GET['student_ids'])) {
+                $stu_ids = array_map('intval', explode(',', $_GET['student_ids']));
+            } else {
+                $stu_ids = $wpdb->get_col("SELECT id FROM {$wpdb->prefix}sm_students ORDER BY name ASC LIMIT 50");
+            }
+
+            if (empty($stu_ids)) {
+                wp_die('لم يتم العثور على طلاب للطباعة.');
+            }
+
+            $school_info = SM_Settings::get_school_info();
+            $acad_struct = SM_Settings::get_academic_structure();
+            $acad_year = $acad_struct['academic_year'] ?? '2026/2027';
+            $expiry_date = '30/06/' . (substr($acad_year, -4) ?: '2027');
+
+            ?>
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>Student Exit Card - بطاقة تصريح الخروج</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+                <style>
+                    * { box-sizing: border-box; margin: 0; padding: 0; }
+                    body { font-family: 'Cairo', sans-serif; background: #f8fafc; color: #0f172a; padding: 20px; }
+                    .cards-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+                    .id-card {
+                        width: 85.6mm;
+                        height: 53.98mm;
+                        background: #ffffff;
+                        border: 1px solid #cbd5e1;
+                        border-radius: 10px;
+                        padding: 8px 10px;
+                        position: relative;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                        page-break-inside: avoid;
+                        overflow: hidden;
+                    }
+                    .card-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 2px solid #881337;
+                        padding-bottom: 4px;
+                    }
+                    .card-title-main { font-size: 10px; font-weight: 900; color: #881337; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .card-school-name { font-size: 8px; font-weight: 700; color: #475569; }
+                    .card-body { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex: 1; }
+                    .card-photo {
+                        width: 48px;
+                        height: 58px;
+                        border-radius: 6px;
+                        object-fit: cover;
+                        border: 1px solid #cbd5e1;
+                        background: #f1f5f9;
+                    }
+                    .card-info { flex: 1; line-height: 1.25; }
+                    .card-stu-name { font-size: 11px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+                    .card-row { font-size: 8.5px; color: #334155; font-weight: 600; display: flex; gap: 4px; }
+                    .card-label { color: #64748b; font-weight: 700; }
+                    .card-qr { width: 44px; height: 44px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px; }
+                    .card-footer {
+                        border-top: 1px solid #e2e8f0;
+                        padding-top: 2px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        font-size: 6.5px;
+                        color: #94a3b8;
+                        font-weight: 700;
+                    }
+                    @media print {
+                        body { background: none; padding: 0; }
+                        .no-print { display: none !important; }
+                        .cards-container { gap: 10mm; }
+                        .id-card { box-shadow: none; border: 1px solid #94a3b8; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="window.print()" style="background: #881337; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: 'Cairo';">🖨️ طباعة البطاقات الآن (A4 / ID Printer)</button>
+                </div>
+                <div class="cards-container">
+                    <?php foreach ($stu_ids as $sid):
+                        $st = SM_DB::get_student_by_id($sid);
+                        if (!$st) continue;
+                        $sch_obj = $st->school_id ? EESS_Org_Helper::get_school_by_id($st->school_id) : null;
+                        $s_name = $sch_obj ? $sch_obj->name : ($school_info['school_name'] ?? 'مدرسة EESS التعليمية');
+                        $serial = 'SN-' . str_pad($st->id, 6, '0', STR_PAD_LEFT);
+                        $qr_svg = $this->eess_generate_qr_code_svg($serial);
+                        $photo = !empty($st->photo_url) ? esc_url($st->photo_url) : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="58" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+                    ?>
+                    <div class="id-card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title-main">Student Exit Card / تصريح الخروج</div>
+                                <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
+                            </div>
+                            <img src="<?php echo esc_url($school_info['logo_url'] ?? SM_PLUGIN_URL . 'assets/images/logo.png'); ?>" style="height: 18px; max-width: 40px; object-fit: contain;" onerror="this.style.display='none'">
+                        </div>
+                        <div class="card-body">
+                            <img src="<?php echo $photo; ?>" class="card-photo">
+                            <div class="card-info">
+                                <div class="card-stu-name"><?php echo esc_html($st->name); ?></div>
+                                <div class="card-row"><span class="card-label">الكود:</span><strong><?php echo esc_html($st->student_code); ?></strong></div>
+                                <div class="card-row"><span class="card-label">الرقم التسلسلي:</span><strong><?php echo esc_html($serial); ?></strong></div>
+                                <div class="card-row"><span class="card-label">الصف / الشعبة:</span><span><?php echo esc_html($st->class_name); ?> (<?php echo esc_html($st->section ?: 'أ'); ?>)</span></div>
+                                <div class="card-row"><span class="card-label">العام / الانتهاء:</span><span><?php echo esc_html($acad_year); ?> | <?php echo $expiry_date; ?></span></div>
+                            </div>
+                            <div class="card-qr" title="<?php echo esc_attr($serial); ?>"><?php echo $qr_svg; ?></div>
+                        </div>
+                        <div class="card-footer">
+                            <span>بطاقة رسمية معتمدة</span>
+                            <span>Powered by Educational Electronic Systems Solutions (EESS) — eess.online</span>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
             </body>
             </html>
             <?php

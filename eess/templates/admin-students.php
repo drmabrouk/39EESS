@@ -108,6 +108,12 @@ $to_num = min($offset + $limit, $total_students_count);
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <!-- Dedicated Export Student Affairs Data Button -->
+            <a href="<?php echo admin_url('admin-ajax.php?action=sm_export_students_csv&nonce=' . wp_create_nonce('sm_admin_action')); ?>" class="eess-hdr-btn" style="background: #f8fafc !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <span class="dashicons dashicons-download" style="font-size: 18px; width: 18px; height: 18px; color: #881337;"></span>
+                <span style="color: #1e293b !important;">تصدير بيانات شؤون الطلاب (Excel/CSV)</span>
+            </a>
+
             <!-- Export / Print Reports Dropdown -->
             <div style="position: relative; display: inline-block;">
                 <button type="button" onclick="const d = document.getElementById('eess-students-export-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="eess-hdr-btn" style="background: #f8fafc !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
@@ -309,6 +315,7 @@ $to_num = min($offset + $limit, $total_students_count);
     <!-- Dynamic Bulk Actions Toolbar -->
     <div id="student-bulk-actions-toolbar" style="display: none; gap: 10px; margin-bottom: 15px; align-items: center; background: #fff5f5; padding: 12px 20px; border-radius: 12px; border: 1px solid #fed7d7;">
         <span style="font-size: 12.5px; font-weight: 700; color: #c53030;">الإجراءات الجماعية للطلاب المحددين:</span>
+        <button onclick="bulkPrintCardsSelected()" class="sm-btn" style="background: #1d4ed8; color: white !important; font-size: 11.5px; padding: 5px 16px; width: auto; height: 32px; border-radius: 8px; font-weight: 700;">🖨️ طباعة بطاقات الخروج للمحددين</button>
         <button onclick="bulkDeleteSelected()" class="sm-btn" style="background: #dc2626; font-size: 11.5px; padding: 5px 16px; width: auto; height: 32px; border-radius: 8px;">حذف المحدد نهائياً</button>
     </div>
 
@@ -343,11 +350,10 @@ $to_num = min($offset + $limit, $total_students_count);
                 <thead>
                     <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
                         <th style="width: 40px; text-align: center; padding: 14px 10px; border-bottom: 2px solid #e2e8f0;"><input type="checkbox" onclick="toggleAllStudents(this)"></th>
-                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 28%;">بيانات الطالب والهوية</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 32%;">بيانات الطالب والهوية والنقاط</th>
                         <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 24%;">التسكين الأكاديمي والمدرسة</th>
-                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 20%;">المعلم المربّي</th>
-                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center; width: 10%;">النقاط</th>
-                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center; width: 18%;">الإجراءات الإدارية</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; width: 24%;">المعلم المربّي / ولي الأمر</th>
+                        <th style="padding: 14px 18px; font-size: 12.5px; font-weight: 800; color: #475569; border-bottom: 2px solid #e2e8f0; text-align: center; width: 20%;">الإجراءات الإدارية</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -360,7 +366,7 @@ $to_num = min($offset + $limit, $total_students_count);
                             <tr id="stu-row-<?php echo $student->id; ?>" style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                                 <td style="text-align: center; padding: 14px 10px;"><input type="checkbox" class="student-checkbox" value="<?php echo $student->id; ?>" onchange="updateStudentBulkToolbar()"></td>
 
-                                <!-- Student Cell (Clean Capsule without 'Code' text) -->
+                                <!-- Student Cell (Data, Identity & Points Capsules) -->
                                 <td style="padding: 14px 18px;">
                                     <div style="display: flex; align-items: center; gap: 12px;">
                                         <?php if (!empty($student->photo_url)): ?>
@@ -371,11 +377,11 @@ $to_num = min($offset + $limit, $total_students_count);
                                             </div>
                                         <?php endif; ?>
                                         <div style="line-height: 1.4;">
-                                            <a href="javascript:void(0)" onclick="openUnifiedProfileModal(<?php echo htmlspecialchars(json_encode($student)); ?>)" style="font-weight: 800; font-size: 14px; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#881337'" onmouseout="this.style.color='#0f172a'">
+                                            <a href="javascript:void(0)" onclick="openUnifiedProfileModal(<?php echo htmlspecialchars(json_encode($student)); ?>)" style="font-weight: 800; font-size: 14px; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#881337'" onmouseout="this.style.color='#0f172a'" title="اضغط لتعديل بيانات الطالب">
                                                 <?php echo esc_html($student->name); ?>
                                             </a>
                                             <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
-                                                <!-- Clean Student ID without 'Code' label -->
+                                                <!-- Academic Code -->
                                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: monospace;">
                                                     <?php echo esc_html($student->student_code); ?>
                                                 </span>
@@ -389,23 +395,29 @@ $to_num = min($offset + $limit, $total_students_count);
                                                         <?php echo esc_html($student->nationality); ?>
                                                     </span>
                                                 <?php endif; ?>
+                                                <!-- Behavior Points Pastel Badge -->
+                                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; background: <?php echo $student->behavior_points > 10 ? '#fee2e2' : ($student->behavior_points > 4 ? '#fef3c7' : '#dcfce7'); ?>; color: <?php echo $student->behavior_points > 10 ? '#dc2626' : ($student->behavior_points > 4 ? '#d97706' : '#15803d'); ?>;">
+                                                    <?php echo intval($student->behavior_points); ?> نقطة
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
 
-                                <!-- Academic Placement Cell (Compact Table Capsules) -->
+                                <!-- Academic Placement Cell (School, Grade, Section) -->
                                 <td style="padding: 14px 18px;">
+                                    <?php
+                                    $sch_obj = $student->school_id ? EESS_Org_Helper::get_school_by_id($student->school_id) : null;
+                                    $sch_name = $sch_obj ? $sch_obj->name : ($student->school_name ?? 'المدرسة الرئيسية');
+                                    ?>
                                     <div style="font-weight: 700; font-size: 11px; color: #64748b; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
                                         <span class="dashicons dashicons-bank" style="font-size: 13px; width: 13px; height: 13px; color: #64748b;"></span>
-                                        <span><?php echo esc_html($student->school_name ?? 'المدرسة الرئيسية'); ?></span>
+                                        <span><?php echo esc_html($sch_name); ?></span>
                                     </div>
                                     <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                                        <!-- Distinct Compact Grade Badge -->
                                         <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; font-weight: 800;">
                                             <?php echo esc_html($student->class_name); ?>
                                         </span>
-                                        <!-- Distinct Compact Section Badge -->
                                         <?php if (!empty($student->section)): ?>
                                             <span style="display: inline-flex; align-items: center; padding: 2px 8px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; border-radius: 6px; font-size: 11px; font-weight: 800;">
                                                 شعبة <?php echo esc_html($student->section); ?>
@@ -414,39 +426,39 @@ $to_num = min($offset + $limit, $total_students_count);
                                     </div>
                                 </td>
 
-                                <!-- Homeroom Teacher Cell with Real Phone Number -->
+                                <!-- Homeroom Teacher & Parent/Guardian Cell -->
                                 <td style="padding: 14px 18px;">
                                     <?php
                                     $teacher = $student->teacher_id ? get_userdata($student->teacher_id) : null;
+                                    $parent_user = $student->parent_user_id ? get_userdata($student->parent_user_id) : null;
                                     $t_phone = $teacher ? get_user_meta($teacher->ID, 'sm_phone', true) : '';
                                     if (empty($t_phone) && $teacher) $t_phone = get_user_meta($teacher->ID, 'phone_number', true);
-
-                                    if ($teacher): ?>
-                                        <div style="font-weight: 800; font-size: 13px; color: #0f172a;"><?php echo esc_html($teacher->display_name); ?></div>
-                                        <?php if (!empty($t_phone)): ?>
-                                            <div style="font-size: 11px; color: #64748b; font-family: monospace; font-weight: 700; margin-top: 2px;">
-                                                📞 <?php echo esc_html($t_phone); ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <div style="font-size: 11px; color: #94a3b8;"><?php echo esc_html($teacher->user_email); ?></div>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <span style="color: #cbd5e1; font-style: italic; font-size: 12px;">غير معيّن</span>
+                                    ?>
+                                    <div style="font-weight: 800; font-size: 12.5px; color: #0f172a; display: flex; align-items: center; gap: 4px;">
+                                        <span style="color:#64748b; font-size:11px;">المعلم:</span>
+                                        <span><?php echo $teacher ? esc_html($teacher->display_name) : '<span style="color:#cbd5e1; font-style:italic;">غير معيّن</span>'; ?></span>
+                                    </div>
+                                    <div style="font-weight: 700; font-size: 11.5px; color: #334155; margin-top: 3px; display: flex; align-items: center; gap: 4px;">
+                                        <span style="color:#64748b; font-size:11px;">ولي الأمر:</span>
+                                        <span><?php echo $parent_user ? esc_html($parent_user->display_name) : (!empty($student->parent_email) ? esc_html($student->parent_email) : '<span style="color:#cbd5e1; font-style:italic;">غير مدخل</span>'); ?></span>
+                                    </div>
+                                    <?php if (!empty($student->guardian_phone)): ?>
+                                        <div style="font-size: 10.5px; color: #64748b; font-family: monospace; font-weight: 700; margin-top: 2px;">
+                                            📞 <?php echo esc_html($student->guardian_phone); ?>
+                                        </div>
                                     <?php endif; ?>
                                 </td>
 
-                                <!-- Behavior Points Cell -->
-                                <td style="padding: 14px 18px; text-align: center;">
-                                    <span style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 800; background: <?php echo $student->behavior_points > 10 ? '#fee2e2' : ($student->behavior_points > 4 ? '#fef3c7' : '#dcfce7'); ?>; color: <?php echo $student->behavior_points > 10 ? '#dc2626' : ($student->behavior_points > 4 ? '#d97706' : '#15803d'); ?>;">
-                                        <?php echo intval($student->behavior_points); ?> نقطة
-                                    </span>
-                                </td>
-
-                                <!-- Standardized Perfectly Circular 36px Action Buttons with Official Dashicons -->
+                                <!-- Circular Action Buttons -->
                                 <td style="padding: 14px 18px; text-align: center;">
                                     <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <!-- Report PDF Button -->
-                                        <a href="<?php echo admin_url('admin-ajax.php?action=sm_print_student_full_report&student_id=' . $student->id); ?>" target="_blank" title="التقرير الشامل (PDF)" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #dcfce7; color: #16a34a; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                        <!-- Print Student Exit Card Button -->
+                                        <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=student_card&student_id=' . $student->id); ?>" target="_blank" title="طباعة بطاقة تصريح الخروج (Student Exit Card)" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #eff6ff; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                            <span class="dashicons dashicons-id" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                                        </a>
+
+                                        <!-- Report Full PDF Button -->
+                                        <a href="<?php echo admin_url('admin-ajax.php?action=sm_print_student_full_report&student_id=' . $student->id); ?>" target="_blank" title="التقرير الشامل للطالب (PDF)" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #dcfce7; color: #16a34a; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                                             <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                                         </a>
 
@@ -845,6 +857,12 @@ $to_num = min($offset + $limit, $total_students_count);
         window.toggleAllStudents = function(master) {
             document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = master.checked);
             updateStudentBulkToolbar();
+        };
+
+        window.bulkPrintCardsSelected = function() {
+            const selected = Array.from(document.querySelectorAll('.student-checkbox:checked')).map(cb => cb.value);
+            if (selected.length === 0) { alert('يرجى اختيار طلاب أولاً'); return; }
+            window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=student_card&student_ids='); ?>' + selected.join(','), '_blank');
         };
 
         window.bulkDeleteSelected = function() {
