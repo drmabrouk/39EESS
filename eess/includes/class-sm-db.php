@@ -746,6 +746,31 @@ class SM_DB {
         ));
     }
 
+    public static function send_message($sender_id, $receiver_id, $message, $student_id = null) {
+        global $wpdb;
+        $inserted = $wpdb->insert("{$wpdb->prefix}sm_messages", array(
+            'sender_id' => intval($sender_id),
+            'receiver_id' => intval($receiver_id),
+            'student_id' => $student_id ? intval($student_id) : null,
+            'message' => sanitize_textarea_field($message),
+            'status' => 'unread',
+            'created_at' => current_time('mysql')
+        ));
+
+        // Also record in sm_assignments for backwards compatibility
+        $wpdb->insert("{$wpdb->prefix}sm_assignments", array(
+            'sender_id' => intval($sender_id),
+            'receiver_id' => intval($receiver_id),
+            'student_id' => $student_id ? intval($student_id) : null,
+            'title' => 'رسالة / استفسار جديد',
+            'description' => sanitize_textarea_field($message),
+            'type' => 'inquiry',
+            'created_at' => current_time('mysql')
+        ));
+
+        return $inserted;
+    }
+
 
     public static function normalize_arabic($str) {
         $search = array(

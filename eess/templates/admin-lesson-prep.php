@@ -1476,7 +1476,7 @@ function eessSubmitAssignPrepForm(e) {
         </div>
         <div class="sm-modal-body" style="text-align:right;">
             <form method="post">
-                <?php wp_nonce_field('eess_supervisor_action', 'eess_supervisor_nonce'); ?>
+                <?php wp_nonce_field('eess_supervisor_action_nonce', 'eess_supervisor_nonce'); ?>
                 <input type="hidden" name="prep_id" id="review-prep-id">
 
                 <div style="margin-bottom: 12px;">

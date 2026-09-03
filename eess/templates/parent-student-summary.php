@@ -210,6 +210,7 @@ function sendStudentInquiry(supervisorId) {
         const formData = new FormData();
         formData.append('action', 'sm_get_student_grades_ajax');
         formData.append('student_id', <?php echo $student->id; ?>);
+        formData.append('nonce', '<?php echo wp_create_nonce("sm_grade_action"); ?>');
 
         fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
         .then(r => r.json())
