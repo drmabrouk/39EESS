@@ -9597,6 +9597,81 @@ class SM_Public {
         }
     }
 
+    public function ajax_submit_exit_card_request() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error('عفواً، يجب تسجيل الدخول لتقديم طلب بطاقة تصريح الخروج.');
+        }
+
+        $student_id = intval($_POST['student_id'] ?? 0);
+        $reason     = sanitize_text_field($_POST['reason'] ?? 'استخراج بطاقة تصريح خروج طالب');
+        $req_date   = sanitize_text_field($_POST['requested_date'] ?? current_time('Y-m-d'));
+        $notes      = sanitize_textarea_field($_POST['notes'] ?? '');
+
+        if (!$student_id) {
+            $current_uid = get_current_user_id();
+            $st = SM_DB::get_student_by_parent($current_uid);
+            if ($st) $student_id = $st->id;
+        }
+
+        if (!$student_id) {
+            wp_send_json_error('يرجى تحديد الطالب المعني بطلب بطاقة الخروج.');
+        }
+
+        $student = SM_DB::get_student_by_id($student_id);
+        if (!$student) wp_send_json_error('الطالب المحدد غير موجود.');
+
+        global $wpdb;
+        $inserted = $wpdb->insert("{$wpdb->prefix}sm_exit_card_requests", array(
+            'student_id'      => $student_id,
+            'parent_user_id'  => get_current_user_id(),
+            'reason'          => $reason,
+            'requested_date'  => $req_date,
+            'notes'           => $notes,
+            'status'          => 'submitted',
+            'printing_status' => 'pending',
+            'created_at'      => current_time('mysql')
+        ));
+
+        if ($inserted) {
+            $req_id = $wpdb->insert_id;
+            SM_Logger::log('طلب بطاقة تصريح خروج', "قدم الطالب/ولي الأمر طلب بطاقة تصريح خروج للطالب: {$student->name} (ID: $student_id)");
+            wp_send_json_success(array('request_id' => $req_id, 'message' => 'تم تقديم طلب بطاقة تصريح الخروج بنجاح وهو الآن قيد المراجعة الإدارية.'));
+        } else {
+            wp_send_json_error('فشل حفظ طلب بطاقة الخروج.');
+        }
+    }
+
+    public function ajax_update_exit_card_request_status() {
+        if (!is_user_logged_in() || (!current_user_can('إدارة_الطلاب') && !current_user_can('manage_options'))) {
+            wp_send_json_error('عفواً، لا تمتلك الصلاحية المطلوبة.');
+        }
+
+        $req_id      = intval($_POST['request_id'] ?? 0);
+        $new_status  = sanitize_text_field($_POST['status'] ?? '');
+        $print_stat  = sanitize_text_field($_POST['printing_status'] ?? '');
+        $review_note = sanitize_textarea_field($_POST['review_notes'] ?? '');
+
+        if (!$req_id) wp_send_json_error('معرف الطلب غير صحيح.');
+
+        global $wpdb;
+        $update_data = array(
+            'reviewed_by' => get_current_user_id(),
+            'reviewed_at' => current_time('mysql')
+        );
+
+        if (!empty($new_status)) $update_data['status'] = $new_status;
+        if (!empty($print_stat)) $update_data['printing_status'] = $print_stat;
+        if (!empty($review_note)) $update_data['review_notes'] = $review_note;
+
+        $updated = $wpdb->update("{$wpdb->prefix}sm_exit_card_requests", $update_data, array('id' => $req_id));
+
+        if ($updated !== false) {
+            wp_send_json_success(array('message' => 'تم تحديث حالة طلب بطاقة الخروج بنجاح.'));
+        } else {
+            wp_send_json_error('فشل تحديث حالة الطلب.');
+        }
+    }
+
     public function ajax_update_summons_status() {
         if (!is_user_logged_in() || (!current_user_can('إدارة_أولياء_الأمور') && !current_user_can('manage_options'))) {
             wp_send_json_error('عفواً، لا تمتلك الصلاحيات المطلوبة.');

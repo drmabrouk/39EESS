@@ -141,6 +141,15 @@ $to_num = min($offset + $limit, $total_students_count);
                 </div>
             </div>
 
+            <!-- Exit Card Requests Button -->
+            <?php
+            $exit_req_count = (int)$wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_exit_card_requests WHERE status = 'submitted'");
+            ?>
+            <button type="button" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='flex'" class="eess-hdr-btn" style="background: #f8fafc !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <span class="dashicons dashicons-id" style="font-size: 18px; width: 18px; height: 18px; color: #0284c7;"></span>
+                <span style="color: #0284c7 !important;">طلبات بطاقات الخروج (<?php echo $exit_req_count; ?>)</span>
+            </button>
+
             <!-- Secondary Action: Import -->
             <button type="button" onclick="const f=document.getElementById('csv-import-form'); f.style.display = f.style.display==='none'?'block':'none';" class="eess-hdr-btn" style="background: #f8fafc !important; color: #334155 !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
                 <span class="dashicons dashicons-upload" style="font-size: 18px; width: 18px; height: 18px; color: #334155;"></span>
@@ -523,6 +532,95 @@ $to_num = min($offset + $limit, $total_students_count);
             </div>
         </div>
     </div>
+
+    <!-- EXIT CARD REQUESTS REVIEW MODAL -->
+    <div id="eess-exit-card-requests-modal" class="sm-modal-overlay" style="display: none;">
+        <div class="sm-modal-content" style="max-width: 900px; background: white;">
+            <div class="sm-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:20px;">
+                <h3 style="margin:0; font-weight:800; font-size: 16px; color: #0284c7;">إدارة ومراجعة طلبات بطاقات تصريح الخروج (Student Exit Cards)</h3>
+                <button class="sm-modal-close" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='none'" style="width:28px; height:28px; display:flex; align-items:center; justify-content:center;">&times;</button>
+            </div>
+            <div class="sm-modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <?php
+                $all_exit_reqs = $wpdb->get_results("SELECT r.*, s.name as student_name, s.student_code, s.class_name, s.section FROM {$wpdb->prefix}sm_exit_card_requests r JOIN {$wpdb->prefix}sm_students s ON r.student_id = s.id ORDER BY r.created_at DESC LIMIT 100");
+                if (empty($all_exit_reqs)): ?>
+                    <p style="text-align: center; color: #94a3b8; padding: 40px; font-weight: 700;">لا توجد طلبات بطاقات خروج مسجلة حالياً.</p>
+                <?php else: ?>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: right;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569;">
+                                <th style="padding: 10px;">الطالب الكود/الصف</th>
+                                <th style="padding: 10px;">سبب الطلب</th>
+                                <th style="padding: 10px;">تاريخ الطلب</th>
+                                <th style="padding: 10px; text-align: center;">حالة الطلب</th>
+                                <th style="padding: 10px; text-align: center;">الطباعة</th>
+                                <th style="padding: 10px; text-align: center;">الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($all_exit_reqs as $er): ?>
+                                <tr style="border-bottom: 1px solid #f1f5f9;">
+                                    <td style="padding: 10px;">
+                                        <strong><?php echo esc_html($er->student_name); ?></strong>
+                                        <div style="font-size: 11px; color: #64748b;"><?php echo esc_html($er->student_code); ?> | <?php echo esc_html($er->class_name); ?> (<?php echo esc_html($er->section); ?>)</div>
+                                    </td>
+                                    <td style="padding: 10px;"><?php echo esc_html($er->reason); ?></td>
+                                    <td style="padding: 10px; font-family: monospace;"><?php echo esc_html($er->requested_date); ?></td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <span style="display:inline-block; padding:2px 8px; border-radius:12px; font-size:10.5px; font-weight:800; background:<?php echo $er->status === 'approved' ? '#dcfce7' : ($er->status === 'rejected' ? '#fee2e2' : '#fef3c7'); ?>; color:<?php echo $er->status === 'approved' ? '#15803d' : ($er->status === 'rejected' ? '#dc2626' : '#d97706'); ?>;">
+                                            <?php echo esc_html($er->status); ?>
+                                        </span>
+                                    </td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <span style="display:inline-block; padding:2px 8px; border-radius:12px; font-size:10.5px; font-weight:800; background:<?php echo $er->printing_status === 'printed' ? '#dcfce7' : '#f1f5f9'; ?>; color:<?php echo $er->printing_status === 'printed' ? '#15803d' : '#64748b'; ?>;">
+                                            <?php echo $er->printing_status === 'printed' ? 'تمت الطباعة' : 'معلق'; ?>
+                                        </span>
+                                    </td>
+                                    <td style="padding: 10px; text-align: center;">
+                                        <div style="display: flex; gap: 4px; justify-content: center;">
+                                            <a href="<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=student_card&student_id=' . $er->student_id); ?>" target="_blank" onclick="eessMarkRequestPrinted(<?php echo $er->id; ?>)" class="sm-btn" style="background: #1d4ed8; color: white !important; font-size: 11px; padding: 4px 10px; height: 28px; width: auto; font-weight: 700; text-decoration: none;">🖨️ طباعة</a>
+                                            <button onclick="eessUpdateExitReqStatus(<?php echo $er->id; ?>, 'approved')" class="sm-btn" style="background: #16a34a; color: white; font-size: 11px; padding: 4px 8px; height: 28px; width: auto; font-weight: 700;">اعتماد</button>
+                                            <button onclick="eessUpdateExitReqStatus(<?php echo $er->id; ?>, 'rejected')" class="sm-btn" style="background: #dc2626; color: white; font-size: 11px; padding: 4px 8px; height: 28px; width: auto; font-weight: 700;">رفض</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function eessUpdateExitReqStatus(reqId, status) {
+        const formData = new FormData();
+        formData.append('action', 'sm_update_exit_card_request_status');
+        formData.append('request_id', reqId);
+        formData.append('status', status);
+        formData.append('nonce', '<?php echo wp_create_nonce("sm_admin_action"); ?>');
+
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                if (typeof smShowNotification === 'function') smShowNotification(res.data.message);
+                setTimeout(() => location.reload(), 500);
+            }
+        });
+    }
+
+    function eessMarkRequestPrinted(reqId) {
+        const formData = new FormData();
+        formData.append('action', 'sm_update_exit_card_request_status');
+        formData.append('request_id', reqId);
+        formData.append('printing_status', 'printed');
+        formData.append('status', 'ready_for_collection');
+        formData.append('nonce', '<?php echo wp_create_nonce("sm_admin_action"); ?>');
+
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData });
+    }
+    </script>
 
     <!-- UNIFIED REUSABLE STUDENT PROFILE EDIT MODAL COMPONENT -->
     <?php if ($is_admin): ?>

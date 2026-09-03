@@ -41,6 +41,7 @@ class SM_Activator {
 
         CREATE TABLE {$wpdb->prefix}eess_institutions (
             id bigint(20) NOT NULL AUTO_INCREMENT,
+            code int(11) DEFAULT 1 NOT NULL,
             name varchar(255) NOT NULL,
             status varchar(50) DEFAULT 'active' NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -50,6 +51,7 @@ class SM_Activator {
         CREATE TABLE {$wpdb->prefix}eess_schools (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             institution_id bigint(20) NOT NULL,
+            school_code int(11) DEFAULT 1 NOT NULL,
             name varchar(255) NOT NULL,
             status varchar(50) DEFAULT 'active' NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -447,6 +449,25 @@ class SM_Activator {
             evaluation_comments text DEFAULT NULL,
             created_by bigint(20) NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY (id),
+            KEY student_id (student_id),
+            KEY status (status)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}sm_exit_card_requests (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            student_id bigint(20) NOT NULL,
+            parent_user_id bigint(20) DEFAULT NULL,
+            reason varchar(255) NOT NULL,
+            requested_date date NOT NULL,
+            notes text DEFAULT NULL,
+            status varchar(50) DEFAULT 'submitted' NOT NULL,
+            printing_status varchar(50) DEFAULT 'pending' NOT NULL,
+            reviewed_by bigint(20) DEFAULT NULL,
+            reviewed_at datetime DEFAULT NULL,
+            review_notes text DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY (id),
             KEY student_id (student_id),
             KEY status (status)
