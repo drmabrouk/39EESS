@@ -3281,7 +3281,8 @@ class SM_Public {
 
     public function ajax_add_student() {
         if (!current_user_can('إدارة_الطلاب')) wp_send_json_error('Unauthorized');
-        if (!wp_verify_nonce($_POST['sm_nonce'], 'sm_add_student')) wp_send_json_error('Security check failed');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
         $name = sanitize_text_field($_POST['name'] ?? '');
         $class = sanitize_text_field($_POST['class'] ?? '');
@@ -3316,7 +3317,8 @@ class SM_Public {
 
     public function ajax_update_student() {
         if (!current_user_can('إدارة_الطلاب')) wp_send_json_error('Unauthorized');
-        if (!wp_verify_nonce($_POST['sm_nonce'], 'sm_add_student')) wp_send_json_error('Security check failed');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_photo_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
         if (SM_DB::update_student(intval($_POST['student_id']), $_POST)) {
             wp_send_json_success('Updated');
@@ -3389,7 +3391,8 @@ class SM_Public {
 
     public function ajax_add_user() {
         if (!current_user_can('إدارة_المستخدمين')) wp_send_json_error('Unauthorized');
-        if (!wp_verify_nonce($_POST['sm_nonce'], 'sm_user_action')) wp_send_json_error('Security check failed');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_user_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'sm_teacher_action')) wp_send_json_error('Security check failed');
 
         $username = sanitize_user($_POST['user_login']);
         $email = (!empty($_POST['user_email']) && is_email($_POST['user_email'])) ? sanitize_email($_POST['user_email']) : ($username . '@school-system.local');
@@ -3622,7 +3625,8 @@ class SM_Public {
 
     public function ajax_update_generic_user() {
         if (!current_user_can('إدارة_المستخدمين')) wp_send_json_error('Unauthorized');
-        if (!wp_verify_nonce($_POST['sm_nonce'], 'sm_user_action')) wp_send_json_error('Security check failed');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_user_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'sm_teacher_action')) wp_send_json_error('Security check failed');
 
         $user_id = intval($_POST['edit_user_id']);
 
@@ -4577,7 +4581,8 @@ class SM_Public {
 
     public function ajax_get_student_grades_ajax() {
         if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'sm_grade_action')) wp_send_json_error('Security');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_grade_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security');
 
         global $wpdb;
         $student_id = intval($_POST['student_id']);
@@ -6743,7 +6748,10 @@ class SM_Public {
 
     // Admin Action: Approve user
     public function ajax_approve_user() {
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'sm_teacher_action')) {
+            wp_send_json_error('Security check failed');
+        }
         if (!is_user_logged_in() || !current_user_can('manage_options')) {
             wp_send_json_error('غير مصرح لك بإجراء هذه العملية.');
         }
@@ -6802,7 +6810,10 @@ class SM_Public {
 
     // Admin Action: Reject user
     public function ajax_reject_user() {
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'sm_teacher_action')) {
+            wp_send_json_error('Security check failed');
+        }
         if (!is_user_logged_in() || !current_user_can('manage_options')) {
             wp_send_json_error('غير مصرح لك بإجراء هذه العملية.');
         }
@@ -6832,7 +6843,10 @@ class SM_Public {
 
     // Admin Action: Save user notes
     public function ajax_save_user_notes() {
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'sm_teacher_action')) {
+            wp_send_json_error('Security check failed');
+        }
         if (!is_user_logged_in() || !current_user_can('manage_options')) {
             wp_send_json_error('غير مصرح لك بإجراء هذه العملية.');
         }
@@ -6859,7 +6873,10 @@ class SM_Public {
 
     public function ajax_sm_save_asset_inventory() {
         if (!is_user_logged_in()) wp_send_json_error('يجب تسجيل الدخول.');
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'nonce')) {
+            wp_send_json_error('Security check failed');
+        }
 
         $user_id    = get_current_user_id();
         $catalog_id = intval($_POST['catalog_id'] ?? 0);
@@ -6921,7 +6938,10 @@ class SM_Public {
 
     public function ajax_sm_save_asset_request() {
         if (!is_user_logged_in()) wp_send_json_error('يجب تسجيل الدخول.');
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'nonce')) {
+            wp_send_json_error('Security check failed');
+        }
 
         $user_id       = get_current_user_id();
         $catalog_id    = intval($_POST['catalog_id'] ?? 0);
@@ -6969,7 +6989,10 @@ class SM_Public {
 
     public function ajax_sm_mark_teacher_contacted() {
         if (!is_user_logged_in()) wp_send_json_error('يجب تسجيل الدخول.');
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_term_plan_action') && !wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'nonce')) {
+            wp_send_json_error('Security check failed');
+        }
 
         $teacher_id = intval($_POST['teacher_id'] ?? 0);
         $record_type = sanitize_text_field($_POST['record_type'] ?? 'general');
@@ -6996,7 +7019,10 @@ class SM_Public {
         if (!in_array('administrator', $roles) && !in_array('sm_system_admin', $roles) && !current_user_can('manage_options')) {
             wp_send_json_error('عفواً، هذه الميزة مقتصرة فقط على مدير النظام الرئيسي.');
         }
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_term_plan_action') && !wp_verify_nonce($nonce, 'nonce')) {
+            wp_send_json_error('Security check failed');
+        }
 
         $target_uid = intval($_POST['target_user_id'] ?? 0);
         $term_num   = intval($_POST['term_number'] ?? 1);
@@ -7046,7 +7072,10 @@ class SM_Public {
         if (!in_array('administrator', $roles) && !in_array('sm_system_admin', $roles) && !current_user_can('manage_options')) {
             wp_send_json_error('عفواً، هذه الميزة مقتصرة فقط على مدير النظام الرئيسي.');
         }
-        check_ajax_referer('eess_admin_action', 'nonce');
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'nonce')) {
+            wp_send_json_error('Security check failed');
+        }
 
         $target_uid  = intval($_POST['target_user_id'] ?? 0);
         $title       = sanitize_text_field($_POST['title'] ?? '');
@@ -8169,7 +8198,10 @@ class SM_Public {
     }
 
     public function ajax_quick_approve_prep() {
-        check_ajax_referer('eess_lesson_prep_action', 'sm_nonce');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('Security check failed');
+        }
         $user_id = get_current_user_id();
         $roles = (array) wp_get_current_user()->roles;
         $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_activities_supervisor', $roles) || current_user_can('manage_options');
@@ -8205,7 +8237,10 @@ class SM_Public {
     }
 
     public function ajax_reject_lesson_prep() {
-        check_ajax_referer('eess_lesson_prep_action', 'sm_nonce');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('Security check failed');
+        }
         $user_id = get_current_user_id();
         $roles = (array) wp_get_current_user()->roles;
         $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_activities_supervisor', $roles) || current_user_can('manage_options');
@@ -8254,7 +8289,10 @@ class SM_Public {
     }
 
     public function ajax_bulk_lesson_action() {
-        check_ajax_referer('eess_lesson_prep_action', 'sm_nonce');
+        $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('Security check failed');
+        }
         $user_id = get_current_user_id();
         $roles = (array) wp_get_current_user()->roles;
         $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_activities_supervisor', $roles) || current_user_can('manage_options');
@@ -9141,6 +9179,32 @@ class SM_Public {
         SM_Logger::log('ملاحظة سريعة لولي الأمر', "أرسل المعلم {$user->display_name} ملاحظة لولي أمر الطالب {$student->name}: $note");
 
         wp_send_json_success(array('message' => 'تم إرسال الملاحظة بنجاح إلى ولي أمر الطالب ' . $student->name));
+    }
+
+    public function ajax_send_message() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error('عفواً، يجب تسجيل الدخول لتقديم طلب استفسار.');
+        }
+
+        $nonce = $_POST['sm_message_nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_message_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('فشل التوثيق الأمني.');
+        }
+
+        $receiver_id = intval($_POST['receiver_id'] ?? 0);
+        $student_id  = !empty($_POST['student_id']) ? intval($_POST['student_id']) : null;
+        $message     = sanitize_textarea_field($_POST['message'] ?? '');
+
+        if (empty($message)) {
+            wp_send_json_error('يرجى كتابة نص الاستفسار.');
+        }
+
+        $sent = SM_DB::send_message(get_current_user_id(), $receiver_id, $message, $student_id);
+        if ($sent) {
+            wp_send_json_success(array('message' => 'تم إرسال استفسارك بنجاح'));
+        } else {
+            wp_send_json_error('تعذر إرسال الاستفسار، يرجى المحاولة لاحقاً.');
+        }
     }
 
     public function ajax_get_educational_suggestions() {

@@ -399,6 +399,34 @@ class SM_Activator {
             PRIMARY KEY (id),
             KEY entity_type (entity_type),
             KEY entity_id (entity_id)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}sm_messages (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            sender_id bigint(20) NOT NULL,
+            receiver_id bigint(20) NOT NULL,
+            student_id bigint(20) DEFAULT NULL,
+            message text NOT NULL,
+            status varchar(20) DEFAULT 'unread' NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY (id),
+            KEY sender_id (sender_id),
+            KEY receiver_id (receiver_id),
+            KEY student_id (student_id)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}sm_confiscated_items (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            student_id bigint(20) NOT NULL,
+            teacher_id bigint(20) NOT NULL,
+            item_name varchar(255) NOT NULL,
+            incident_date date DEFAULT NULL,
+            status varchar(50) DEFAULT 'confiscated' NOT NULL,
+            notes text,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY (id),
+            KEY student_id (student_id),
+            KEY teacher_id (teacher_id)
         ) $charset_collate;";
 
         // System Announcements Table
