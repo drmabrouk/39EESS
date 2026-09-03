@@ -181,6 +181,9 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_create_parent_summons', $plugin_public, 'ajax_create_parent_summons');
         $this->loader->add_action('wp_ajax_sm_convert_summons_visit', $plugin_public, 'ajax_convert_summons_visit');
         $this->loader->add_action('wp_ajax_sm_update_summons_status', $plugin_public, 'ajax_update_summons_status');
+        $this->loader->add_action('wp_ajax_sm_submit_exit_card_request', $plugin_public, 'ajax_submit_exit_card_request');
+        $this->loader->add_action('wp_ajax_nopriv_sm_submit_exit_card_request', $plugin_public, 'ajax_submit_exit_card_request');
+        $this->loader->add_action('wp_ajax_sm_update_exit_card_request_status', $plugin_public, 'ajax_update_exit_card_request_status');
     }
 
     public function run() {

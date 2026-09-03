@@ -43,12 +43,13 @@ class SM_DB {
         
         if (!empty($filters['search'])) {
             $search_str = trim($filters['search']);
+            $clean_serial = preg_replace('/[^0-9]/', '', $search_str);
             $normalized_search = self::normalize_arabic($search_str);
             $search_like = '%' . $wpdb->esc_like($normalized_search) . '%';
             $name_sql = self::get_arabic_normalized_column('name');
 
-            if (preg_match('/^ST[0-9]+$/i', $search_str)) {
-                $query .= $wpdb->prepare(" AND (student_code = %s OR $name_sql LIKE %s OR national_id = %s)", $search_str, $search_like, $search_str);
+            if (is_numeric($search_str) || preg_match('/^(SN-|STU-|ST)[0-9]+$/i', $search_str)) {
+                $query .= $wpdb->prepare(" AND (student_code = %s OR id = %d OR student_code = %s OR $name_sql LIKE %s OR national_id = %s)", $search_str, intval($clean_serial), $clean_serial, $search_like, $search_str);
             } else {
                 $query .= $wpdb->prepare(" AND ($name_sql LIKE %s OR student_code LIKE %s OR national_id LIKE %s OR guardian_phone LIKE %s OR class_name LIKE %s OR section LIKE %s)", $search_like, $search_like, $search_like, $search_like, $search_like, $search_like);
             }
@@ -102,33 +103,46 @@ class SM_DB {
         return $id ? $id : false;
     }
 
-    public static function generate_student_code() {
+    public static function generate_student_code($school_id = null) {
         global $wpdb;
-        // Search for the highest numeric student_code
-        $last_code = $wpdb->get_var("SELECT student_code FROM {$wpdb->prefix}sm_students WHERE student_code REGEXP '^[0-9]+$' ORDER BY CAST(student_code AS UNSIGNED) DESC LIMIT 1");
+        $inst_code = 1;
+        if (!empty($school_id)) {
+            $code = $wpdb->get_var($wpdb->prepare("SELECT school_code FROM {$wpdb->prefix}eess_schools WHERE id = %d", $school_id));
+            if (!$code) {
+                $code = $wpdb->get_var($wpdb->prepare("SELECT i.code FROM {$wpdb->prefix}eess_institutions i JOIN {$wpdb->prefix}eess_schools s ON i.id = s.institution_id WHERE s.id = %d", $school_id));
+            }
+            if ($code && is_numeric($code) && intval($code) > 0) {
+                $inst_code = intval($code);
+            } else {
+                $inst_code = intval($school_id);
+            }
+        }
 
-        if (!$last_code) {
-            return '00001';
+        $prefix_str = strval($inst_code);
+        $like_pattern = $wpdb->esc_like($prefix_str) . '%';
+        $last_code = $wpdb->get_var($wpdb->prepare("SELECT student_code FROM {$wpdb->prefix}sm_students WHERE student_code LIKE %s AND student_code REGEXP '^[0-9]+$' ORDER BY CAST(student_code AS UNSIGNED) DESC LIMIT 1", $like_pattern));
+
+        if (!$last_code || strlen($last_code) < strlen($prefix_str) + 4) {
+            return $prefix_str . '0001';
         }
 
         $next_number = intval($last_code) + 1;
-        return str_pad($next_number, 5, '0', STR_PAD_LEFT);
+        return strval($next_number);
     }
 
     public static function add_student($name, $class, $email, $code = '', $parent_user_id = null, $teacher_id = null, $section = '', $extra = array()) {
         global $wpdb;
 
         if (empty($code)) {
-            $code = self::generate_student_code();
+            $code = self::generate_student_code($extra['school_id'] ?? null);
         }
 
         // AUTO-GENERATE UNIFIED WP USER (Student)
         if (!$parent_user_id) {
             $username = $code;
             if (!username_exists($username)) {
-                // 10-digit numeric password
-                $password = '';
-                for($i=0; $i<10; $i++) $password .= rand(0,9);
+                // Initial Default Password = Student Serial Number ($code)
+                $password = $code;
 
                 $email_addr = (!empty($email) && is_email($email)) ? $email : ($code . '@school-system.local'); // Automated email generation
 

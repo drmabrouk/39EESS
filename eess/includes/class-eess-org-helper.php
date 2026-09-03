@@ -264,6 +264,7 @@ class EESS_Org_Helper {
         $table = "{$wpdb->prefix}eess_institutions";
 
         $cols = array(
+            'code' => "INT(11) DEFAULT 1 NOT NULL",
             'parent_id' => "BIGINT(20) DEFAULT NULL",
             'type' => "VARCHAR(100) DEFAULT 'مدرسة' NOT NULL",
             'logo_url' => "VARCHAR(255) DEFAULT '' NOT NULL",
@@ -279,6 +280,13 @@ class EESS_Org_Helper {
             if (empty($check)) {
                 $wpdb->query("ALTER TABLE $table ADD COLUMN $col $def");
             }
+        }
+
+        // Also ensure school_code exists on eess_schools
+        $sch_table = "{$wpdb->prefix}eess_schools";
+        $check_sch = $wpdb->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$sch_table' AND COLUMN_NAME = 'school_code'");
+        if (empty($check_sch)) {
+            $wpdb->query("ALTER TABLE $sch_table ADD COLUMN school_code INT(11) DEFAULT 1 NOT NULL");
         }
     }
 

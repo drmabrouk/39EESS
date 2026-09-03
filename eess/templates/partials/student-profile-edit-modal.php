@@ -74,11 +74,29 @@
                         </div>
 
                         <div class="sm-form-group" style="margin-bottom: 0;">
+                            <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">رقم الهوية الوطنية:</label>
+                            <input type="text" name="national_id" id="edit_stu_national_id" class="sm-input" placeholder="784199012345678" style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                        </div>
+
+                        <div class="sm-form-group" style="margin-bottom: 0;">
                             <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">جنسية الطالب:</label>
                             <input type="text" name="nationality" id="edit_stu_nationality" class="sm-input" placeholder="مثال: إماراتي" style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
                         </div>
 
                         <div class="sm-form-group" style="margin-bottom: 0;">
+                            <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ الميلاد:</label>
+                            <input type="date" name="date_of_birth" id="edit_stu_dob" class="sm-input" style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                        </div>
+
+                        <div class="sm-form-group" style="margin-bottom: 0;">
+                            <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">جنس الطالب:</label>
+                            <select name="gender" id="edit_stu_gender" class="sm-select" style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
+                                <option value="ذكر">ذكر</option>
+                                <option value="أنثى">أنثى</option>
+                            </select>
+                        </div>
+
+                        <div class="sm-form-group" style="margin-bottom: 0; grid-column: span 2;">
                             <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155;">تاريخ التسجيل:</label>
                             <input type="date" name="registration_date" id="edit_stu_reg_date" class="sm-input" style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px;">
                         </div>
