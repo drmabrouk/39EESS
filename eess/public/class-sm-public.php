@@ -8038,6 +8038,7 @@ class SM_Public {
             }
 
             $school_info = SM_Settings::get_school_info();
+            $system_logo = !empty($school_info['school_logo']) ? $school_info['school_logo'] : (!empty($school_info['logo_url']) ? $school_info['logo_url'] : SM_PLUGIN_URL . 'assets/images/logo.png');
             $acad_struct = SM_Settings::get_academic_structure();
             $acad_year = $acad_struct['academic_year'] ?? '2026/2027';
             $expiry_date = '30/06/' . (substr($acad_year, -4) ?: '2027');
@@ -8047,73 +8048,103 @@ class SM_Public {
             <html lang="ar" dir="rtl">
             <head>
                 <meta charset="UTF-8">
-                <title>Student Exit Card - بطاقة تصريح الخروج</title>
+                <title>Student Exit ID Card — بطاقة تصريح الخروج الرقمية</title>
                 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
                 <style>
                     * { box-sizing: border-box; margin: 0; padding: 0; }
-                    body { font-family: 'Cairo', sans-serif; background: #f8fafc; color: #0f172a; padding: 20px; }
+                    body { font-family: 'Cairo', sans-serif; background: #e2e8f0; color: #0f172a; padding: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                     .cards-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+
+                    /* Standard CR80 Personal ID Card Dimensions: 85.6mm x 53.98mm */
                     .id-card {
                         width: 85.6mm;
                         height: 53.98mm;
                         background: #ffffff;
                         border: 1px solid #cbd5e1;
-                        border-radius: 10px;
-                        padding: 8px 10px;
+                        border-radius: 8mm;
                         position: relative;
                         display: flex;
                         flex-direction: column;
                         justify-content: space-between;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
                         page-break-inside: avoid;
                         overflow: hidden;
+                        background-image: radial-gradient(#f1f5f9 1px, transparent 1px);
+                        background-size: 8px 8px;
                     }
+
+                    /* Header spanning full width edge-to-edge */
                     .card-header {
-                        background: #881337;
+                        width: 100%;
+                        background: linear-gradient(135deg, #881337 0%, #4c0519 100%);
                         color: #ffffff;
                         padding: 4px 8px;
-                        border-radius: 6px 6px 0 0;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
+                        border-bottom: 2px solid #e11d48;
                     }
-                    .card-title-main { font-size: 11px; font-weight: 900; color: #ffffff; }
+                    .card-header-right { display: flex; align-items: center; gap: 6px; }
+                    .card-sys-logo { height: 22px; max-width: 45px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+                    .card-header-titles { line-height: 1.1; }
+                    .card-title-main { font-size: 11px; font-weight: 900; color: #ffffff; letter-spacing: -0.2px; }
                     .card-school-name { font-size: 8px; font-weight: 700; color: #fecdd3; }
-                    .card-body { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex: 1; }
+
+                    .card-body { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px 4px 8px; flex: 1; }
+
+                    /* Student Photo */
                     .card-photo {
-                        width: 48px;
-                        height: 58px;
-                        border-radius: 6px;
+                        width: 22mm;
+                        height: 28mm;
+                        border-radius: 4px;
                         object-fit: cover;
-                        border: 1px solid #cbd5e1;
+                        border: 1.5px solid #0f172a;
                         background: #f1f5f9;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        flex-shrink: 0;
                     }
-                    .card-info { flex: 1; line-height: 1.25; }
-                    .card-stu-name { font-size: 11px; font-weight: 900; color: #0f172a; margin-bottom: 2px; }
-                    .card-row { font-size: 8.5px; color: #334155; font-weight: 600; display: flex; gap: 4px; }
-                    .card-label { color: #64748b; font-weight: 700; }
-                    .card-qr { width: 44px; height: 44px; border: 1px solid #e2e8f0; border-radius: 4px; padding: 2px; }
+
+                    /* Student Info Layout */
+                    .card-info { flex: 1; min-width: 0; line-height: 1.25; }
+                    .card-stu-name { font-size: 11.5px; font-weight: 900; color: #0f172a; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    .card-field { font-size: 8.5px; color: #334155; font-weight: 700; margin-bottom: 1.5px; display: flex; gap: 3px; }
+                    .card-field-label { color: #64748b; font-weight: 600; width: 34px; flex-shrink: 0; }
+                    .card-field-val { color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+                    /* Barcode / Serial / Expiry Stack */
+                    .card-qr-stack { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 22mm; flex-shrink: 0; text-align: center; }
+                    .card-qr-box { width: 19mm; height: 19mm; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px; background: #ffffff; }
+                    .card-qr-box svg { width: 100%; height: 100%; display: block; }
+                    .card-serial-text { font-size: 7.5px; font-weight: 900; color: #881337; margin-top: 2px; letter-spacing: 0.2px; line-height: 1; }
+                    .card-expiry-text { font-size: 6.5px; font-weight: 700; color: #64748b; margin-top: 1.5px; line-height: 1; }
+
+                    /* Footer Area */
                     .card-footer {
+                        width: 100%;
+                        background: #f8fafc;
                         border-top: 1px solid #e2e8f0;
-                        padding-top: 2px;
+                        padding: 2px 8px;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        font-size: 6.5px;
-                        color: #94a3b8;
+                        font-size: 6px;
+                        color: #64748b;
                         font-weight: 700;
                     }
+                    .card-footer-auth { color: #166534; font-weight: 900; display: inline-flex; align-items: center; gap: 2px; }
+
                     @media print {
+                        @page { size: A4; margin: 10mm; }
                         body { background: none; padding: 0; }
                         .no-print { display: none !important; }
-                        .cards-container { gap: 10mm; }
-                        .id-card { box-shadow: none; border: 1px solid #94a3b8; }
+                        .cards-container { gap: 8mm; }
+                        .id-card { box-shadow: none; border: 1px solid #94a3b8; page-break-inside: avoid; }
                     }
                 </style>
             </head>
             <body>
                 <div class="no-print" style="text-align: center; margin-bottom: 20px;">
-                    <button onclick="window.print()" style="background: #881337; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: 'Cairo';">🖨️ طباعة البطاقات الآن (A4 / ID Printer)</button>
+                    <button onclick="window.print()" style="background: #881337; color: white; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 800; cursor: pointer; font-family: 'Cairo'; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">🖨️ طباعة بطاقات الخروج الرسمية (ID Card / A4)</button>
                 </div>
                 <div class="cards-container">
                     <?php foreach ($stu_ids as $sid):
@@ -8127,26 +8158,45 @@ class SM_Public {
                     ?>
                     <div class="id-card">
                         <div class="card-header">
-                            <div>
-                                <div class="card-title-main">بطاقة خروج طالب</div>
-                                <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
+                            <div class="card-header-right">
+                                <img src="<?php echo esc_url($system_logo); ?>" class="card-sys-logo" alt="System Logo" onerror="this.style.display='none'">
+                                <div class="card-header-titles">
+                                    <div class="card-title-main">بطاقة خروج طالب</div>
+                                    <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
+                                </div>
                             </div>
-                            <img src="<?php echo esc_url($school_info['logo_url'] ?? SM_PLUGIN_URL . 'assets/images/logo.png'); ?>" style="height: 18px; max-width: 40px; object-fit: contain;" onerror="this.style.display='none'">
+                            <div style="font-size: 7px; color: #fecdd3; font-weight: 800; text-align: left;">
+                                <?php echo esc_html($acad_year); ?>
+                            </div>
                         </div>
+
                         <div class="card-body">
-                            <img src="<?php echo $photo; ?>" class="card-photo">
+                            <img src="<?php echo $photo; ?>" class="card-photo" alt="Student Photo">
                             <div class="card-info">
-                                <div class="card-stu-name"><?php echo esc_html($st->name); ?></div>
-                                <div class="card-row"><span class="card-label">الرقم الأكاديمي:</span><strong><?php echo esc_html($st->student_code); ?></strong></div>
-                                <div class="card-row"><span class="card-label">الرقم التسلسلي:</span><strong><?php echo esc_html($serial); ?></strong></div>
-                                <div class="card-row"><span class="card-label">الصف والشعبة:</span><span><?php echo esc_html($st->class_name); ?> (<?php echo esc_html($st->section ?: 'أ'); ?>)</span></div>
-                                <div class="card-row"><span class="card-label">العام والتاريخ:</span><span><?php echo esc_html($acad_year); ?> | <?php echo $expiry_date; ?></span></div>
+                                <div class="card-stu-name" title="<?php echo esc_attr($st->name); ?>"><?php echo esc_html($st->name); ?></div>
+                                <div class="card-field">
+                                    <span class="card-field-label">الصف:</span>
+                                    <span class="card-field-val"><?php echo esc_html($st->class_name); ?></span>
+                                </div>
+                                <div class="card-field">
+                                    <span class="card-field-label">الشعبة:</span>
+                                    <span class="card-field-val"><?php echo esc_html($st->section ?: 'أ'); ?></span>
+                                </div>
+                                <div class="card-field">
+                                    <span class="card-field-label">الجنسية:</span>
+                                    <span class="card-field-val"><?php echo esc_html($st->nationality ?: 'سعودي'); ?></span>
+                                </div>
                             </div>
-                            <div class="card-qr" title="<?php echo esc_attr($serial); ?>"><?php echo $qr_svg; ?></div>
+                            <div class="card-qr-stack">
+                                <div class="card-qr-box" title="<?php echo esc_attr($serial); ?>"><?php echo $qr_svg; ?></div>
+                                <div class="card-serial-text">الرقم: <?php echo esc_html($serial); ?></div>
+                                <div class="card-expiry-text">الانتهاء: <?php echo $expiry_date; ?></div>
+                            </div>
                         </div>
+
                         <div class="card-footer">
-                            <span>بطاقة رسمية معتمدة</span>
-                            <span>Powered by Educational Electronic Systems Solutions (EESS) — eess.online</span>
+                            <span class="card-footer-auth">✓ تصريح تصريح رسمي معتمد</span>
+                            <span>EESS — eess.online</span>
                         </div>
                     </div>
                     <?php endforeach; ?>
