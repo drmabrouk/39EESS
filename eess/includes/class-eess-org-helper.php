@@ -266,12 +266,14 @@ class EESS_Org_Helper {
         $cols = array(
             'code' => "INT(11) DEFAULT 1 NOT NULL",
             'parent_id' => "BIGINT(20) DEFAULT NULL",
-            'type' => "VARCHAR(100) DEFAULT 'مدرسة' NOT NULL",
+            'type' => "VARCHAR(100) DEFAULT 'مؤسسة إدارية' NOT NULL",
             'logo_url' => "VARCHAR(255) DEFAULT '' NOT NULL",
             'country' => "VARCHAR(100) DEFAULT 'الإمارات العربية المتحدة' NOT NULL",
             'address' => "TEXT DEFAULT NULL",
             'phone' => "VARCHAR(50) DEFAULT '' NOT NULL",
+            'email' => "VARCHAR(100) DEFAULT '' NOT NULL",
             'manager_id' => "BIGINT(20) DEFAULT NULL",
+            'deputy_manager_id' => "BIGINT(20) DEFAULT NULL",
             'director_name' => "VARCHAR(255) DEFAULT '' NOT NULL"
         );
 
@@ -282,11 +284,24 @@ class EESS_Org_Helper {
             }
         }
 
-        // Also ensure school_code exists on eess_schools
+        // Ensure eess_schools table has all hierarchical & manager columns
         $sch_table = "{$wpdb->prefix}eess_schools";
-        $check_sch = $wpdb->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$sch_table' AND COLUMN_NAME = 'school_code'");
-        if (empty($check_sch)) {
-            $wpdb->query("ALTER TABLE $sch_table ADD COLUMN school_code INT(11) DEFAULT 1 NOT NULL");
+        $sch_cols = array(
+            'school_code' => "INT(11) DEFAULT 1 NOT NULL",
+            'school_logo' => "VARCHAR(255) DEFAULT '' NOT NULL",
+            'address' => "TEXT DEFAULT NULL",
+            'phone' => "VARCHAR(50) DEFAULT '' NOT NULL",
+            'email' => "VARCHAR(100) DEFAULT '' NOT NULL",
+            'manager_id' => "BIGINT(20) DEFAULT NULL",
+            'deputy_manager_id' => "BIGINT(20) DEFAULT NULL",
+            'discipline_supervisor_id' => "BIGINT(20) DEFAULT NULL"
+        );
+
+        foreach ($sch_cols as $scol => $sdef) {
+            $check_s = $wpdb->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$sch_table' AND COLUMN_NAME = '$scol'");
+            if (empty($check_s)) {
+                $wpdb->query("ALTER TABLE $sch_table ADD COLUMN $scol $sdef");
+            }
         }
     }
 
@@ -357,7 +372,14 @@ class EESS_Org_Helper {
 
     public static function get_schools() {
         global $wpdb;
-        return $wpdb->get_results("SELECT s.*, i.name as institution_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->prefix}eess_institutions i ON s.institution_id = i.id ORDER BY s.name ASC");
+        self::ensure_institutions_columns_exist();
+        return $wpdb->get_results("SELECT s.*, i.name as institution_name, u1.display_name as manager_display_name, u2.display_name as deputy_manager_display_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->prefix}eess_institutions i ON s.institution_id = i.id LEFT JOIN {$wpdb->users} u1 ON s.manager_id = u1.ID LEFT JOIN {$wpdb->users} u2 ON s.deputy_manager_id = u2.ID ORDER BY s.name ASC");
+    }
+
+    public static function get_schools_by_institution($inst_id) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+        return $wpdb->get_results($wpdb->prepare("SELECT s.*, u1.display_name as manager_display_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->users} u1 ON s.manager_id = u1.ID WHERE s.institution_id = %d ORDER BY s.name ASC", intval($inst_id)));
     }
 
     public static function get_all_schools() {
