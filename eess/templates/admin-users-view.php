@@ -215,11 +215,9 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     <tr>
                         <th style="width: 40px; text-align: center;"><input type="checkbox" id="select-all-users" onclick="toggleAllUsersCheckbox(this)"></th>
                         <th>المستخدم</th>
-                        <th>البريد الإلكتروني</th>
-                        <th>المسمى الوظيفي / الرتبة</th>
-                        <th>حالة الحساب</th>
-                        <th>كلمة المرور</th>
-                        <th style="text-align: left;">الإجراءات الإدارية</th>
+                        <th>البريد الإلكتروني والرمز</th>
+                        <th>المسمى الوظيفي والتبعية المؤسسية</th>
+                        <th style="text-align: center;">الإجراءات الإدارية</th>
                     </tr>
                 </thead>
                 <tbody id="users-table-body">
@@ -295,8 +293,6 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                         <?php
                                         $u_nat = get_user_meta($u->ID, 'nationality', true) ?: (get_user_meta($u->ID, 'sm_nationality', true) ?: 'عام');
                                         $emp_code = get_user_meta($u->ID, 'eess_employee_number', true) ?: (get_user_meta($u->ID, 'sm_employee_id', true) ?: $u->user_login);
-                                        $app_year = intval(get_user_meta($u->ID, 'eess_appointment_year', true) ?: get_user_meta($u->ID, 'sm_appointment_year', true));
-                                        $exp_years = $app_year > 0 ? (intval(date('Y')) - $app_year) : 0;
                                         ?>
                                         <div style="margin-top: 4px; display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
                                             <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; font-size: 10.5px; font-weight: 700; font-family: monospace;">
@@ -308,31 +304,34 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                             <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
                                                 <?php echo esc_html($emp_code); ?>
                                             </span>
-                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10.5px; font-weight: 800;">
-                                                خبرة: <?php echo $exp_years > 0 ? ($exp_years . ' سنوات') : 'جديد'; ?>
-                                            </span>
+                                            <?php echo SM_DB::get_employee_experience_capsule($u->ID); ?>
+                                            <?php if ($u_status === 'restricted'): ?>
+                                                <span style="display:inline-flex; align-items: center; padding: 2px 8px; font-size: 10.5px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 6px; font-weight: 800;">محظور</span>
+                                            <?php else: ?>
+                                                <span style="display:inline-flex; align-items: center; padding: 2px 8px; font-size: 10.5px; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; border-radius: 6px; font-weight: 800;">نشط</span>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
                             </td>
-                            <td style="font-size: 12px;"><?php echo esc_html($u->user_email); ?></td>
-                            <td>
-                                <div style="font-weight:700; font-size: 12px; color: #334155;">
+                            <td style="font-size: 12px; vertical-align: middle;">
+                                <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;"><?php echo esc_html($u->user_email); ?></div>
+                                <code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; font-family:monospace; font-size: 11px; color:#881337; font-weight:800; display:inline-block;"><?php echo get_user_meta($u->ID, 'sm_temp_pass', true) ?: '********'; ?></code>
+                            </td>
+                            <td style="vertical-align: middle;">
+                                <div style="font-weight:800; font-size: 12.5px; color: #0f172a;">
                                     <?php echo $role_map[$u_role] ?? $u_role; ?>
                                 </div>
+                                <?php
+                                $org_sch = !empty($u_school_id) ? EESS_Org_Helper::get_school_by_id($u_school_id) : null;
+                                $org_sch_name = $org_sch ? $org_sch->name : ($u_inst ?: 'المؤسسة المركزية');
+                                ?>
+                                <div style="margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 10.5px; font-weight: 800;">
+                                    🏛️ <?php echo esc_html($org_sch_name); ?>
+                                </div>
                                 <?php if (!empty($u_spec)): ?>
-                                    <div style="font-size:11px; color:var(--sm-primary-color); font-weight:700;">التخصص: <?php echo esc_html($u_spec); ?></div>
+                                    <div style="font-size:11px; color:#0284c7; font-weight:700; margin-top:2px;">التخصص: <?php echo esc_html($u_spec); ?></div>
                                 <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($u_status === 'restricted'): ?>
-                                    <span style="display:inline-block; padding: 2px 8px; font-size: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; border-radius: 4px; font-weight: bold;">محظور / مقيد</span>
-                                <?php else: ?>
-                                    <span style="display:inline-block; padding: 2px 8px; font-size: 10px; background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; border-radius: 4px; font-weight: bold;">نشط</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-family:monospace; font-size: 11px;"><?php echo get_user_meta($u->ID, 'sm_temp_pass', true) ?: '********'; ?></code>
                             </td>
                             <td style="text-align: center;">
                                 <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">

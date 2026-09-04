@@ -145,6 +145,9 @@ class SM_Public {
 
         if ($user_id) {
             $custom_avatar = get_user_meta($user_id, 'sm_profile_photo_url', true) ?: get_user_meta($user_id, 'eess_profile_photo', true);
+            if (!empty($custom_avatar) && strpos($custom_avatar, 'data:') !== 0 && strpos($custom_avatar, '?v=') === false) {
+                $custom_avatar = add_query_arg('v', time(), $custom_avatar);
+            }
             if (empty($custom_avatar)) {
                 $custom_avatar = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzk0YTMiIHN0eWxlPSJiYWNrZ3JvdW5kOiNmMWY1Zjk7IGJvcmRlci1yYWRpdXM6NTAlOyI+PHBhdGggZD0iTTEyIDEyYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIvPjwvc3ZnPg==";
             }
@@ -8071,49 +8074,30 @@ class SM_Public {
                         overflow: hidden;
                     }
 
-                    /* Subtle Background Watermark Identity Element */
-                    .card-watermark {
-                        position: absolute;
-                        inset: 0;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        pointer-events: none;
-                        z-index: 0;
-                        opacity: 0.05;
-                    }
-                    .card-watermark img {
-                        width: 50mm;
-                        height: 50mm;
-                        object-fit: contain;
-                    }
-
                     /* Header spanning full width edge-to-edge */
                     .card-header {
                         width: 100%;
                         background: linear-gradient(135deg, #881337 0%, #4c0519 100%);
                         color: #ffffff;
-                        padding: 4px 8px;
+                        padding: 5px 10px;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
                         border-bottom: 2px solid #e11d48;
-                        position: relative;
-                        z-index: 1;
                     }
-                    .card-header-right { display: flex; align-items: center; gap: 6px; }
-                    .card-sys-logo { height: 22px; max-width: 45px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
+                    .card-header-right { display: flex; align-items: center; gap: 8px; }
+                    .card-sys-logo { height: 24px; max-width: 48px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
                     .card-header-titles { line-height: 1.1; }
-                    .card-title-main { font-size: 11.5px; font-weight: 900; color: #ffffff; letter-spacing: -0.2px; }
-                    .card-school-name { font-size: 8px; font-weight: 700; color: #fecdd3; }
-                    .card-acad-year-badge { font-size: 9.5px; color: #ffffff; font-weight: 900; text-align: left; background: rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+                    .card-title-main { font-size: 12px; font-weight: 900; color: #ffffff; letter-spacing: -0.2px; }
+                    .card-school-name { font-size: 8.5px; font-weight: 700; color: #fecdd3; }
+                    .card-acad-year-text { font-size: 11px; color: #ffffff; font-weight: 900; text-align: left; letter-spacing: 0.5px; }
 
-                    .card-body { display: flex; gap: 8px; align-items: center; padding: 4px 8px; flex: 1; position: relative; z-index: 1; }
+                    .card-body { display: flex; gap: 10px; align-items: center; padding: 6px 10px; flex: 1; }
 
                     /* Student Photo Centered Vertically */
                     .card-photo {
-                        width: 21mm;
-                        height: 27mm;
+                        width: 22mm;
+                        height: 28mm;
                         border-radius: 4px;
                         object-fit: cover;
                         border: 1.5px solid #0f172a;
@@ -8122,12 +8106,12 @@ class SM_Public {
                         flex-shrink: 0;
                     }
 
-                    /* Student Info Layout — Vertically Centered with EXACT Hierarchy */
-                    .card-info { flex: 1; min-width: 0; line-height: 1.3; display: flex; flex-direction: column; justify-content: center; padding-right: 2px; }
-                    .card-stu-name { font-size: 11.5px; font-weight: 900; color: #0f172a; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-                    .card-field { font-size: 8.5px; color: #334155; font-weight: 700; margin-bottom: 2px; display: flex; gap: 4px; align-items: center; }
-                    .card-field-label { color: #64748b; font-weight: 600; width: 38px; flex-shrink: 0; }
-                    .card-field-val { color: #0f172a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    /* Student Info Layout — Clean Typography with Prominent Spacing */
+                    .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding-right: 2px; }
+                    .card-stu-name { font-size: 12.5px; font-weight: 900; color: #0f172a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+                    .card-field { font-size: 9px; color: #334155; font-weight: 700; margin-bottom: 2.5px; display: flex; align-items: center; }
+                    .card-field-label { color: #64748b; font-weight: 700; width: 75px; min-width: 75px; flex-shrink: 0; }
+                    .card-field-val { color: #0f172a; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
                     /* Barcode / Serial Stack Vertically Centered */
                     .card-qr-stack { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 21mm; flex-shrink: 0; text-align: center; }
@@ -8174,9 +8158,6 @@ class SM_Public {
                         $photo = !empty($st->photo_url) ? esc_url($st->photo_url) : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="58" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
                     ?>
                     <div class="id-card">
-                        <div class="card-watermark">
-                            <img src="<?php echo esc_url($system_logo); ?>" alt="">
-                        </div>
                         <div class="card-header">
                             <div class="card-header-right">
                                 <img src="<?php echo esc_url($system_logo); ?>" class="card-sys-logo" alt="System Logo" onerror="this.style.display='none'">
@@ -8185,7 +8166,7 @@ class SM_Public {
                                     <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
                                 </div>
                             </div>
-                            <div class="card-acad-year-badge">
+                            <div class="card-acad-year-text">
                                 <?php echo esc_html($acad_year); ?>
                             </div>
                         </div>
@@ -8757,10 +8738,21 @@ class SM_Public {
             require_once(ABSPATH . 'wp-admin/includes/media.php');
 
             $file_info = wp_check_filetype_and_ext($_FILES['plan_document_file']['tmp_name'], $_FILES['plan_document_file']['name']);
-            $allowed_mimes = array('pdf' => 'application/pdf', 'doc' => 'application/msword', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+
+            // Non-administrators are strictly limited to PDF format only
+            $is_admin_user = current_user_can('administrator') || in_array('sm_system_admin', (array) wp_get_current_user()->roles);
+            if ($is_admin_user) {
+                $allowed_mimes = array('pdf' => 'application/pdf', 'doc' => 'application/msword', 'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+            } else {
+                $allowed_mimes = array('pdf' => 'application/pdf');
+            }
 
             if (!in_array($file_info['type'], $allowed_mimes) && !array_key_exists($file_info['ext'], $allowed_mimes)) {
-                wp_send_json_error('عذراً، صيغة ملف الخطة المرفوع غير مدعومة. يرجى اختيار ملف PDF أو Word فقط.');
+                if ($is_admin_user) {
+                    wp_send_json_error('عذراً، صيغة ملف الخطة المرفوع غير مدعومة. يرجى اختيار ملف PDF أو Word فقط.');
+                } else {
+                    wp_send_json_error('عذراً، صيغة ملف الخطة المرفوع يجب أن تكون PDF حصراً لكافة المعلمين والمستخدمين.');
+                }
             }
 
             $attachment_id = media_handle_upload('plan_document_file', 0);

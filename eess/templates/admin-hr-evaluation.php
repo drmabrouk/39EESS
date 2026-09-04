@@ -10,10 +10,11 @@ $is_supervisor = in_array('sm_supervisor', $roles);
 $is_coordinator = in_array('sm_coordinator', $roles);
 $is_hod = in_array('sm_hod', $roles);
 $is_activities_sup = in_array('sm_activities_supervisor', $roles);
+$is_discipline_sup = in_array('sm_discipline_supervisor', $roles);
 $is_hr = in_array('sm_hr', $roles) || current_user_can('manage_hr');
 
 // Access security check: Only authorized supervisors can evaluate
-$can_evaluate = $is_admin || $is_sys_admin || $is_principal || $is_supervisor || $is_coordinator || $is_hod || $is_hr || $is_activities_sup;
+$can_evaluate = $is_admin || $is_sys_admin || $is_principal || $is_supervisor || $is_coordinator || $is_hod || $is_hr || $is_activities_sup || $is_discipline_sup;
 
 if (!$can_evaluate) {
     echo '<div style="background:#fee2e2; color:#991b1b; padding:15px; border-radius:8px; border:1px solid #fca5a5; font-weight:700; font-family:\'Cairo\'; text-align:center;">🚫 عذراً، لا تمتلك الصلاحيات الكافية للوصول لصفحة تقييم الموظفين.</div>';
@@ -75,6 +76,21 @@ $eval_templates = array(
             'm2' => array('label' => 'تمكين وتحفيز وتطوير مهارات مرؤوسيه بفاعلية', 'max' => 25),
             'm3' => array('label' => 'الإدارة والاستغلال الأمثل للموارد والميزانيات المتاحة', 'max' => 25),
             'm4' => array('label' => 'سرعة اتخاذ القرارات الصحيحة وإدارة الأزمات', 'max' => 25)
+        )
+    ),
+    'duty_supervision' => array(
+        'name' => 'نموذج تقييم المناوبة والإشراف اليومي (Duty Supervision - 10 Metrics)',
+        'metrics' => array(
+            'm1'  => array('label' => '1. الالتزام بمواعيد الانضباط والحضور المبكر للمناوبة', 'max' => 10),
+            'm2'  => array('label' => '2. المراقبة والإشراف المباشر على ساحات وممرات الطلاب', 'max' => 10),
+            'm3'  => array('label' => '3. تطبيق معايير السلامة الوقائية ومنع التدافع أو الحوادث', 'max' => 10),
+            'm4'  => array('label' => '4. التعامل التربوي الحازم والايجابي مع السلوكيات الخاطئة', 'max' => 10),
+            'm5'  => array('label' => '5. التنسيق والتعاون الفعال مع الفريق المشرف ومشرف السلوك', 'max' => 10),
+            'm6'  => array('label' => '6. متابعة انضباط دخول وخروج الطلاب من الحافلات والمقصف', 'max' => 10),
+            'm7'  => array('label' => '7. التجاوب السريع مع حالات الطوارئ والإسعافات الأولية', 'max' => 10),
+            'm8'  => array('label' => '8. توثيق وتسجيل التقرير اليومي لسجل المناوبة بوضوح', 'max' => 10),
+            'm9'  => array('label' => '9. توجيه وإرشاد الطلاب نحو النظافة العامة والانضباط', 'max' => 10),
+            'm10' => array('label' => '10. التحلي بالمسؤولية المهنية والقدوة الحسنة أثناء الإشراف', 'max' => 10)
         )
     )
 );
