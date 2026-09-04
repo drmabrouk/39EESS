@@ -4917,6 +4917,29 @@ class SM_Public {
         }
         $processed = true;
 
+        // Handle Global Central Subject CRUD
+        if (isset($_POST['eess_save_global_subject']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
+            if (current_user_can('إدارة_النظام')) {
+                $inst_id = !empty($_POST['inst_id']) ? intval($_POST['inst_id']) : 1;
+                $res = EESS_Org_Helper::save_subject($inst_id, array(
+                    'id'                  => intval($_POST['sub_id'] ?? 0),
+                    'name'                => sanitize_text_field($_POST['sub_name'] ?? ''),
+                    'code'                => sanitize_text_field($_POST['sub_code'] ?? ''),
+                    'department_id'       => intval($_POST['sub_department_id'] ?? 0),
+                    'hod_user_id'         => intval($_POST['sub_hod_user_id'] ?? 0),
+                    'coordinator_user_id' => intval($_POST['sub_coordinator_user_id'] ?? 0),
+                    'status'              => sanitize_text_field($_POST['sub_status'] ?? 'active'),
+                    'grade_ids'           => !empty($_POST['sub_grade_ids']) ? array_map('intval', (array)$_POST['sub_grade_ids']) : array(),
+                    'school_ids'          => !empty($_POST['sub_school_ids']) ? array_map('intval', (array)$_POST['sub_school_ids']) : array()
+                ));
+                if (is_wp_error($res)) {
+                    wp_die('خطأ في حفظ المادة المركزية: ' . $res->get_error_message());
+                }
+                wp_redirect(add_query_arg(array('sm_tab' => 'school-structure', 'sm_admin_msg' => 'settings_saved'), wp_get_referer()));
+                exit;
+            }
+        }
+
         // Handle Single-Level Institution Model CRUD and Staff Assignments
         if (isset($_POST['eess_save_single_inst']) && wp_verify_nonce($_POST['sm_admin_nonce'], 'sm_admin_action')) {
             if (current_user_can('إدارة_النظام')) {
@@ -4941,6 +4964,7 @@ class SM_Public {
 
                     $inst_data = array(
                         'code'          => $code_val > 0 ? $code_val : $inst_id,
+                        'parent_id'     => !empty($_POST['inst_parent_id']) ? intval($_POST['inst_parent_id']) : null,
                         'name'          => sanitize_text_field($_POST['inst_name'] ?? ''),
                         'type'          => sanitize_text_field($_POST['inst_type'] ?? 'مدرسة'),
                         'country'       => sanitize_text_field($_POST['inst_country'] ?? 'الإمارات العربية المتحدة'),

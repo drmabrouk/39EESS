@@ -25,8 +25,8 @@ $all_registered_schools = class_exists('EESS_Org_Helper') ? EESS_Org_Helper::get
 $all_subjects = class_exists('SM_DB') ? SM_DB::get_subjects() : array();
 $unique_subjects = !empty($all_subjects) ? array_unique(array_map(function($s){ return is_object($s) ? $s->name : $s; }, $all_subjects)) : array();
 
-// Fetch all users
-$all_users = get_users();
+// Fetch all users without pagination limits to ensure all teachers and staff are retrieved
+$all_users = get_users(array('number' => -1, 'orderby' => 'display_name', 'order' => 'ASC'));
 
 $current_user_scope = EESS_Org_Helper::get_user_scope();
 if (!$current_user_scope['unrestricted']) {

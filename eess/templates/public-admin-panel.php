@@ -951,7 +951,11 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                     </div>
                                 </div>
 
-                                <div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <button type="button" onclick="eessOpenGlobalSubjectModal()" title="إدارة المواد الدراسية المركزية (Manage Subjects)" style="width: 38px; height: 38px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                        <span class="dashicons dashicons-book-alt" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                                    </button>
+
                                     <button type="button" onclick="eessOpenAddInstitutionModal()" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                                         <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
                                         <span>إضافة مؤسسة جديدة</span>
@@ -1024,6 +1028,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                     ?>
                                     <div class="eess-institution-card"
                                          data-id="<?php echo $inst->id; ?>"
+                                         data-code="<?php echo esc_attr(intval($inst->code ?: $inst->id)); ?>"
                                          data-name="<?php echo esc_attr(strtolower($inst->name)); ?>"
                                          data-type="<?php echo esc_attr($inst->type); ?>"
                                          data-country="<?php echo esc_attr(strtolower($inst->country)); ?>"
@@ -1170,7 +1175,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                         <!-- ADD / EDIT INSTITUTION IN-SYSTEM MODAL -->
                         <div id="eess-inst-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;">
-                            <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+                            <div style="background: #ffffff; border-radius: 20px; max-width: 840px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
 
                                 <!-- Flush Modal Dark Header -->
                                 <div style="background: #0f172a; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b;">
@@ -1335,11 +1340,12 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                             document.querySelectorAll('.eess-institution-card').forEach(card => {
                                 const cName = card.getAttribute('data-name') || '';
+                                const cCode = card.getAttribute('data-code') || '';
                                 const cManager = card.getAttribute('data-manager') || '';
                                 const cType = card.getAttribute('data-type') || '';
                                 const cCountry = card.getAttribute('data-country') || '';
 
-                                const matchText = !qText || cName.includes(qText) || cManager.includes(qText);
+                                const matchText = !qText || cName.includes(qText) || cCode.includes(qText) || cManager.includes(qText);
                                 const matchType = !qType || cType === qType;
                                 const matchCountry = !qCountry || cCountry.includes(qCountry);
 
@@ -1350,7 +1356,69 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                 }
                             });
                         }
+
+                        function eessOpenGlobalSubjectModal() {
+                            document.getElementById('eess-global-subject-modal').style.display = 'flex';
+                        }
                         </script>
+
+                        <!-- CENTRAL SUBJECT MANAGEMENT IN-SYSTEM MODAL -->
+                        <div id="eess-global-subject-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;">
+                            <div style="background: #ffffff; border-radius: 20px; max-width: 820px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+                                <div style="background: #0f172a; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b;">
+                                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 10px;">
+                                        <span class="dashicons dashicons-book-alt" style="font-size: 20px; width: 20px; height: 20px; color: #f43f5e;"></span>
+                                        <span>إدارة المواد الدراسية المركزية (Central Subject Management)</span>
+                                    </h3>
+                                    <button type="button" onclick="document.getElementById('eess-global-subject-modal').style.display='none';" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+                                </div>
+                                <div style="padding: 20px; overflow-y: auto; flex: 1;">
+                                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 18px; font-size: 12px; color: #475569; line-height: 1.6;">
+                                        💡 <strong>تنبيه مركزي:</strong> إضافة وتحديث المواد الدراسية من هذا الموضع يسري فوراً وبصفة موحدة عبر كافة وحدات المنظومة والمدارس دون تكرار للبيانات.
+                                    </div>
+
+                                    <?php
+                                    $first_inst_id = !empty($institutions) ? $institutions[0]->id : 1;
+                                    $global_subjects = EESS_Org_Helper::get_subjects_by_institution($first_inst_id);
+                                    ?>
+                                    <div class="sm-table-container" style="max-height: 400px; overflow-y: auto;">
+                                        <table class="sm-table" style="width: 100%;">
+                                            <thead>
+                                                <tr>
+                                                    <th>كود المادة</th>
+                                                    <th>اسم المادة الدراسية</th>
+                                                    <th>القسم التابع</th>
+                                                    <th>رئيس القسم (HOD)</th>
+                                                    <th>المنسق (Coordinator)</th>
+                                                    <th>الحالة</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (empty($global_subjects)): ?>
+                                                    <tr><td colspan="6" style="text-align: center; color: #94a3b8;">لا توجد مواد مركزية مسجلة حالياً.</td></tr>
+                                                <?php else: ?>
+                                                    <?php foreach ($global_subjects as $gsub): ?>
+                                                        <tr>
+                                                            <td style="font-family: monospace; font-weight: bold; color: #881337;"><?php echo esc_html($gsub->code); ?></td>
+                                                            <td><strong><?php echo esc_html($gsub->name); ?></strong></td>
+                                                            <td><small style="color: #64748b;"><?php echo esc_html($gsub->department_name ?: 'الأقسام الأكاديمية'); ?></small></td>
+                                                            <td><?php echo esc_html($gsub->hod_display_name ?: 'غير محدد'); ?></td>
+                                                            <td><?php echo esc_html($gsub->coordinator_display_name ?: 'غير محدد'); ?></td>
+                                                            <td>
+                                                                <span style="padding: 2px 8px; border-radius: 50px; background: #f0fdf4; color: #166534; font-weight: 800; font-size: 10px;">نشط</span>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end;">
+                                    <button type="button" onclick="document.getElementById('eess-global-subject-modal').style.display='none';" class="sm-btn sm-btn-outline" style="height: 36px; font-size: 12px;">إغلاق</button>
+                                </div>
+                            </div>
+                        </div>
                         <?php
                     }
                     break;
