@@ -772,6 +772,11 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                             </div>
                         </div>
 
+                        <!-- Bulk Download Circular Icon Button -->
+                        <button type="button" onclick="document.getElementById(\'eess-prep-bulk-download-modal\').style.display=\'flex\'" title="Bulk Download / تحميل أرشيف التحضيرات بالجملة" style="width: 38px; height: 38px; border-radius: 50% !important; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" onmouseover="this.style.transform=\'scale(1.08)\'" onmouseout="this.style.transform=\'scale(1)\'">
+                            <span class="dashicons dashicons-download" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                        </button>
+
                         <!-- Settings Gear Icon Button -->
                         <button type="button" onclick="document.getElementById(\'prep-settings-modal\').style.display=\'flex\'" class="sm-btn sm-btn-outline" style="width: auto; height: 38px; display: inline-flex; align-items: center; gap: 5px; border-color: #cbd5e1; cursor: pointer; padding: 0 10px; font-size: 12px; background: #fff; color: #334155; border-radius: 8px;">
                             <span class="dashicons dashicons-admin-generic" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>

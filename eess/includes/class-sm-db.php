@@ -119,15 +119,20 @@ class SM_DB {
         }
 
         $prefix_str = strval($inst_code);
-        $like_pattern = $wpdb->esc_like($prefix_str) . '%';
-        $last_code = $wpdb->get_var($wpdb->prepare("SELECT student_code FROM {$wpdb->prefix}sm_students WHERE student_code LIKE %s AND student_code REGEXP '^[0-9]+$' ORDER BY CAST(student_code AS UNSIGNED) DESC LIMIT 1", $like_pattern));
+        $prefix_len = strlen($prefix_str);
 
-        if (!$last_code || strlen($last_code) < strlen($prefix_str) + 4) {
+        // Exact prefix length match: prefix followed by exactly 4 or more digits
+        $last_code = $wpdb->get_var($wpdb->prepare(
+            "SELECT student_code FROM {$wpdb->prefix}sm_students WHERE student_code REGEXP %s ORDER BY CAST(student_code AS UNSIGNED) DESC LIMIT 1",
+            '^' . $prefix_str . '[0-9]{4,}$'
+        ));
+
+        if (!$last_code) {
             return $prefix_str . '0001';
         }
 
-        $next_number = intval($last_code) + 1;
-        return strval($next_number);
+        $numeric_val = intval($last_code);
+        return strval($numeric_val + 1);
     }
 
     public static function add_student($name, $class, $email, $code = '', $parent_user_id = null, $teacher_id = null, $section = '', $extra = array()) {

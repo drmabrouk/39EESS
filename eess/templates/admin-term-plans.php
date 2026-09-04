@@ -79,6 +79,11 @@ $arabic_term_names = array(
 
         <!-- Primary Header Actions (Reordered: Settings Gear on far-left, Print/Export, Red Report button, Assign) -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- Circular Bulk Download Icon Button -->
+            <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='flex'" title="Bulk Download / تحميل أرشيف الخطط الفصلية والسنوية بالجملة" style="width: 38px; height: 38px; border-radius: 50% !important; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                <span class="dashicons dashicons-download" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+            </button>
+
             <?php if ($is_admin || $is_reviewer): ?>
             <!-- Academic Config Gear Button (Positioned on far left) -->
             <button type="button" onclick="document.getElementById('eess-acad-config-modal').style.display='flex'" title="إعدادات العام الدراسي والفصول والمهل" class="sm-btn sm-btn-outline" style="height: 38px; width: 38px; padding: 0; border-radius: 50% !important; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;">
@@ -451,13 +456,7 @@ function eessTogglePlansTableSort() {
                                             <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
                                                 <?php echo esc_html($emp_code); ?>
                                             </span>
-                                            <?php
-                                            $app_year = intval(get_user_meta($sp->teacher_id, 'eess_appointment_year', true) ?: get_user_meta($sp->teacher_id, 'sm_appointment_year', true));
-                                            $exp_years = $app_year > 0 ? (intval(date('Y')) - $app_year) : 0;
-                                            ?>
-                                            <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10.5px; font-weight: 800;">
-                                                خبرة: <?php echo $exp_years > 0 ? ($exp_years . ' سنوات') : 'جديد'; ?>
-                                            </span>
+                                            <?php echo SM_DB::get_employee_experience_capsule($sp->teacher_id); ?>
                                             <?php
                                             $is_contacted_plan = get_user_meta($sp->teacher_id, 'eess_contacted_plan_' . $sp->id, true);
                                             if ($is_contacted_plan): ?>
@@ -864,6 +863,46 @@ function eessTogglePlansTableSort() {
                 <button type="button" id="wiz-prev-btn" onclick="wizNav(-1)" class="sm-btn sm-btn-outline" style="background: #ffffff; color: #475569 !important; border: 1px solid #cbd5e1; border-radius: 9999px !important; padding: 8px 20px; font-weight: 700; font-size: 12.5px; cursor: pointer; display: none; align-items: center; gap: 6px;">
                     <span class="dashicons dashicons-arrow-right-alt2" style="font-size: 15px; width: 15px; height: 15px;"></span>
                     <span>السابق</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Quarterly & Annual Plans Bulk Download Modal -->
+<div id="eess-plan-bulk-download-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); direction: rtl; font-family: 'Cairo', sans-serif;">
+    <div style="background: #ffffff; width: 100%; max-width: 520px; border-radius: 18px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-download" style="font-size: 20px; width: 20px; height: 20px; color: #38bdf8;"></span>
+                تحميل أرشيف الخطط الفصلية والسنوية بالجملة
+            </h3>
+            <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='none'" style="background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <form action="<?php echo admin_url('admin-ajax.php'); ?>" method="get" target="_blank" style="padding: 22px;" onsubmit="setTimeout(() => { document.getElementById('eess-plan-bulk-download-modal').style.display='none'; }, 1000);">
+            <input type="hidden" name="action" value="sm_bulk_download_term_plans">
+            <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('eess_admin_action'); ?>">
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر الفصل الدراسي للعام <?php echo esc_html($active_academic_year); ?>:</label>
+                <select name="term_number" class="sm-select" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; width: 100%;">
+                    <option value="0">كافة الفصول والخطط المعتمدة للعام الكامل</option>
+                    <option value="1">الفصل الدراسي الأول — (Term 1) <?php echo esc_html($active_academic_year); ?></option>
+                    <option value="2">الفصل الدراسي الثاني — (Term 2) <?php echo esc_html($active_academic_year); ?></option>
+                    <option value="3">الفصل الدراسي الثالث — (Term 3) <?php echo esc_html($active_academic_year); ?></option>
+                </select>
+            </div>
+
+            <p style="margin: 0 0 18px 0; font-size: 11.5px; color: #64748b; font-weight: 600; line-height: 1.5; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                💡 يتم تجميع كافة ملفات الخطط الفصلية المرفوعة وتسميتها آلياً بالنظام القياسي الموحد وتنسيقها داخل مجلدات المعلمين المعتمدين بملف مضغوط (ZIP).
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='none'" class="sm-btn" style="background: #f1f5f9; color: #475569; height: 38px; padding: 0 18px; border-radius: 8px; font-weight: 700; border: 1px solid #cbd5e1; cursor: pointer;">إلغاء</button>
+                <button type="submit" class="sm-btn" style="background: #2563eb; color: #ffffff; height: 38px; padding: 0 22px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                    توليد وتحميل الأرشيف (ZIP)
                 </button>
             </div>
         </form>

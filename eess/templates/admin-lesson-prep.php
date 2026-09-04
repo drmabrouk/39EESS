@@ -956,9 +956,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                         <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
                                             <?php echo esc_html($teacher_emp_id); ?>
                                         </span>
-                                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10.5px; font-weight: 800;">
-                                            خبرة: <?php echo $exp_years > 0 ? ($exp_years . ' سنوات') : 'جديد'; ?>
-                                        </span>
+                                        <?php echo SM_DB::get_employee_experience_capsule($sub->teacher_id); ?>
                                     </div>
                                     <?php
                                     $is_contacted = get_user_meta($sub->teacher_id, 'eess_contacted_prep_' . $sub->id, true);
@@ -1279,6 +1277,92 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         </div>
     </div>
 </div>
+
+<!-- Lesson Preparation Bulk Download Modal -->
+<div id="eess-prep-bulk-download-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); direction: rtl; font-family: 'Cairo', sans-serif;">
+    <div style="background: #ffffff; width: 100%; max-width: 520px; border-radius: 18px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-download" style="font-size: 20px; width: 20px; height: 20px; color: #38bdf8;"></span>
+                تحميل أرشيف تحضير الدروس بالجملة (Bulk Download)
+            </h3>
+            <button type="button" onclick="document.getElementById('eess-prep-bulk-download-modal').style.display='none'" style="background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+        </div>
+
+        <form action="<?php echo admin_url('admin-ajax.php'); ?>" method="get" target="_blank" style="padding: 22px;" onsubmit="setTimeout(() => { document.getElementById('eess-prep-bulk-download-modal').style.display='none'; }, 1000);">
+            <input type="hidden" name="action" value="sm_bulk_download_lesson_preps">
+            <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('eess_admin_action'); ?>">
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px;">نطاق وتحديد التنزيل المباشر (Download Scope):</label>
+                <select name="scope_type" id="eess_prep_scope_type" onchange="eessUpdatePrepScopeFields(this.value)" class="sm-select" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; width: 100%;">
+                    <option value="all">كافة التحضيرات المعتمدة والمتاحة</option>
+                    <option value="week">حسب الأسبوع المحدد</option>
+                    <option value="month">حسب الشهر والسنة</option>
+                    <option value="date">حسب تاريخ محدد</option>
+                    <option value="range">حسب نطاق زمني (من - إلى)</option>
+                </select>
+            </div>
+
+            <!-- Scope Field: Week -->
+            <div id="eess-prep-scope-week" style="display: none; margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر الأسبوع:</label>
+                <select name="week_num" class="sm-select" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; width: 100%;">
+                    <?php for ($w = 1; $w <= 18; $w++): ?>
+                        <option value="<?php echo $w; ?>">الأسبوع <?php echo $w; ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+
+            <!-- Scope Field: Month -->
+            <div id="eess-prep-scope-month" style="display: none; margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر الشهر:</label>
+                <input type="month" name="month_val" value="<?php echo date('Y-m'); ?>" class="sm-input" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; width: 100%;">
+            </div>
+
+            <!-- Scope Field: Specific Date -->
+            <div id="eess-prep-scope-date" style="display: none; margin-bottom: 16px;">
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر التاريخ المحدد:</label>
+                <input type="date" name="date_val" value="<?php echo date('Y-m-d'); ?>" class="sm-input" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; width: 100%;">
+            </div>
+
+            <!-- Scope Field: Date Range -->
+            <div id="eess-prep-scope-range" style="display: none; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">من تاريخ:</label>
+                        <input type="date" name="date_from" value="<?php echo date('Y-m-01'); ?>" class="sm-input" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12.5px; width: 100%;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">إلى تاريخ:</label>
+                        <input type="date" name="date_to" value="<?php echo date('Y-m-d'); ?>" class="sm-input" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12.5px; width: 100%;">
+                    </div>
+                </div>
+            </div>
+
+            <p style="margin: 0 0 18px 0; font-size: 11.5px; color: #64748b; font-weight: 600; line-height: 1.5; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                💡 يتم تجميع كافة ملفات التحضيرات المرفوعة وتسميتها آلياً بالنظام القياسي الموحد وتنسيقها داخل مجلدات المعلمين في ملف مضغوط (ZIP).
+            </p>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('eess-prep-bulk-download-modal').style.display='none'" class="sm-btn" style="background: #f1f5f9; color: #475569; height: 38px; padding: 0 18px; border-radius: 8px; font-weight: 700; border: 1px solid #cbd5e1; cursor: pointer;">إلغاء</button>
+                <button type="submit" class="sm-btn" style="background: #2563eb; color: #ffffff; height: 38px; padding: 0 22px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                    توليد وتحميل أوقات الأرشيف (ZIP)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function eessUpdatePrepScopeFields(scope) {
+    document.getElementById('eess-prep-scope-week').style.display = (scope === 'week') ? 'block' : 'none';
+    document.getElementById('eess-prep-scope-month').style.display = (scope === 'month') ? 'block' : 'none';
+    document.getElementById('eess-prep-scope-date').style.display = (scope === 'date') ? 'block' : 'none';
+    document.getElementById('eess-prep-scope-range').style.display = (scope === 'range') ? 'block' : 'none';
+}
+</script>
 
 <!-- School-Specific Lesson Prep Report Modal -->
 <div id="eess-school-prep-report-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
