@@ -4912,7 +4912,23 @@ class SM_Public {
                 $inst_id = intval($_POST['inst_id'] ?? 0);
 
                 if ($action === 'add' || $action === 'edit') {
+                    global $wpdb;
+                    $code_val = intval($_POST['inst_code'] ?? 0);
+
+                    // Unique Numeric Code Validation
+                    if ($code_val > 0) {
+                        $duplicate_check = $wpdb->get_var($wpdb->prepare(
+                            "SELECT id FROM {$wpdb->prefix}eess_institutions WHERE code = %d AND id != %d LIMIT 1",
+                            $code_val,
+                            $inst_id
+                        ));
+                        if ($duplicate_check) {
+                            wp_die('عذراً، كود المؤسسة (' . $code_val . ') مسجل مسبقاً لمؤسسة أخرى. يرجى اختيار كود رقمي فريد.');
+                        }
+                    }
+
                     $inst_data = array(
+                        'code'          => $code_val > 0 ? $code_val : $inst_id,
                         'name'          => sanitize_text_field($_POST['inst_name'] ?? ''),
                         'type'          => sanitize_text_field($_POST['inst_type'] ?? 'مدرسة'),
                         'country'       => sanitize_text_field($_POST['inst_country'] ?? 'الإمارات العربية المتحدة'),

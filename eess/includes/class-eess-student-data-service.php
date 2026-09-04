@@ -120,7 +120,7 @@ class EESS_Student_Data_Service {
 
         $student_id = intval($data['id'] ?? ($data['student_id'] ?? 0));
         $name       = sanitize_text_field($data['name'] ?? ($data['full_name'] ?? ''));
-        $grade      = self::normalize_grade($data['class_name'] ?? ($data['grade'] ?? ''));
+        $grade      = self::normalize_grade($data['class_name'] ?? ($data['class'] ?? ($data['grade'] ?? '')));
         $section    = self::normalize_section($data['section'] ?? '');
         $national_id= sanitize_text_field($data['national_id'] ?? '');
 

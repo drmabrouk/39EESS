@@ -309,7 +309,7 @@ class EESS_Org_Helper {
     public static function get_institutions() {
         global $wpdb;
         self::ensure_institutions_columns_exist();
-        return $wpdb->get_results("SELECT i.*, u.display_name as manager_display_name FROM {$wpdb->prefix}eess_institutions i LEFT JOIN {$wpdb->users} u ON i.manager_id = u.ID ORDER BY i.name ASC");
+        return $wpdb->get_results("SELECT i.*, u.display_name as manager_display_name FROM {$wpdb->prefix}eess_institutions i LEFT JOIN {$wpdb->users} u ON i.manager_id = u.ID WHERE (i.status = 'active' OR i.status IS NULL) ORDER BY i.name ASC");
     }
 
     public static function get_institution_by_id($id) {
@@ -330,6 +330,7 @@ class EESS_Org_Helper {
             $data = array('name' => $data);
         }
         $insert = array(
+            'code'          => !empty($data['code']) ? intval($data['code']) : 1,
             'parent_id'     => !empty($data['parent_id']) ? intval($data['parent_id']) : null,
             'name'          => sanitize_text_field($data['name'] ?? ''),
             'type'          => sanitize_text_field($data['type'] ?? 'مدرسة'),
@@ -352,6 +353,7 @@ class EESS_Org_Helper {
             $data = array('name' => $data);
         }
         $update = array(
+            'code'          => !empty($data['code']) ? intval($data['code']) : intval($id),
             'parent_id'     => !empty($data['parent_id']) ? intval($data['parent_id']) : null,
             'name'          => sanitize_text_field($data['name'] ?? ''),
             'type'          => sanitize_text_field($data['type'] ?? 'مدرسة'),
@@ -373,13 +375,13 @@ class EESS_Org_Helper {
     public static function get_schools() {
         global $wpdb;
         self::ensure_institutions_columns_exist();
-        return $wpdb->get_results("SELECT s.*, i.name as institution_name, u1.display_name as manager_display_name, u2.display_name as deputy_manager_display_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->prefix}eess_institutions i ON s.institution_id = i.id LEFT JOIN {$wpdb->users} u1 ON s.manager_id = u1.ID LEFT JOIN {$wpdb->users} u2 ON s.deputy_manager_id = u2.ID ORDER BY s.name ASC");
+        return $wpdb->get_results("SELECT s.*, i.name as institution_name, u1.display_name as manager_display_name, u2.display_name as deputy_manager_display_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->prefix}eess_institutions i ON s.institution_id = i.id LEFT JOIN {$wpdb->users} u1 ON s.manager_id = u1.ID LEFT JOIN {$wpdb->users} u2 ON s.deputy_manager_id = u2.ID WHERE (s.status = 'active' OR s.status IS NULL) ORDER BY s.name ASC");
     }
 
     public static function get_schools_by_institution($inst_id) {
         global $wpdb;
         self::ensure_institutions_columns_exist();
-        return $wpdb->get_results($wpdb->prepare("SELECT s.*, u1.display_name as manager_display_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->users} u1 ON s.manager_id = u1.ID WHERE s.institution_id = %d ORDER BY s.name ASC", intval($inst_id)));
+        return $wpdb->get_results($wpdb->prepare("SELECT s.*, u1.display_name as manager_display_name FROM {$wpdb->prefix}eess_schools s LEFT JOIN {$wpdb->users} u1 ON s.manager_id = u1.ID WHERE s.institution_id = %d AND (s.status = 'active' OR s.status IS NULL) ORDER BY s.name ASC", intval($inst_id)));
     }
 
     public static function get_all_schools() {
