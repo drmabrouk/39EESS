@@ -3287,34 +3287,11 @@ class SM_Public {
         $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
         if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
-        $name = sanitize_text_field($_POST['name'] ?? '');
-        $class = sanitize_text_field($_POST['class'] ?? '');
-
-        if (empty($name) || empty($class)) {
-            wp_send_json_error('الاسم والصف حقول إجبارية');
-        }
-
-        $parent_user_id = !empty($_POST['parent_user_id']) ? intval($_POST['parent_user_id']) : null;
-        $section = !empty($_POST['section']) ? sanitize_text_field($_POST['section']) : '';
-        $email = !empty($_POST['email']) ? sanitize_email($_POST['email']) : '';
-
-        $extra = array(
-            'guardian_phone' => sanitize_text_field($_POST['guardian_phone'] ?? ''),
-            'nationality' => sanitize_text_field($_POST['nationality'] ?? ''),
-            'registration_date' => sanitize_text_field($_POST['registration_date'] ?? '')
-        );
-
-        // Check if student exists
-        if (SM_DB::student_exists($name, $class, $section)) {
-            wp_send_json_error('هذا الطالب مسجل بالفعل في هذا الصف والشعبة.');
-        }
-
-        $id = SM_DB::add_student($name, $class, $email, '', $parent_user_id, null, $section, $extra);
-
-        if ($id) {
-            wp_send_json_success($id);
+        $saved_id = EESS_Student_Data_Service::process_and_save_student($_POST);
+        if (is_wp_error($saved_id)) {
+            wp_send_json_error($saved_id->get_error_message());
         } else {
-            wp_send_json_error('فشل في إضافة الطالب. يرجى التحقق من البيانات والمحاولة مرة أخرى.');
+            wp_send_json_success($saved_id);
         }
     }
 
@@ -3323,10 +3300,11 @@ class SM_Public {
         $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
         if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_photo_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
-        if (SM_DB::update_student(intval($_POST['student_id']), $_POST)) {
-            wp_send_json_success('Updated');
+        $saved_id = EESS_Student_Data_Service::process_and_save_student($_POST);
+        if (is_wp_error($saved_id)) {
+            wp_send_json_error($saved_id->get_error_message());
         } else {
-            wp_send_json_error('Failed to update');
+            wp_send_json_success($saved_id);
         }
     }
 
@@ -6056,46 +6034,74 @@ class SM_Public {
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel
 
-        // 16 Comprehensive Columns: A to P
+        // Complete 30 Comprehensive Columns (A to AD)
         fputcsv($output, array(
             'كود الطالب (Student Code)',
             'الرقم التسلسلي (Serial Number)',
             'الاسم الكامل (Full Name)',
+            'الجنس (Gender)',
+            'تاريخ الميلاد (Date of Birth)',
+            'الجنسية (Nationality)',
             'رقم الهوية الوطنية (National ID)',
             'الصف الدراسي (Grade)',
             'الشعبة / الفصل (Section)',
-            'الجنسية (Nationality)',
-            'تاريخ الميلاد (Date of Birth)',
-            'الجنس (Gender)',
-            'تاريخ التسجيل (Registration Date)',
+            'العام الدراسي (Academic Year)',
+            'معرف المدرسة (School ID)',
+            'اسم ولي الأمر (Guardian Name)',
+            'صلة القرابة (Guardian Relationship)',
             'البريد الإلكتروني لولي الأمر (Guardian Email)',
             'رقم هاتف ولي الأمر (Guardian Phone)',
-            'معرف المعلم (Teacher ID)',
+            'حالة الطالب (Student Status)',
+            'حالة التسجيل (Enrollment Status)',
+            'تاريخ التسجيل (Enrollment Date)',
+            'الإمارة (Emirate)',
+            'العنوان (Address)',
+            'ملاحظة سلوكية (Student Behavior)',
+            'المستوى الأكاديمي (Academic Level)',
+            'أصحاب الهمم / احتياجات خاصة (Special Needs)',
+            'الحالة الصحية (Health Status)',
+            'الحساسية والتنبيهات الطبية (Allergies)',
             'رابط الصورة الشخصية (Photo URL)',
-            'معرف المدرسة (School ID)',
-            'نقاط السلوك (Behavior Points)'
+            'حالة الرسوم (Fee Status)',
+            'إجمالي الرسوم (Total Tuition Fees)',
+            'المبلغ المدفوع (Amount Paid)',
+            'المبلغ المتبقي (Outstanding Balance)',
+            'حالة الشيك / الدفع (Payment Status)'
         ));
 
         foreach ($records as $r) {
-            $dob = SM_DB::get_student_meta($r->id, 'date_of_birth');
-            $gender = SM_DB::get_student_meta($r->id, 'gender');
             fputcsv($output, array(
                 $r->student_code,
                 $r->id,
                 $r->name,
+                $r->gender ?: 'ذكر',
+                $r->dob ?: '',
+                $r->nationality ?: 'سعودي',
                 $r->national_id,
                 $r->class_name,
                 $r->section,
-                $r->nationality,
-                $dob ?: '',
-                $gender ?: '',
-                $r->registration_date,
+                '2026-2027',
+                $r->school_id,
+                $r->guardian_name ?: '',
+                $r->guardian_relationship ?: 'أب',
                 $r->parent_email,
                 $r->guardian_phone,
-                $r->teacher_id,
+                $r->student_status ?: 'Active',
+                $r->enrollment_status ?: 'Enrolled',
+                $r->enrollment_date ?: $r->registration_date,
+                $r->emirate ?: 'أبوظبي',
+                $r->address ?: '',
+                '', // Behavior note placeholder
+                $r->academic_level ?: 'ممتاز',
+                $r->special_needs ? 'Yes' : 'No',
+                $r->health_status ?: 'سليم',
+                $r->allergies ?: 'لا توجد حساسية',
                 $r->photo_url,
-                $r->school_id,
-                $r->behavior_points
+                $r->fee_status ?: 'Unpaid',
+                $r->total_tuition_fees ?: '0.00',
+                $r->amount_paid ?: '0.00',
+                $r->outstanding_balance ?: '0.00',
+                $r->payment_status ?: 'Pending'
             ));
         }
         fclose($output);
@@ -6303,44 +6309,81 @@ class SM_Public {
                 }
             }
 
-            // Support both 16-Column Export format and 11-Column Template format
-            if (count($data) >= 15 && is_numeric($data[1]) && !empty($data[2])) {
+            // Support 30-Column Comprehensive Format, 16-Column Export format, and 11-Column Template format
+            if (count($data) >= 28) {
+                // 30-Column Comprehensive Format
+                $row_data = array(
+                    'student_code'          => isset($data[0]) ? trim($data[0]) : '',
+                    'id'                    => is_numeric($data[1]) ? intval($data[1]) : 0,
+                    'name'                  => isset($data[2]) ? trim($data[2]) : '',
+                    'gender'                => isset($data[3]) ? trim($data[3]) : 'ذكر',
+                    'dob'                   => isset($data[4]) ? trim($data[4]) : '',
+                    'nationality'           => isset($data[5]) ? trim($data[5]) : 'سعودي',
+                    'national_id'           => isset($data[6]) ? trim($data[6]) : '',
+                    'class_name'            => isset($data[7]) ? trim($data[7]) : '',
+                    'section'               => isset($data[8]) ? trim($data[8]) : '',
+                    'school_id'             => is_numeric($data[10] ?? '') ? intval($data[10]) : 0,
+                    'guardian_name'         => isset($data[11]) ? trim($data[11]) : '',
+                    'guardian_relationship' => isset($data[12]) ? trim($data[12]) : 'أب',
+                    'parent_email'          => isset($data[13]) ? trim($data[13]) : '',
+                    'guardian_phone'        => isset($data[14]) ? trim($data[14]) : '',
+                    'student_status'        => isset($data[15]) ? trim($data[15]) : 'Active',
+                    'enrollment_status'     => isset($data[16]) ? trim($data[16]) : 'Enrolled',
+                    'enrollment_date'       => isset($data[17]) ? trim($data[17]) : date('Y-m-d'),
+                    'emirate'               => isset($data[18]) ? trim($data[18]) : 'أبوظبي',
+                    'address'               => isset($data[19]) ? trim($data[19]) : '',
+                    'student_behavior'      => isset($data[20]) ? trim($data[20]) : '',
+                    'academic_level'        => isset($data[21]) ? trim($data[21]) : 'ممتاز',
+                    'special_needs'         => isset($data[22]) ? trim($data[22]) : 'No',
+                    'health_status'         => isset($data[23]) ? trim($data[23]) : 'سليم',
+                    'allergies'             => isset($data[24]) ? trim($data[24]) : 'لا توجد حساسية',
+                    'photo_url'             => isset($data[25]) ? trim($data[25]) : '',
+                    'fee_status'            => isset($data[26]) ? trim($data[26]) : 'Unpaid',
+                    'total_tuition_fees'    => is_numeric($data[27] ?? '') ? floatval($data[27]) : 0,
+                    'amount_paid'           => is_numeric($data[28] ?? '') ? floatval($data[28]) : 0,
+                    'payment_status'        => isset($data[30]) ? trim($data[30]) : 'Pending'
+                );
+            } elseif (count($data) >= 15 && is_numeric($data[1]) && !empty($data[2])) {
                 // 16-Column Export Format
-                $student_code = isset($data[0]) ? trim($data[0]) : '';
-                $serial_id    = intval($data[1]);
-                $name         = isset($data[2]) ? trim($data[2]) : '';
-                $national_id  = !empty($data[3]) ? trim($data[3]) : null;
-                $class_name   = isset($data[4]) ? trim($data[4]) : '';
-                $section      = isset($data[5]) ? trim($data[5]) : '';
-                $nationality  = isset($data[6]) ? trim($data[6]) : '';
-                $dob          = isset($data[7]) ? trim($data[7]) : '';
-                $gender       = isset($data[8]) ? trim($data[8]) : '';
-                $reg_date     = isset($data[9]) ? trim($data[9]) : '';
-                $email        = isset($data[10]) ? trim($data[10]) : '';
-                $phone        = isset($data[11]) ? trim($data[11]) : '';
-                $teacher_id   = !empty($data[12]) && is_numeric($data[12]) ? intval($data[12]) : null;
-                $photo_url    = isset($data[13]) ? trim($data[13]) : '';
-                $school_id    = !empty($data[14]) && is_numeric($data[14]) ? intval($data[14]) : null;
-                $points       = isset($data[15]) && is_numeric($data[15]) ? intval($data[15]) : 0;
+                $row_data = array(
+                    'student_code'   => isset($data[0]) ? trim($data[0]) : '',
+                    'id'             => intval($data[1]),
+                    'name'           => isset($data[2]) ? trim($data[2]) : '',
+                    'national_id'    => !empty($data[3]) ? trim($data[3]) : '',
+                    'class_name'     => isset($data[4]) ? trim($data[4]) : '',
+                    'section'        => isset($data[5]) ? trim($data[5]) : '',
+                    'nationality'    => isset($data[6]) ? trim($data[6]) : '',
+                    'dob'            => isset($data[7]) ? trim($data[7]) : '',
+                    'gender'         => isset($data[8]) ? trim($data[8]) : '',
+                    'parent_email'   => isset($data[10]) ? trim($data[10]) : '',
+                    'guardian_phone' => isset($data[11]) ? trim($data[11]) : '',
+                    'photo_url'      => isset($data[13]) ? trim($data[13]) : '',
+                    'school_id'      => is_numeric($data[14] ?? '') ? intval($data[14]) : 0
+                );
             } else {
-                // 11 Official Columns: A to K
-                $student_code = isset($data[0]) ? trim($data[0]) : '';
-                $serial_id    = null;
-                $name         = isset($data[1]) ? trim($data[1]) : '';
-                $national_id  = isset($data[2]) ? trim($data[2]) : null;
-                $class_name   = isset($data[3]) ? trim($data[3]) : '';
-                $section      = isset($data[4]) ? trim($data[4]) : '';
-                $nationality  = isset($data[5]) ? trim($data[5]) : '';
-                $dob          = '';
-                $gender       = '';
-                $reg_date     = isset($data[6]) ? trim($data[6]) : '';
-                $email        = isset($data[7]) ? trim($data[7]) : '';
-                $phone        = isset($data[8]) ? trim($data[8]) : '';
-                $teacher_id   = null;
-                $photo_url    = isset($data[9]) ? trim($data[9]) : '';
-                $school_id    = isset($data[10]) && is_numeric($data[10]) ? intval($data[10]) : null;
-                $points       = 0;
+                // 11 Official Columns
+                $row_data = array(
+                    'student_code'   => isset($data[0]) ? trim($data[0]) : '',
+                    'name'           => isset($data[1]) ? trim($data[1]) : '',
+                    'national_id'    => isset($data[2]) ? trim($data[2]) : '',
+                    'class_name'     => isset($data[3]) ? trim($data[3]) : '',
+                    'section'        => isset($data[4]) ? trim($data[4]) : '',
+                    'nationality'    => isset($data[5]) ? trim($data[5]) : '',
+                    'parent_email'   => isset($data[7]) ? trim($data[7]) : '',
+                    'guardian_phone' => isset($data[8]) ? trim($data[8]) : '',
+                    'photo_url'      => isset($data[9]) ? trim($data[9]) : '',
+                    'school_id'      => is_numeric($data[10] ?? '') ? intval($data[10]) : 0
+                );
             }
+
+            $saved_id = EESS_Student_Data_Service::process_and_save_student($row_data);
+            if (is_wp_error($saved_id)) {
+                $results['error']++;
+                $results['details'][] = array('type' => 'error', 'msg' => "السطر $row_index: " . $saved_id->get_error_message());
+            } else {
+                $results['success']++;
+            }
+            continue;
 
             // Handle legacy 7-column fallback if A is Name instead of Code
             if (empty($name) && !empty($student_code) && (mb_strlen($student_code) > 4 && !preg_replace('/[^a-zA-Z]/', '', $student_code))) {

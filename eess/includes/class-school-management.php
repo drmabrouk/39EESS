@@ -19,6 +19,7 @@ class School_Management {
         require_once SM_PLUGIN_DIR . 'includes/class-sm-settings.php';
         require_once SM_PLUGIN_DIR . 'includes/class-sm-logger.php';
         require_once SM_PLUGIN_DIR . 'includes/class-eess-file-naming-service.php';
+        require_once SM_PLUGIN_DIR . 'includes/class-eess-student-data-service.php';
         require_once SM_PLUGIN_DIR . 'includes/class-sm-notifications.php';
         require_once SM_PLUGIN_DIR . 'admin/class-sm-admin.php';
         require_once SM_PLUGIN_DIR . 'public/class-sm-public.php';
