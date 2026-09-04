@@ -207,8 +207,19 @@ class EESS_Student_Data_Service {
             $wpdb->update("{$wpdb->prefix}sm_students", $fields, array('id' => $student_id));
             $final_id = $student_id;
         } else {
-            if (empty($fields['student_code'])) {
-                $fields['student_code'] = SM_DB::generate_student_code($school_id);
+            // Resolve institution ID for code generation
+            $inst_id = 1;
+            if ($school_id > 0) {
+                $inst_id = $wpdb->get_var($wpdb->prepare("SELECT institution_id FROM {$wpdb->prefix}eess_schools WHERE id = %d", $school_id)) ?: 1;
+            }
+            if (empty($fields['student_code']) || empty($fields['student_id'])) {
+                if (class_exists('EESS_ID_Code_Service')) {
+                    $generated_code = EESS_ID_Code_Service::generate_student_code($inst_id);
+                } else {
+                    $generated_code = SM_DB::generate_student_code($school_id);
+                }
+                $fields['student_code'] = $generated_code;
+                $fields['student_id']   = $generated_code;
             }
             $wpdb->insert("{$wpdb->prefix}sm_students", $fields);
             $final_id = $wpdb->insert_id;

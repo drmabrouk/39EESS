@@ -147,6 +147,16 @@ class SM_Activator {
             KEY school_id (school_id)
         ) $charset_collate;
 
+        CREATE TABLE {$wpdb->prefix}eess_id_counters (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            institution_id bigint(20) NOT NULL,
+            counter_type varchar(50) NOT NULL,
+            last_sequence bigint(20) DEFAULT 0 NOT NULL,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            UNIQUE KEY inst_counter (institution_id, counter_type)
+        ) $charset_collate;
+
         CREATE TABLE {$wpdb->prefix}eess_user_assignments (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) NOT NULL,

@@ -3391,8 +3391,13 @@ class SM_Public {
             if (!empty($_POST['specialization'])) {
                 update_user_meta($user_id, 'sm_specialization', sanitize_text_field($_POST['specialization']));
             }
-            if (isset($_POST['employee_number'])) {
-                update_user_meta($user_id, 'eess_employee_number', sanitize_text_field($_POST['employee_number']));
+            $emp_num = sanitize_text_field($_POST['employee_number'] ?? '');
+            if (empty($emp_num) && class_exists('EESS_ID_Code_Service')) {
+                $inst_id = !empty($_POST['institution_id']) ? intval($_POST['institution_id']) : 1;
+                $emp_num = EESS_ID_Code_Service::generate_employee_code($inst_id);
+            }
+            if (!empty($emp_num)) {
+                update_user_meta($user_id, 'eess_employee_number', $emp_num);
             }
             if (isset($_POST['department'])) {
                 update_user_meta($user_id, 'eess_department', sanitize_text_field($_POST['department']));
