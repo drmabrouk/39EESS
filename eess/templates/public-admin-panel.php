@@ -984,8 +984,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                 </div>
                             </div>
 
-                            <!-- Institutions Cards Grid Container (3 Cards Per Row) -->
-                            <div id="eess-institutions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <!-- Institutions Cards Grid Container (2 Spacious Cards Per Row) -->
+                            <div id="eess-institutions-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 24px;">
                                 <?php if (empty($institutions)): ?>
                                     <div style="grid-column: 1 / -1; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; padding: 40px; text-align: center; color: #64748b;">
                                         <span class="dashicons dashicons-bank" style="font-size: 40px; width: 40px; height: 40px; color: #cbd5e1; margin-bottom: 10px;"></span>
@@ -1143,9 +1143,24 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
                                         <!-- Profile Information Grid -->
                                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                                            <div style="grid-column: span 2;">
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">كود المؤسسة الرقمي الفريد <span style="color:#ef4444;">*</span></label>
+                                                <input type="number" name="inst_code" id="inst_input_code" required placeholder="مثال: 1001" class="sm-input" style="width: 100%; height: 40px; font-weight: bold; color: #881337;">
+                                            </div>
+
+                                            <div>
                                                 <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">اسم المؤسسة التعليمية <span style="color:#ef4444;">*</span></label>
                                                 <input type="text" name="inst_name" id="inst_input_name" required placeholder="مثال: مدرسة الأمل النموذجية، جامعة الإمارات..." class="sm-input" style="width: 100%; height: 40px;">
+                                            </div>
+
+                                            <div>
+                                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">المؤسسة الأم (الهيكل الهرمي)</label>
+                                                <select name="inst_parent_id" id="inst_input_parent_id" class="sm-select" style="width: 100%; height: 40px;">
+                                                    <option value="">-- رئيسية (بدون مؤسسة أم) --</option>
+                                                    <?php foreach ($institutions as $parent_inst): ?>
+                                                        <option value="<?php echo $parent_inst->id; ?>"><?php echo esc_html($parent_inst->name); ?> (كود: <?php echo intval($parent_inst->code ?: $parent_inst->id); ?>)</option>
+                                                    <?php endforeach; ?>
+                                                </select>
                                             </div>
 
                                             <div>
@@ -1235,6 +1250,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                             document.getElementById('inst_form_id').value = '0';
                             document.getElementById('inst-modal-title').innerText = 'إضافة مؤسسة تعليمية جديدة';
                             document.getElementById('eess-inst-form').reset();
+                            document.getElementById('inst_input_code').value = '';
+                            if (document.getElementById('inst_input_parent_id')) document.getElementById('inst_input_parent_id').value = '';
                             document.querySelectorAll('.inst-staff-checkbox').forEach(cb => cb.checked = false);
                             document.getElementById('eess-inst-modal').style.display = 'flex';
                         }
@@ -1244,6 +1261,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                             document.getElementById('inst_form_id').value = inst.id;
                             document.getElementById('inst-modal-title').innerText = 'تعديل بيانات وتكليفات: ' + inst.name;
 
+                            document.getElementById('inst_input_code').value = inst.code || '';
+                            if (document.getElementById('inst_input_parent_id')) document.getElementById('inst_input_parent_id').value = inst.parent_id || '';
                             document.getElementById('inst_input_name').value = inst.name || '';
                             document.getElementById('inst_input_type').value = inst.type || 'مدرسة';
                             document.getElementById('inst_input_country').value = inst.country || 'الإمارات العربية المتحدة';
