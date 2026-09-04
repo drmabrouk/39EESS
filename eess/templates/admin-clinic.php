@@ -40,12 +40,13 @@ $history = $wpdb->get_results("
             </div>
             <div style="flex: 1;">
                 <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">العيادة المدرسية</h2>
-                <p style="margin: 0 0 8px 0; font-size: 12.5px; color: #64748b; font-weight: 500;">سجل الحالات والزيارات اليومية للعيادة المدرسية والتقارير الصحية والمراجعات الطبية للطلاب</p>
-                <input type="text" id="eess-clinic-search" onkeyup="eessFilterClinic()" class="sm-input" placeholder="ابحث عن طالب بالاسم، الصف، أو المحول..." style="height: 36px; border-radius: 9999px !important; width: 100%; max-width: 380px; font-size: 12px; padding: 0 14px; border: 1px solid #cbd5e1;">
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">سجل الحالات والزيارات اليومية للعيادة المدرسية والتقارير الصحية والمراجعات الطبية للطلاب</p>
             </div>
         </div>
 
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <input type="text" id="eess-clinic-search" onkeyup="eessFilterClinic()" class="sm-input" placeholder="بحث باسم الطالب، الصف، أو المحول..." style="height: 38px; border-radius: 9999px !important; width: 260px; font-size: 12px; padding: 0 14px; border: 1px solid #cbd5e1;">
+
             <?php if ($is_staff_who_can_send): ?>
             <button type="button" onclick="document.getElementById('referral-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>

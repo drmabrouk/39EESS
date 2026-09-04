@@ -885,11 +885,6 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                     }
                     break;
 
-                case 'parents':
-                    if ($is_admin || current_user_can('إدارة_أولياء_الأمور')) {
-                        include SM_PLUGIN_DIR . 'templates/admin-parents.php';
-                    }
-                    break;
 
 
 
