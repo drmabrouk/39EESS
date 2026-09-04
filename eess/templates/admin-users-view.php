@@ -316,7 +316,8 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                             </td>
                             <td style="font-size: 12px; vertical-align: middle;">
                                 <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;"><?php echo esc_html($u->user_email); ?></div>
-                                <code style="background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; font-family:monospace; font-size: 11px; color:#881337; font-weight:800; display:inline-block;"><?php echo get_user_meta($u->ID, 'sm_temp_pass', true) ?: '********'; ?></code>
+                                <?php $pass_val = get_user_meta($u->ID, 'sm_temp_pass', true) ?: '********'; ?>
+                                <code onclick="eessTogglePassMask(this, '<?php echo esc_js($pass_val); ?>')" title="انقر لعرض / إخفاء كلمة المرور" style="background:#f1f5f9; padding:2px 8px; border-radius:6px; border:1px solid #cbd5e1; font-family:monospace; font-size: 11px; color:#881337; font-weight:800; display:inline-block; cursor:pointer; user-select:none;" data-masked="1">••••••••</code>
                             </td>
                             <td style="vertical-align: middle;">
                                 <div style="font-weight:800; font-size: 12.5px; color: #0f172a;">
@@ -452,6 +453,18 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 <!-- UNIFIED MODAL REPLACES ALL LEGACY USER MODALS -->
 
 <script>
+function eessTogglePassMask(el, realPass) {
+    if (el.getAttribute('data-masked') === '1') {
+        el.textContent = realPass;
+        el.setAttribute('data-masked', '0');
+        el.style.background = '#fef2f2';
+    } else {
+        el.textContent = '••••••••';
+        el.setAttribute('data-masked', '1');
+        el.style.background = '#f1f5f9';
+    }
+}
+
 // Switch Tabs Client-side
 function switchUsersTab(tabId, btn) {
     document.querySelectorAll('.users-tab-panel').forEach(p => p.style.display = 'none');

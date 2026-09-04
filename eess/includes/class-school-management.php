@@ -18,6 +18,7 @@ class School_Management {
         require_once SM_PLUGIN_DIR . 'includes/class-sm-db.php';
         require_once SM_PLUGIN_DIR . 'includes/class-sm-settings.php';
         require_once SM_PLUGIN_DIR . 'includes/class-sm-logger.php';
+        require_once SM_PLUGIN_DIR . 'includes/class-eess-file-naming-service.php';
         require_once SM_PLUGIN_DIR . 'includes/class-sm-notifications.php';
         require_once SM_PLUGIN_DIR . 'admin/class-sm-admin.php';
         require_once SM_PLUGIN_DIR . 'public/class-sm-public.php';
@@ -180,6 +181,8 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_send_message_ajax', $plugin_public, 'ajax_send_message');
         $this->loader->add_action('wp_ajax_sm_create_parent_summons', $plugin_public, 'ajax_create_parent_summons');
         $this->loader->add_action('wp_ajax_sm_convert_summons_visit', $plugin_public, 'ajax_convert_summons_visit');
+        $this->loader->add_action('wp_ajax_sm_bulk_download_lesson_preps', $plugin_public, 'ajax_bulk_download_lesson_preps');
+        $this->loader->add_action('wp_ajax_sm_bulk_download_term_plans', $plugin_public, 'ajax_bulk_download_term_plans');
         $this->loader->add_action('wp_ajax_sm_update_summons_status', $plugin_public, 'ajax_update_summons_status');
         $this->loader->add_action('wp_ajax_sm_submit_exit_card_request', $plugin_public, 'ajax_submit_exit_card_request');
         $this->loader->add_action('wp_ajax_nopriv_sm_submit_exit_card_request', $plugin_public, 'ajax_submit_exit_card_request');

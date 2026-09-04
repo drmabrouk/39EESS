@@ -9665,6 +9665,11 @@ class SM_Public {
             wp_send_json_error('عفواً، يجب تسجيل الدخول لتقديم طلب بطاقة تصريح الخروج.');
         }
 
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_user_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) {
+            wp_send_json_error('فشل التحقق من أمان الطلب (Invalid Nonce)');
+        }
+
         $student_id = intval($_POST['student_id'] ?? 0);
         $reason     = sanitize_text_field($_POST['reason'] ?? 'استخراج بطاقة تصريح خروج طالب');
         $req_date   = sanitize_text_field($_POST['requested_date'] ?? current_time('Y-m-d'));
@@ -9705,8 +9710,13 @@ class SM_Public {
     }
 
     public function ajax_update_exit_card_request_status() {
-        if (!is_user_logged_in() || (!current_user_can('إدارة_الطلاب') && !current_user_can('manage_options'))) {
+        if (!is_user_logged_in() || (!current_user_can('إدارة_الطلاب') && !current_user_can('manage_options') && !current_user_can('manage_students'))) {
             wp_send_json_error('عفواً، لا تمتلك الصلاحية المطلوبة.');
+        }
+
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_user_action')) {
+            wp_send_json_error('فشل التحقق من أمان الطلب (Invalid Nonce)');
         }
 
         $req_id      = intval($_POST['request_id'] ?? 0);
@@ -9846,5 +9856,219 @@ class SM_Public {
             );
             wp_send_json_success(array('id' => $wpdb->insert_id, 'usage_count' => 1));
         }
+    }
+
+    public function ajax_bulk_download_lesson_preps() {
+        if (!is_user_logged_in()) wp_die('Unauthorized access');
+        if (!wp_verify_nonce($_REQUEST['nonce'] ?? '', 'sm_admin_action') && !wp_verify_nonce($_REQUEST['nonce'] ?? '', 'eess_admin_action')) {
+            wp_die('Security check failed');
+        }
+
+        if (!class_exists('ZipArchive')) {
+            wp_die('مكتبة ZipArchive غير مفعلة على هذا السيرفر.');
+        }
+
+        global $wpdb;
+        $user_id = get_current_user_id();
+        $user_scope = EESS_Org_Helper::get_user_scope($user_id);
+
+        $download_scope = sanitize_text_field($_REQUEST['scope_type'] ?? 'all');
+        $week_num      = intval($_REQUEST['week_num'] ?? 0);
+        $month_val     = sanitize_text_field($_REQUEST['month_val'] ?? '');
+        $date_val      = sanitize_text_field($_REQUEST['date_val'] ?? '');
+        $date_from     = sanitize_text_field($_REQUEST['date_from'] ?? '');
+        $date_to       = sanitize_text_field($_REQUEST['date_to'] ?? '');
+
+        $query = "SELECT p.*, u.display_name as teacher_name
+                  FROM {$wpdb->prefix}sm_lesson_preps p
+                  JOIN {$wpdb->prefix}users u ON p.teacher_id = u.ID WHERE 1=1";
+        $params = array();
+
+        if (!$user_scope['unrestricted']) {
+            if (!empty($user_scope['schools'])) {
+                $placeholders = implode(',', array_fill(0, count($user_scope['schools']), '%d'));
+                $query .= " AND p.teacher_id IN (SELECT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE school_id IN ($placeholders))";
+                foreach ($user_scope['schools'] as $sch_id) $params[] = $sch_id;
+            } else {
+                $query .= " AND p.teacher_id = %d";
+                $params[] = $user_id;
+            }
+        }
+
+        if ($download_scope === 'week' && $week_num > 0) {
+            $query .= " AND (WEEK(p.lesson_date, 1) - WEEK(DATE_SUB(p.lesson_date, INTERVAL DAYOFMONTH(p.lesson_date)-1 DAY), 1) + 1) = %d";
+            $params[] = $week_num;
+        } elseif ($download_scope === 'month' && !empty($month_val)) {
+            $query .= " AND DATE_FORMAT(p.lesson_date, '%%Y-%%m') = %s";
+            $params[] = $month_val;
+        } elseif ($download_scope === 'date' && !empty($date_val)) {
+            $query .= " AND p.lesson_date = %s";
+            $params[] = $date_val;
+        } elseif ($download_scope === 'range' && !empty($date_from) && !empty($date_to)) {
+            $query .= " AND p.lesson_date BETWEEN %s AND %s";
+            $params[] = $date_from;
+            $params[] = $date_to;
+        }
+
+        $query .= " ORDER BY p.lesson_date DESC, p.id DESC";
+
+        $records = !empty($params) ? $wpdb->get_results($wpdb->prepare($query, $params)) : $wpdb->get_results($query);
+
+        if (empty($records)) {
+            wp_die('لا توجد تحضيرات دروس مرفوعة تطابق خيارات الأرشيف المحددة.');
+        }
+
+        $upload_dir = wp_upload_dir();
+        $zip_name = 'Lesson_Preparations_Archive_' . date('Y-m-d_His') . '.zip';
+        $zip_path = $upload_dir['path'] . '/' . $zip_name;
+
+        $zip = new ZipArchive();
+        if ($zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            wp_die('تعذر إنشاء ملف الأرشيف المضغوط.');
+        }
+
+        $added_count = 0;
+        $skipped_count = 0;
+
+        foreach ($records as $rec) {
+            $file_url = $rec->file_url;
+            if (empty($file_url)) {
+                $parsed = json_decode($rec->lesson_data ?? '{}', true);
+                $file_url = $parsed['file_url'] ?? '';
+            }
+
+            if (empty($file_url)) {
+                $skipped_count++;
+                continue;
+            }
+
+            $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $file_url);
+            if (!file_exists($local_path)) {
+                $skipped_count++;
+                continue;
+            }
+
+            $std_filename = EESS_File_Naming_Service::generate_lesson_prep_filename($rec);
+            $zip_folder = sanitize_file_name($rec->teacher_name ?: 'المعلم');
+            $zip_inner_path = $zip_folder . '/' . $std_filename;
+
+            $zip->addFile($local_path, $zip_inner_path);
+            $added_count++;
+        }
+
+        $zip->close();
+
+        if ($added_count === 0) {
+            if (file_exists($zip_path)) @unlink($zip_path);
+            wp_die('جميع سجلات التحضير المحددة لا تحتوي على ملفات مرفقة صالحة.');
+        }
+
+        SM_Logger::log('bulk_download', "قام المستخدم بإجراء تنزيل بالجملة لأرشيف التحضيرات ({$added_count} ملف)");
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $zip_name . '"');
+        header('Content-Length: ' . filesize($zip_path));
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        readfile($zip_path);
+        @unlink($zip_path);
+        exit;
+    }
+
+    public function ajax_bulk_download_term_plans() {
+        if (!is_user_logged_in()) wp_die('Unauthorized access');
+        if (!wp_verify_nonce($_REQUEST['nonce'] ?? '', 'sm_admin_action') && !wp_verify_nonce($_REQUEST['nonce'] ?? '', 'eess_admin_action')) {
+            wp_die('Security check failed');
+        }
+
+        if (!class_exists('ZipArchive')) {
+            wp_die('مكتبة ZipArchive غير مفعلة على هذا السيرفر.');
+        }
+
+        global $wpdb;
+        $user_id = get_current_user_id();
+        $user_scope = EESS_Org_Helper::get_user_scope($user_id);
+
+        $term_number = intval($_REQUEST['term_number'] ?? 0);
+
+        $query = "SELECT tp.*, u.display_name as teacher_name
+                  FROM {$wpdb->prefix}sm_term_plans tp
+                  JOIN {$wpdb->prefix}users u ON tp.teacher_id = u.ID WHERE 1=1";
+        $params = array();
+
+        if (!$user_scope['unrestricted']) {
+            if (!empty($user_scope['schools'])) {
+                $placeholders = implode(',', array_fill(0, count($user_scope['schools']), '%d'));
+                $query .= " AND tp.teacher_id IN (SELECT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE school_id IN ($placeholders))";
+                foreach ($user_scope['schools'] as $sch_id) $params[] = $sch_id;
+            } else {
+                $query .= " AND tp.teacher_id = %d";
+                $params[] = $user_id;
+            }
+        }
+
+        if ($term_number > 0) {
+            $query .= " AND tp.term_number = %d";
+            $params[] = $term_number;
+        }
+
+        $query .= " ORDER BY tp.term_number ASC, tp.id DESC";
+
+        $records = !empty($params) ? $wpdb->get_results($wpdb->prepare($query, $params)) : $wpdb->get_results($query);
+
+        if (empty($records)) {
+            wp_die('لا توجد خطط فصلية/سنوية مرفوعة تطابق خيارات التنزيل المحددة.');
+        }
+
+        $upload_dir = wp_upload_dir();
+        $zip_name = 'Quarterly_Plans_Term_' . ($term_number ?: 'All') . '_' . date('Y-m-d_His') . '.zip';
+        $zip_path = $upload_dir['path'] . '/' . $zip_name;
+
+        $zip = new ZipArchive();
+        if ($zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+            wp_die('تعذر إنشاء ملف الأرشيف المضغوط.');
+        }
+
+        $added_count = 0;
+        $skipped_count = 0;
+
+        foreach ($records as $rec) {
+            $file_url = $rec->file_url;
+            if (empty($file_url)) {
+                $skipped_count++;
+                continue;
+            }
+
+            $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $file_url);
+            if (!file_exists($local_path)) {
+                $skipped_count++;
+                continue;
+            }
+
+            $std_filename = EESS_File_Naming_Service::generate_term_plan_filename($rec);
+            $zip_folder = sanitize_file_name($rec->teacher_name ?: 'المعلم');
+            $zip_inner_path = $zip_folder . '/' . $std_filename;
+
+            $zip->addFile($local_path, $zip_inner_path);
+            $added_count++;
+        }
+
+        $zip->close();
+
+        if ($added_count === 0) {
+            if (file_exists($zip_path)) @unlink($zip_path);
+            wp_die('جميع سجلات الخطط الفصلية المحددة لا تحتوي على ملفات مرفقة صالحة.');
+        }
+
+        SM_Logger::log('bulk_download', "قام المستخدم بإجراء تنزيل بالجملة لأرشيف الخطط الفصلية والسنوية ({$added_count} ملف)");
+
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $zip_name . '"');
+        header('Content-Length: ' . filesize($zip_path));
+        header('Pragma: no-cache');
+        header('Expires: 0');
+        readfile($zip_path);
+        @unlink($zip_path);
+        exit;
     }
 }
