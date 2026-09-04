@@ -1474,6 +1474,39 @@ class SM_DB {
         return $data;
     }
 
+    public static function ensure_student_columns_exist() {
+        global $wpdb;
+        $table = "{$wpdb->prefix}sm_students";
+
+        $cols = array(
+            'gender' => "VARCHAR(20) DEFAULT ''",
+            'dob' => "DATE DEFAULT NULL",
+            'guardian_name' => "VARCHAR(255) DEFAULT ''",
+            'guardian_relationship' => "VARCHAR(100) DEFAULT ''",
+            'student_status' => "VARCHAR(50) DEFAULT 'Active'",
+            'enrollment_status' => "VARCHAR(50) DEFAULT 'Enrolled'",
+            'enrollment_date' => "DATE DEFAULT NULL",
+            'emirate' => "VARCHAR(100) DEFAULT 'أبوظبي'",
+            'address' => "TEXT DEFAULT NULL",
+            'academic_level' => "VARCHAR(100) DEFAULT ''",
+            'special_needs' => "TINYINT(1) DEFAULT 0",
+            'health_status' => "TEXT DEFAULT NULL",
+            'allergies' => "TEXT DEFAULT NULL",
+            'fee_status' => "VARCHAR(50) DEFAULT 'Unpaid'",
+            'total_tuition_fees' => "DECIMAL(10,2) DEFAULT '0.00'",
+            'amount_paid' => "DECIMAL(10,2) DEFAULT '0.00'",
+            'outstanding_balance' => "DECIMAL(10,2) DEFAULT '0.00'",
+            'payment_status' => "VARCHAR(100) DEFAULT 'Pending'"
+        );
+
+        foreach ($cols as $col => $def) {
+            $check = $wpdb->get_results("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '$table' AND COLUMN_NAME = '$col'");
+            if (empty($check)) {
+                $wpdb->query("ALTER TABLE $table ADD COLUMN $col $def");
+            }
+        }
+    }
+
     public static function get_employee_experience_capsule($user_id) {
         $app_year = intval(get_user_meta($user_id, 'eess_appointment_year', true) ?: get_user_meta($user_id, 'sm_appointment_year', true));
         $current_year = intval(date('Y'));
