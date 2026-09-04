@@ -6,6 +6,127 @@ class EESS_Org_Helper {
     /**
      * Seeds initial institutions and schools if none exist
      */
+    /**
+     * Canonical Role-to-Department Mapping Matrix
+     */
+    public static function get_role_department_mapping() {
+        return array(
+            'sm_teacher'                   => 'الأقسام الأكاديمية - المواد الدراسية',
+            'sm_coordinator'               => 'الأقسام الأكاديمية - المواد الدراسية',
+            'sm_hod'                       => 'الأقسام الأكاديمية - المواد الدراسية',
+            'sm_hr'                        => 'إدارة الموارد البشرية (HR)',
+            'sm_discipline_supervisor'     => 'شؤون الطلاب والانضباط السلوكي',
+            'sm_student'                   => 'شؤون الطلاب والانضباط السلوكي',
+            'sm_parent'                    => 'شؤون الطلاب والانضباط السلوكي',
+            'sm_activities_supervisor'     => 'الأنشطة المدرسية والفعاليات',
+            'sm_finance'                   => 'المالية والحسابات',
+            'sm_bus_supervisor'            => 'الخدمات المساندة والنقل',
+            'sm_transportation_supervisor' => 'الخدمات المساندة والنقل',
+            'sm_clinic'                    => 'العيادة المدرسية والرعاية الصحية',
+            'sm_principal'                 => 'الإدارة المدرسية العليا',
+            'sm_supervisor'                => 'الإدارة المدرسية العليا',
+            'sm_system_admin'              => 'الدعم الفني والتقني',
+            'subscriber'                   => 'الدعم الفني والتقني',
+            'contributor'                  => 'الدعم الفني والتقني',
+            'author'                       => 'الدعم الفني والتقني',
+            'editor'                       => 'الدعم الفني والتقني'
+        );
+    }
+
+    /**
+     * Standard 9 Departments required inside EVERY Institution
+     */
+    public static function get_standard_departments() {
+        return array(
+            'الأقسام الأكاديمية - المواد الدراسية',
+            'إدارة الموارد البشرية (HR)',
+            'شؤون الطلاب والانضباط السلوكي',
+            'الأنشطة المدرسية والفعاليات',
+            'المالية والحسابات',
+            'الخدمات المساندة والنقل',
+            'العيادة المدرسية والرعاية الصحية',
+            'الإدارة المدرسية العليا',
+            'الدعم الفني والتقني'
+        );
+    }
+
+    /**
+     * Standard 14 Academic Subjects
+     */
+    public static function get_standard_subjects() {
+        return array(
+            'التربية الرياضية والصحية',
+            'العلوم الصحية',
+            'الكيمياء',
+            'الرياضيات',
+            'التربية الإسلامية',
+            'اللغة العربية',
+            'اللغة الإنجليزية',
+            'الفيزياء',
+            'الدراسات الاجتماعية',
+            'علوم الحاسوب والتكنولوجيا',
+            'العلوم العامة',
+            'الأحياء',
+            'التربية الموسيقية',
+            'الفنون البصرية'
+        );
+    }
+
+    /**
+     * Ensures an Institution has its complete 9 department structure & subjects
+     */
+    public static function seed_institution_departments($inst_id) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+
+        $std_depts = self::get_standard_departments();
+        $dept_ids = array();
+
+        foreach ($std_depts as $d_name) {
+            $existing_id = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}eess_departments WHERE institution_id = %d AND name = %s",
+                $inst_id, $d_name
+            ));
+            if (!$existing_id) {
+                $code = 'DEPT-' . $inst_id . '-' . substr(md5($d_name), 0, 4);
+                $wpdb->insert("{$wpdb->prefix}eess_departments", array(
+                    'institution_id' => $inst_id,
+                    'code'           => $code,
+                    'name'           => $d_name,
+                    'status'         => 'active'
+                ));
+                $existing_id = $wpdb->insert_id;
+            }
+            $dept_ids[$d_name] = $existing_id;
+        }
+
+        // Seed Standard Subjects into the Academic Department
+        if (!empty($dept_ids['الأقسام الأكاديمية - المواد الدراسية'])) {
+            $acad_dept_id = $dept_ids['الأقسام الأكاديمية - المواد الدراسية'];
+            $std_subjects = self::get_standard_subjects();
+
+            foreach ($std_subjects as $s_name) {
+                $sub_exists = $wpdb->get_var($wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}eess_subjects WHERE institution_id = %d AND name = %s",
+                    $inst_id, $s_name
+                ));
+                if (!$sub_exists) {
+                    $sub_code = 'SUBJ-' . substr(md5($s_name), 0, 5);
+                    $wpdb->insert("{$wpdb->prefix}eess_subjects", array(
+                        'institution_id' => $inst_id,
+                        'department_id'  => $acad_dept_id,
+                        'code'           => $sub_code,
+                        'name'           => $s_name,
+                        'status'         => 'active'
+                    ));
+                }
+            }
+        }
+    }
+
+    /**
+     * Seeds initial institutions and schools if none exist
+     */
     public static function seed_default_structure() {
         global $wpdb;
 
@@ -13,10 +134,12 @@ class EESS_Org_Helper {
         if ($inst_count == 0) {
             // Seed default institution
             $wpdb->insert("{$wpdb->prefix}eess_institutions", array(
-                'name' => 'مؤسسة الإمارات للتعليم المدرسي',
+                'code'   => 1001,
+                'name'   => 'مؤسسة الإمارات للتعليم المدرسي',
                 'status' => 'active'
             ));
             $inst_id = $wpdb->insert_id;
+            self::seed_institution_departments($inst_id);
 
             // Seed default schools
             $schools = array(
@@ -50,15 +173,12 @@ class EESS_Org_Helper {
                         ));
                     }
                 }
-
-                // Seed default Departments
-                $depts = array('العلوم العامة', 'الرياضيات والفيزياء', 'اللغات والآداب', 'التربية الرياضية');
-                foreach ($depts as $d_name) {
-                    $wpdb->insert("{$wpdb->prefix}eess_departments", array(
-                        'school_id' => $school_id,
-                        'name' => $d_name
-                    ));
-                }
+            }
+        } else {
+            // Ensure all existing institutions have their 9 standard departments seeded
+            $inst_ids = $wpdb->get_col("SELECT id FROM {$wpdb->prefix}eess_institutions");
+            foreach ($inst_ids as $iid) {
+                self::seed_institution_departments($iid);
             }
         }
     }
@@ -369,7 +489,182 @@ class EESS_Org_Helper {
 
     public static function delete_institution($id) {
         global $wpdb;
+        // Check dependencies before deletion
+        $school_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}eess_schools WHERE institution_id = %d AND status = 'active'", $id));
+        if ($school_count > 0) {
+            return new WP_Error('has_schools', 'لا يمكن حذف المؤسسة لوجود مدارس/فروع تابعة لها. يرجى نقل أو حذف المدارس أولاً.');
+        }
+
+        $user_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}eess_user_assignments WHERE institution_id = %d", $id));
+        if ($user_count > 0) {
+            return new WP_Error('has_users', 'لا يمكن حذف المؤسسة لوجود مستخدمين/كوادر مكلفة بها.');
+        }
+
         return $wpdb->delete("{$wpdb->prefix}eess_institutions", array('id' => $id));
+    }
+
+    // --- DEPARTMENT CRUD METHODS ---
+    public static function get_departments_by_institution($inst_id) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+        self::seed_institution_departments($inst_id);
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT d.*, u.display_name as head_display_name FROM {$wpdb->prefix}eess_departments d LEFT JOIN {$wpdb->users} u ON d.head_user_id = u.ID WHERE d.institution_id = %d AND (d.status = 'active' OR d.status IS NULL) ORDER BY d.id ASC",
+            intval($inst_id)
+        ));
+    }
+
+    public static function add_department($inst_id, $data) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+        $name = sanitize_text_field($data['name'] ?? '');
+        if (empty($name)) return new WP_Error('empty_name', 'اسم القسم مطلوب');
+
+        $code = !empty($data['code']) ? sanitize_text_field($data['code']) : ('DEPT-' . $inst_id . '-' . substr(md5($name), 0, 4));
+        $head_user_id = !empty($data['head_user_id']) ? intval($data['head_user_id']) : null;
+        $description = sanitize_textarea_field($data['description'] ?? '');
+
+        $wpdb->insert("{$wpdb->prefix}eess_departments", array(
+            'institution_id' => intval($inst_id),
+            'code'           => $code,
+            'name'           => $name,
+            'description'    => $description,
+            'head_user_id'   => $head_user_id,
+            'status'         => 'active'
+        ));
+        return $wpdb->insert_id;
+    }
+
+    public static function update_department($id, $data) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+        $update = array();
+        if (isset($data['name'])) $update['name'] = sanitize_text_field($data['name']);
+        if (isset($data['code'])) $update['code'] = sanitize_text_field($data['code']);
+        if (isset($data['description'])) $update['description'] = sanitize_textarea_field($data['description']);
+        if (isset($data['head_user_id'])) $update['head_user_id'] = !empty($data['head_user_id']) ? intval($data['head_user_id']) : null;
+        if (isset($data['status'])) $update['status'] = sanitize_text_field($data['status']);
+
+        if (!empty($update)) {
+            $wpdb->update("{$wpdb->prefix}eess_departments", $update, array('id' => intval($id)));
+        }
+        return true;
+    }
+
+    public static function delete_department($id) {
+        global $wpdb;
+        // Check dependencies before deleting
+        $sub_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}eess_subjects WHERE department_id = %d AND status = 'active'", $id));
+        if ($sub_count > 0) {
+            return new WP_Error('has_subjects', 'لا يمكن حذف القسم لوجود مواد دراسية تابعة له. يرجى نقل أو حذف المواد أولاً.');
+        }
+
+        $user_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}eess_user_assignments WHERE department_id = %d", $id));
+        if ($user_count > 0) {
+            return new WP_Error('has_users', 'لا يمكن حذف القسم لوجود مستخدمين معينين عليه.');
+        }
+
+        return $wpdb->delete("{$wpdb->prefix}eess_departments", array('id' => intval($id)));
+    }
+
+    // --- SUBJECT CRUD METHODS ---
+    public static function get_subjects_by_institution($inst_id) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT s.*, d.name as department_name, u1.display_name as hod_display_name, u2.display_name as coordinator_display_name
+             FROM {$wpdb->prefix}eess_subjects s
+             LEFT JOIN {$wpdb->prefix}eess_departments d ON s.department_id = d.id
+             LEFT JOIN {$wpdb->users} u1 ON s.hod_user_id = u1.ID
+             LEFT JOIN {$wpdb->users} u2 ON s.coordinator_user_id = u2.ID
+             WHERE s.institution_id = %d AND (s.status = 'active' OR s.status IS NULL)
+             ORDER BY s.name ASC",
+            intval($inst_id)
+        ));
+    }
+
+    public static function get_subject_assigned_grades($subject_id) {
+        global $wpdb;
+        return $wpdb->get_col($wpdb->prepare("SELECT grade_id FROM {$wpdb->prefix}eess_subject_grades WHERE subject_id = %d", intval($subject_id)));
+    }
+
+    public static function get_subject_assigned_schools($subject_id) {
+        global $wpdb;
+        return $wpdb->get_col($wpdb->prepare("SELECT school_id FROM {$wpdb->prefix}eess_subject_schools WHERE subject_id = %d", intval($subject_id)));
+    }
+
+    public static function save_subject($inst_id, $data) {
+        global $wpdb;
+        self::ensure_institutions_columns_exist();
+
+        $sub_id = !empty($data['id']) ? intval($data['id']) : 0;
+        $name   = sanitize_text_field($data['name'] ?? '');
+        if (empty($name)) return new WP_Error('empty_name', 'اسم المادة الدراسية مطلوب');
+
+        $dept_id             = !empty($data['department_id']) ? intval($data['department_id']) : null;
+        $code                = !empty($data['code']) ? sanitize_text_field($data['code']) : ('SUBJ-' . substr(md5($name), 0, 5));
+        $hod_user_id         = !empty($data['hod_user_id']) ? intval($data['hod_user_id']) : null;
+        $coordinator_user_id = !empty($data['coordinator_user_id']) ? intval($data['coordinator_user_id']) : null;
+        $status              = !empty($data['status']) ? sanitize_text_field($data['status']) : 'active';
+
+        if ($sub_id > 0) {
+            $wpdb->update("{$wpdb->prefix}eess_subjects", array(
+                'institution_id'      => intval($inst_id),
+                'department_id'       => $dept_id,
+                'code'                => $code,
+                'name'                => $name,
+                'status'              => $status,
+                'hod_user_id'         => $hod_user_id,
+                'coordinator_user_id' => $coordinator_user_id
+            ), array('id' => $sub_id));
+        } else {
+            $wpdb->insert("{$wpdb->prefix}eess_subjects", array(
+                'institution_id'      => intval($inst_id),
+                'department_id'       => $dept_id,
+                'code'                => $code,
+                'name'                => $name,
+                'status'              => $status,
+                'hod_user_id'         => $hod_user_id,
+                'coordinator_user_id' => $coordinator_user_id
+            ));
+            $sub_id = $wpdb->insert_id;
+        }
+
+        // Sync Grade M2M Relationships
+        $wpdb->delete("{$wpdb->prefix}eess_subject_grades", array('subject_id' => $sub_id));
+        if (!empty($data['grade_ids']) && is_array($data['grade_ids'])) {
+            foreach ($data['grade_ids'] as $gid) {
+                $wpdb->insert("{$wpdb->prefix}eess_subject_grades", array(
+                    'subject_id' => $sub_id,
+                    'grade_id'   => intval($gid)
+                ));
+            }
+        }
+
+        // Sync School M2M Relationships
+        $wpdb->delete("{$wpdb->prefix}eess_subject_schools", array('subject_id' => $sub_id));
+        if (!empty($data['school_ids']) && is_array($data['school_ids'])) {
+            foreach ($data['school_ids'] as $sid) {
+                $wpdb->insert("{$wpdb->prefix}eess_subject_schools", array(
+                    'subject_id' => $sub_id,
+                    'school_id'  => intval($sid)
+                ));
+            }
+        }
+
+        return $sub_id;
+    }
+
+    public static function delete_subject($id) {
+        global $wpdb;
+        $user_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}eess_user_assignments WHERE subject_id = %d", intval($id)));
+        if ($user_count > 0) {
+            return new WP_Error('has_users', 'لا يمكن حذف المادة لوجود معلميم أو كادر مكلف بها حالياً.');
+        }
+
+        $wpdb->delete("{$wpdb->prefix}eess_subject_grades", array('subject_id' => intval($id)));
+        $wpdb->delete("{$wpdb->prefix}eess_subject_schools", array('subject_id' => intval($id)));
+        return $wpdb->delete("{$wpdb->prefix}eess_subjects", array('id' => intval($id)));
     }
 
     public static function get_schools() {

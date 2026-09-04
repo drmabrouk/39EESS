@@ -762,6 +762,18 @@ function eessRejectUser(userId) {
         const form = select.closest('form');
         const group = form.querySelector('.spec-group');
         const hodGroup = form.querySelector('.hod-inst-group');
+        const orgWrapper = form.querySelector('.eess-org-assignment-fields');
+
+        // Dynamic System Administrator Scoping Rule: Completely hide org & school fields for sm_system_admin/administrator
+        if (select.value === 'administrator' || select.value === 'sm_system_admin') {
+            if (orgWrapper) orgWrapper.style.display = 'none';
+            if (group) group.style.display = 'none';
+            if (hodGroup) hodGroup.style.display = 'none';
+            return;
+        } else {
+            if (orgWrapper) orgWrapper.style.display = 'block';
+        }
+
         if (select.value === 'sm_teacher' || select.value === 'sm_coordinator' || select.value === 'sm_hod') {
             if (group) group.style.display = 'block';
         } else {

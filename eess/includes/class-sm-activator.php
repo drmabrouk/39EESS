@@ -97,22 +97,54 @@ class SM_Activator {
 
         CREATE TABLE {$wpdb->prefix}eess_departments (
             id bigint(20) NOT NULL AUTO_INCREMENT,
-            school_id bigint(20) NOT NULL,
+            institution_id bigint(20) DEFAULT NULL,
+            school_id bigint(20) DEFAULT NULL,
+            code varchar(50) DEFAULT '' NOT NULL,
             name varchar(100) NOT NULL,
+            description text DEFAULT NULL,
+            status varchar(50) DEFAULT 'active' NOT NULL,
+            head_user_id bigint(20) DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id),
+            KEY institution_id (institution_id),
             KEY school_id (school_id)
         ) $charset_collate;
 
         CREATE TABLE {$wpdb->prefix}eess_subjects (
             id bigint(20) NOT NULL AUTO_INCREMENT,
-            school_id bigint(20) NOT NULL,
+            institution_id bigint(20) DEFAULT NULL,
+            school_id bigint(20) DEFAULT NULL,
             department_id bigint(20) DEFAULT NULL,
+            code varchar(50) DEFAULT '' NOT NULL,
             name varchar(255) NOT NULL,
+            status varchar(50) DEFAULT 'active' NOT NULL,
+            hod_user_id bigint(20) DEFAULT NULL,
+            coordinator_user_id bigint(20) DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id),
+            KEY institution_id (institution_id),
             KEY school_id (school_id),
             KEY department_id (department_id)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}eess_subject_grades (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            subject_id bigint(20) NOT NULL,
+            grade_id bigint(20) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY subject_id (subject_id),
+            KEY grade_id (grade_id)
+        ) $charset_collate;
+
+        CREATE TABLE {$wpdb->prefix}eess_subject_schools (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            subject_id bigint(20) NOT NULL,
+            school_id bigint(20) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+            PRIMARY KEY  (id),
+            KEY subject_id (subject_id),
+            KEY school_id (school_id)
         ) $charset_collate;
 
         CREATE TABLE {$wpdb->prefix}eess_user_assignments (
