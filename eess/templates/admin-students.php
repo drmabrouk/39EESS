@@ -30,7 +30,7 @@ $paginated_students = array_slice($students_list, $offset, $limit);
 $from_num = $total_students_count > 0 ? $offset + 1 : 0;
 $to_num = min($offset + $limit, $total_students_count);
 ?>
-<div class="sm-content-wrapper" dir="rtl" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; color: #1e293b;">
+<div class="sm-content-wrapper" dir="rtl" style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; color: #1e293b; width: 100% !important; max-width: 100% !important; box-sizing: border-box;">
 
     <?php if ($import_results): ?>
         <div style="background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 24px; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,0.02);">

@@ -30,6 +30,10 @@ $students = SM_DB::get_students();
 
         <!-- Primary Header Actions -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <button type="button" onclick="document.getElementById('import-grades-modal').style.display='flex'" class="sm-btn" style="background: #1e293b; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 18px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-upload" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
+                <span>استيراد درجات (CSV)</span>
+            </button>
             <button type="button" onclick="document.getElementById('add-grade-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
                 <span>رصد درجة جديدة</span>

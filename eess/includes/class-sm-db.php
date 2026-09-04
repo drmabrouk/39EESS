@@ -1468,4 +1468,29 @@ class SM_DB {
 
         return $data;
     }
+
+    public static function get_employee_experience_capsule($user_id) {
+        $app_year = intval(get_user_meta($user_id, 'eess_appointment_year', true) ?: get_user_meta($user_id, 'sm_appointment_year', true));
+        $current_year = intval(date('Y'));
+        $exp_years = $app_year > 0 ? max(0, $current_year - $app_year) : 0;
+
+        if ($exp_years < 2) {
+            $bg = '#e0f2fe';
+            $color = '#0369a1';
+            $border = '#bae6fd';
+            $label = $exp_years > 0 ? ($exp_years . ' سنة') : 'جديد';
+        } elseif ($exp_years <= 5) {
+            $bg = '#dcfce7';
+            $color = '#15803d';
+            $border = '#bbf7d0';
+            $label = $exp_years . ' سنوات';
+        } else {
+            $bg = '#f3e8ff';
+            $color = '#6b21a8';
+            $border = '#e9d5ff';
+            $label = $exp_years . ' سنوات';
+        }
+
+        return '<span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: ' . $bg . '; color: ' . $color . '; border: 1px solid ' . $border . '; font-size: 10.5px; font-weight: 800;">' . esc_html($label) . '</span>';
+    }
 }
