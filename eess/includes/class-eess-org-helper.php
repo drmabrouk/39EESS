@@ -127,60 +127,96 @@ class EESS_Org_Helper {
     /**
      * Seeds initial institutions and schools if none exist
      */
-    public static function seed_default_structure() {
+    /**
+     * Seeds and normalizes the 6 mandatory institutions and hierarchy
+     */
+    public static function seed_mandatory_institutions() {
         global $wpdb;
+        self::ensure_institutions_columns_exist();
 
-        $inst_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}eess_institutions");
-        if ($inst_count == 0) {
-            // Seed default institution
+        $mandatory_list = array(
+            1 => array('name' => 'مؤسسة الشعلة للتعليم والتطوير', 'parent_id' => null, 'type' => 'مؤسسة إدارية'),
+            2 => array('name' => 'مدرسة الشعلة الخاصة - الصناعية', 'parent_id' => null, 'type' => 'مدرسة'),
+            3 => array('name' => 'مدرسة الشعلة الخاصة - الفلاح', 'parent_id' => null, 'type' => 'مدرسة'),
+            4 => array('name' => 'مدرسة منارة الشارقة - الفلاح', 'parent_id' => null, 'type' => 'مدرسة'),
+            5 => array('name' => 'مدرسة الشعلة الخاصة - عجمان', 'parent_id' => null, 'type' => 'مدرسة'),
+            6 => array('name' => 'مدرسة الشعلة الأمريكية', 'parent_id' => null, 'type' => 'مدرسة')
+        );
+
+        // 1. Ensure Parent Institution (Code 1) exists first
+        $parent_db_id = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}eess_institutions WHERE code = 1 OR name = %s LIMIT 1", $mandatory_list[1]['name']));
+        if (!$parent_db_id) {
             $wpdb->insert("{$wpdb->prefix}eess_institutions", array(
-                'code'   => 1001,
-                'name'   => 'مؤسسة الإمارات للتعليم المدرسي',
-                'status' => 'active'
+                'code'      => 1,
+                'parent_id' => null,
+                'name'      => $mandatory_list[1]['name'],
+                'type'      => 'مؤسسة إدارية',
+                'status'    => 'active'
             ));
-            $inst_id = $wpdb->insert_id;
-            self::seed_institution_departments($inst_id);
-
-            // Seed default schools
-            $schools = array(
-                'مدرسة الأمل للتعليم الأساسي والثانوي',
-                'مدرسة النخبة النموذجية',
-                'مدرسة الريادة للتعليم الثانوي'
-            );
-
-            foreach ($schools as $school_name) {
-                $wpdb->insert("{$wpdb->prefix}eess_schools", array(
-                    'institution_id' => $inst_id,
-                    'name' => $school_name,
-                    'status' => 'active'
-                ));
-                $school_id = $wpdb->insert_id;
-
-                // Seed default Grade levels & Classes for each school
-                for ($g = 1; $g <= 12; $g++) {
-                    $wpdb->insert("{$wpdb->prefix}eess_grades", array(
-                        'school_id' => $school_id,
-                        'name' => 'الصف ' . $g
-                    ));
-                    $grade_id = $wpdb->insert_id;
-
-                    // Seed default Classes/sections
-                    $classes = array('أ', 'ب', 'ج');
-                    foreach ($classes as $c_name) {
-                        $wpdb->insert("{$wpdb->prefix}eess_classes", array(
-                            'grade_id' => $grade_id,
-                            'name' => $c_name
-                        ));
-                    }
-                }
-            }
+            $parent_db_id = $wpdb->insert_id;
         } else {
-            // Ensure all existing institutions have their 9 standard departments seeded
-            $inst_ids = $wpdb->get_col("SELECT id FROM {$wpdb->prefix}eess_institutions");
-            foreach ($inst_ids as $iid) {
-                self::seed_institution_departments($iid);
+            $wpdb->update("{$wpdb->prefix}eess_institutions", array(
+                'code'      => 1,
+                'parent_id' => null,
+                'name'      => $mandatory_list[1]['name'],
+                'status'    => 'active'
+            ), array('id' => $parent_db_id));
+        }
+        self::seed_institution_departments($parent_db_id);
+
+        // 2. Ensure Child Schools (Codes 2-6) exist and link to Parent (Code 1)
+        for ($code = 2; $code <= 6; $code++) {
+            $info = $mandatory_list[$code];
+            $child_db_id = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}eess_institutions WHERE code = %d OR name = %s LIMIT 1", $code, $info['name']));
+
+            if (!$child_db_id) {
+                $wpdb->insert("{$wpdb->prefix}eess_institutions", array(
+                    'code'      => $code,
+                    'parent_id' => $parent_db_id,
+                    'name'      => $info['name'],
+                    'type'      => 'مدرسة',
+                    'status'    => 'active'
+                ));
+                $child_db_id = $wpdb->insert_id;
+            } else {
+                $wpdb->update("{$wpdb->prefix}eess_institutions", array(
+                    'code'      => $code,
+                    'parent_id' => $parent_db_id,
+                    'name'      => $info['name'],
+                    'status'    => 'active'
+                ), array('id' => $child_db_id));
+            }
+            self::seed_institution_departments($child_db_id);
+
+            // Sync with eess_schools table
+            $school_exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}eess_schools WHERE school_code = %d OR name = %s LIMIT 1", $code, $info['name']));
+            if (!$school_exists) {
+                $wpdb->insert("{$wpdb->prefix}eess_schools", array(
+                    'institution_id' => $child_db_id,
+                    'school_code'    => $code,
+                    'name'           => $info['name'],
+                    'status'         => 'active'
+                ));
+            } else {
+                $wpdb->update("{$wpdb->prefix}eess_schools", array(
+                    'institution_id' => $child_db_id,
+                    'school_code'    => $code,
+                    'name'           => $info['name'],
+                    'status'         => 'active'
+                ), array('id' => $school_exists));
             }
         }
+
+        // 3. Mark any existing non-mandatory institutions as archived
+        $wpdb->query("UPDATE {$wpdb->prefix}eess_institutions SET status = 'archived' WHERE code NOT IN (1,2,3,4,5,6)");
+        $wpdb->query("UPDATE {$wpdb->prefix}eess_schools SET status = 'archived' WHERE school_code NOT IN (2,3,4,5,6)");
+    }
+
+    /**
+     * Seeds initial institutions and schools if none exist
+     */
+    public static function seed_default_structure() {
+        self::seed_mandatory_institutions();
     }
 
     /**
