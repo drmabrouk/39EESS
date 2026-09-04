@@ -106,15 +106,15 @@ $pending_requests_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm
 
 <div class="sm-main-container" style="direction: rtl; font-family: 'Cairo', sans-serif; padding: 20px; background: #f8fafc;">
 
-    <!-- TOP BANNER -->
-    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 20px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <!-- TOP BANNER (White Standard Card Background) -->
+    <div style="background: #ffffff; color: #0f172a; border-radius: 20px; border: 1px solid #e2e8f0; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
         <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 52px; height: 52px; background: rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-                <span class="dashicons dashicons-store" style="font-size: 28px; width: 28px; height: 28px; color: #38bdf8;"></span>
+            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-store" style="font-size: 24px; width: 24px; height: 24px;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 900; color: #ffffff;">نظام إدارة العهد والمعدات والأصول المؤسسية</h2>
-                <p style="margin: 0; font-size: 12.5px; color: #94a3b8; font-weight: 600;">حصر، متابعة، طلب، واعتماد العهد الرياضية والأدوات والأجهزة المدرسية - <?php echo esc_html($emp_school); ?></p>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">نظام إدارة العهد والمعدات والأصول المؤسسية</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">حصر، متابعة، طلب، واعتماد العهد الرياضية والأدوات والأجهزة المدرسية - <?php echo esc_html($emp_school); ?></p>
             </div>
         </div>
 

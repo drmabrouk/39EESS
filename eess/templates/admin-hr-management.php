@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) exit;
 $roles = (array) wp_get_current_user()->roles;
 $is_admin = in_array('administrator', $roles) || current_user_can('manage_options');
 $is_sys_admin = in_array('sm_system_admin', $roles);
-$is_hr = in_array('sm_hr', $roles) || current_user_can('manage_hr');
+$is_hr = in_array('sm_hr', $roles) || in_array('sm_principal', $roles) || current_user_can('manage_hr');
 
 $all_subjects = SM_DB::get_subjects();
 $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all_subjects));

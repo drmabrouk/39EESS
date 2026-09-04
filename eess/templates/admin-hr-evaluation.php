@@ -442,7 +442,7 @@ $staff_users = get_users(array(
 
     <!-- Advanced Search and Filtering Engine for History -->
     <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
-        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 13px;">🔍 محرك البحث والتصفية المتقدم لتقارير التقييمات</h3>
+        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 13px;">محرك البحث والتصفية المتقدم لتقارير التقييمات</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
             <input type="text" id="filter-employee" onkeyup="eessFilterHistory()" placeholder="ابحث باسم الموظف المقيّم..." class="sm-input" style="height: 36px; font-size: 12px;">
             <input type="text" id="filter-evaluator" onkeyup="eessFilterHistory()" placeholder="ابحث باسم المقيّم المعتمد..." class="sm-input" style="height: 36px; font-size: 12px;">
@@ -466,7 +466,7 @@ $staff_users = get_users(array(
 
     <!-- Complete Evaluation History Section (Direct Clean Table without outer container framing) -->
     <div style="margin-bottom: 25px;">
-        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">📈 أرشيف وسجل التقييمات التاريخي للعام الدراسي</h3>
+        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">أرشيف وسجل التقييمات التاريخي للعام الدراسي</h3>
 
         <div style="overflow-x: auto;">
             <table class="sm-table" id="eess-eval-history-table" style="width:100%; border-collapse: separate; border-spacing: 0; border: none;">

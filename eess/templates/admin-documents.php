@@ -322,6 +322,75 @@
     </style>
     </div><!-- End doc-library-tab -->
 
+    <!-- General Documents & Reports Library Tab -->
+    <div id="general-doc-library-tab" class="sm-internal-tab" style="display: none;">
+        <?php
+        $gen_docs = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_documents WHERE status = 'published' ORDER BY created_at DESC");
+        ?>
+        <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #cbd5e0; margin-bottom: 25px; display: grid; grid-template-columns: 2fr 1fr; gap: 15px; direction: rtl;">
+            <div>
+                <label class="sm-label" style="font-weight: 700; font-size: 12px;">البحث الفوري بالتقارير والمستندات العامة</label>
+                <input type="text" id="gen-doc-instant-search" onkeyup="eessFilterGeneralDocuments()" placeholder="ابحث باسم الوثيقة أو التقرير العام..." class="sm-input" style="height: 38px; font-size: 12px; width: 100%;">
+            </div>
+            <div>
+                <label class="sm-label" style="font-weight: 700; font-size: 12px;">التصنيف العام</label>
+                <select id="gen-doc-category-filter" onchange="eessFilterGeneralDocuments()" class="sm-select" style="height: 38px; font-size: 12px; width: 100%;">
+                    <option value="">كافة المستندات والتقارير المعتمدة</option>
+                    <?php foreach ($doc_categories as $cat): ?>
+                        <option value="<?php echo esc_attr($cat); ?>"><?php echo esc_html($cat); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="sm-gen-docs-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-bottom: 40px;">
+            <?php if (empty($gen_docs)): ?>
+                <div style="grid-column: 1 / -1; background: #f8fafc; padding: 60px; border-radius: 12px; text-align: center; border: 2px dashed #e2e8f0;">
+                    <span class="dashicons dashicons-pdf" style="font-size: 50px; width: 50px; height: 50px; color: #cbd5e0; margin-bottom: 15px;"></span>
+                    <p style="color: #718096; font-weight: 700;">لا توجد وثائق عامة أو تقارير عامة عامة حالياً.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($gen_docs as $gdoc): ?>
+                    <div class="sm-gen-doc-card" data-title="<?php echo esc_attr(strtolower($gdoc->title)); ?>" data-desc="<?php echo esc_attr(strtolower($gdoc->description)); ?>" data-category="<?php echo esc_attr($gdoc->category); ?>" style="background: white; border: 1px solid #cbd5e0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: transform 0.2s;">
+                        <div style="padding: 20px; border-bottom: 1px solid #cbd5e0; background: #f8fafc; display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 45px; height: 45px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #059669; border: 1px solid #edf2f7;">
+                                <span class="dashicons dashicons-pdf" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <h4 style="margin: 0; font-weight: 800; color: #1a202c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?php echo esc_html($gdoc->title); ?></h4>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                    <span style="font-size: 10px; color: #065f46; font-weight: 800; background: #d1fae5; padding: 1px 6px; border-radius: 4px;"><?php echo esc_html($gdoc->category ?: 'عام'); ?></span>
+                                    <span style="font-size: 11px; color: #718096;"><?php echo date('Y-m-d', strtotime($gdoc->created_at)); ?></span>
+                                </div>
+                            </div>
+                            <a href="<?php echo esc_url($gdoc->file_url); ?>" target="_blank" class="sm-btn" style="height: 32px; padding: 0 12px; font-size: 11px; background: #059669; color: white !important; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 800;">
+                                <span class="dashicons dashicons-download"></span> تحميل
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <script>
+    function eessFilterGeneralDocuments() {
+        const q = (document.getElementById('gen-doc-instant-search').value || '').toLowerCase().trim();
+        const cat = document.getElementById('gen-doc-category-filter').value;
+
+        document.querySelectorAll('.sm-gen-doc-card').forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const desc = card.getAttribute('data-desc') || '';
+            const cardCat = card.getAttribute('data-category') || '';
+
+            const matchesQ = !q || title.includes(q) || desc.includes(q);
+            const matchesCat = !cat || cardCat === cat;
+
+            card.style.display = (matchesQ && matchesCat) ? 'block' : 'none';
+        });
+    }
+    </script>
+
     <?php if (current_user_can('تسجيل_مخالفة')):
         $can_edit_regulation = current_user_can('إدارة_النظام') || current_user_can('sm_principal') || current_user_can('sm_supervisor');
     ?>

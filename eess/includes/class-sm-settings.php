@@ -587,26 +587,6 @@ class SM_Settings {
                     'sm_hr' => false,
                 )
             ),
-            'parents' => array(
-                'label' => 'إدارة أولياء الأمور',
-                'dashicon' => 'dashicons-admin-users',
-                'tab' => 'parents',
-                'default' => array(
-                    'sm_system_admin' => true,
-                    'sm_principal' => true,
-                    'sm_supervisor' => true,
-                    'sm_coordinator' => false,
-                    'sm_hod' => false,
-                    'sm_teacher' => true,
-                    'sm_student' => false,
-                    'sm_parent' => false,
-                    'sm_discipline_supervisor' => false,
-                    'sm_activities_supervisor' => false,
-                    'sm_transportation_supervisor' => false,
-                    'sm_bus_supervisor' => false,
-                    'sm_hr' => false,
-                )
-            ),
             'hr-evaluation' => array(
                 'label' => 'تقييم الموظفين',
                 'dashicon' => 'dashicons-awards',
@@ -632,7 +612,7 @@ class SM_Settings {
                 'tab' => 'hr-management',
                 'default' => array(
                     'sm_system_admin' => true,
-                    'sm_principal' => false,
+                    'sm_principal' => true,
                     'sm_supervisor' => false,
                     'sm_coordinator' => false,
                     'sm_teacher' => false,
