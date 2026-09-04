@@ -4805,7 +4805,7 @@ class SM_Public {
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM for Excel
 
-        fputcsv($output, array('اسم المستخدم', 'البريد الإلكتروني', 'الاسم الكامل', 'الدور / الرتبة', 'رقم الهاتف', 'كلمة المرور', 'رابط الصورة الشخصية', 'المادة التخصصية'));
+        fputcsv($output, array('اسم المستخدم', 'البريد الإلكتروني', 'الاسم الكامل', 'الدور / الرتبة', 'رقم الهاتف', 'كلمة المرور', 'رابط الصورة الشخصية', 'المادة التخصصية', 'كود المؤسسة', 'كود المدرسة', 'كود القسم', 'كود المادة'));
 
         foreach ($all_users as $u) {
             $role = reset($u->roles);
@@ -4813,6 +4813,14 @@ class SM_Public {
             $password = get_user_meta($u->ID, 'sm_temp_pass', true) ?: '';
             $photo = get_user_meta($u->ID, 'eess_profile_photo', true) ?: '';
             $specialization = get_user_meta($u->ID, 'sm_specialization', true) ?: '';
+
+            // Fetch user assignments for org export
+            global $wpdb;
+            $asn = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}eess_user_assignments WHERE user_id = %d LIMIT 1", $u->ID));
+            $inst_code = $asn ? $asn->institution_id : '';
+            $school_code = $asn ? $asn->school_id : '';
+            $dept_code = $asn ? $asn->department_id : '';
+            $subj_code = $asn ? $asn->subject_id : '';
 
             fputcsv($output, array(
                 $u->user_login,
@@ -4822,7 +4830,11 @@ class SM_Public {
                 $phone,
                 $password,
                 $photo,
-                $specialization
+                $specialization,
+                $inst_code,
+                $school_code,
+                $dept_code,
+                $subj_code
             ));
         }
         fclose($output);

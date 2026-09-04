@@ -1094,6 +1094,54 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                                         </div>
                                                     </div>
                                                 <?php endif; ?>
+
+                                                <!-- Expandable 9 Standard Departments Accordion -->
+                                                <?php
+                                                $inst_departments = EESS_Org_Helper::get_departments_by_institution($inst->id);
+                                                $inst_subjects = EESS_Org_Helper::get_subjects_by_institution($inst->id);
+                                                $dept_count = count($inst_departments);
+                                                ?>
+                                                <div style="margin-top: 8px; border-top: 1px solid #e2e8f0; padding-top: 8px;">
+                                                    <button type="button" onclick="jQuery('#inst-depts-<?php echo $inst->id; ?>').toggle()" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; border-radius: 8px; padding: 6px 12px; font-size: 11.5px; font-weight: 800; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                                                        <span style="display: flex; align-items: center; gap: 6px;">
+                                                            <span class="dashicons dashicons-category" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                                                            <span>الأقسام الإدارية والأكاديمية الـ 9 بالمؤسسة (<?php echo $dept_count; ?>)</span>
+                                                        </span>
+                                                        <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 12px;"></span>
+                                                    </button>
+
+                                                    <div id="inst-depts-<?php echo $inst->id; ?>" style="display: none; margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                                                        <?php foreach ($inst_departments as $idept):
+                                                            // Count users assigned to this department in this institution
+                                                            $d_user_count = $wpdb->get_var($wpdb->prepare(
+                                                                "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->prefix}eess_user_assignments WHERE institution_id = %d AND department_id = %d",
+                                                                $inst->id, $idept->id
+                                                            )) ?: 0;
+
+                                                            // Count subjects if this is the Academic Department
+                                                            $d_sub_count = 0;
+                                                            if (strpos($idept->name, 'الأكاديمية') !== false) {
+                                                                $d_sub_count = count($inst_subjects);
+                                                            }
+                                                        ?>
+                                                            <div style="background: #ffffff; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; display: flex; flex-direction: column; gap: 6px;">
+                                                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                                    <strong style="color: #0f172a; font-size: 12px;"><?php echo esc_html($idept->name); ?></strong>
+                                                                    <div style="display: flex; gap: 4px; align-items: center;">
+                                                                        <span style="background: #e0f2fe; color: #0369a1; padding: 1px 8px; border-radius: 50px; font-weight: 800; font-size: 10px;"><?php echo $d_user_count; ?> موظف/كادر</span>
+                                                                        <?php if ($d_sub_count > 0): ?>
+                                                                            <span style="background: #fef3c7; color: #b45309; padding: 1px 8px; border-radius: 50px; font-weight: 800; font-size: 10px;"><?php echo $d_sub_count; ?> مادة دراسية</span>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </div>
+                                                                <div style="font-size: 11px; color: #64748b; display: flex; justify-content: space-between; align-items: center;">
+                                                                    <span>رئيس القسم: <strong><?php echo esc_html($idept->head_display_name ?: 'غير محدد'); ?></strong></span>
+                                                                    <small style="font-family: monospace; color: #94a3b8;"><?php echo esc_html($idept->code); ?></small>
+                                                                </div>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 

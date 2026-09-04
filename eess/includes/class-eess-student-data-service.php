@@ -128,6 +128,29 @@ class EESS_Student_Data_Service {
             return new WP_Error('missing_name', 'اسم الطالب حقل إجباري.');
         }
 
+        // De-duplication check during CSV Import / Creation
+        $stu_code = sanitize_text_field($data['code'] ?? ($data['student_id_code'] ?? ''));
+        if ($student_id == 0) {
+            if (!empty($stu_code)) {
+                $existing_by_code = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}sm_students WHERE student_id = %s", $stu_code));
+                if ($existing_by_code) {
+                    $student_id = intval($existing_by_code);
+                }
+            }
+            if ($student_id == 0 && !empty($national_id)) {
+                $existing_by_nat = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}sm_students WHERE national_id = %s", $national_id));
+                if ($existing_by_nat) {
+                    $student_id = intval($existing_by_nat);
+                }
+            }
+            if ($student_id == 0 && !empty($name) && !empty($grade) && !empty($section)) {
+                $existing_by_name = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}sm_students WHERE name = %s AND class_name = %s AND section = %s", $name, $grade, $section));
+                if ($existing_by_name) {
+                    $student_id = intval($existing_by_name);
+                }
+            }
+        }
+
         // Automatic School Recognition
         $school_id = intval($data['school_id'] ?? 0);
         if ($school_id > 0) {
