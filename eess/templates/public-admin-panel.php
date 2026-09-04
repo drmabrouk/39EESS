@@ -1009,6 +1009,19 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                         ));
                                         $staff_count = count($assigned_staff_ids);
                                     ?>
+                                    <?php
+                                        // Fetch child schools for this parent institution
+                                        $child_schools = EESS_Org_Helper::get_schools_by_institution($inst->id);
+                                        $child_schools_count = count($child_schools);
+
+                                        // Calculate total students & staff for child schools
+                                        $school_ids = wp_list_pluck($child_schools, 'id');
+                                        $total_inst_students = 0;
+                                        if (!empty($school_ids)) {
+                                            $placeholders = implode(',', array_fill(0, count($school_ids), '%d'));
+                                            $total_inst_students = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}sm_students WHERE school_id IN ($placeholders)", $school_ids)) ?: 0;
+                                        }
+                                    ?>
                                     <div class="eess-institution-card"
                                          data-id="<?php echo $inst->id; ?>"
                                          data-name="<?php echo esc_attr(strtolower($inst->name)); ?>"
@@ -1034,7 +1047,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                                         <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.3;"><?php echo esc_html($inst->name); ?></h3>
                                                         <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
                                                             <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
-                                                                معرف المؤسسة / الكود: <?php echo intval($inst->code ?: $inst->id); ?>
+                                                                كود المؤسسة: <?php echo intval($inst->code ?: $inst->id); ?>
                                                             </span>
                                                             <span style="display: inline-block; padding: 2px 8px; border-radius: 9999px; background: <?php echo $type_badge_bg; ?>; color: <?php echo $type_badge_col; ?>; font-size: 10.5px; font-weight: 800;">
                                                                 <?php echo esc_html($inst->type); ?>
@@ -1044,32 +1057,49 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                                                 </div>
                                             </div>
 
-                                            <!-- Metadata List -->
+                                            <!-- Metadata List & Child Hierarchy Accordion -->
                                             <div style="background: #f8fafc; border-radius: 12px; padding: 12px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #334155;">
                                                 <div style="display: flex; align-items: center; gap: 6px;">
                                                     <span class="dashicons dashicons-admin-users" style="font-size: 15px; width: 15px; height: 15px; color: #881337;"></span>
-                                                    <span><strong>المدير / المسؤول:</strong> <?php echo esc_html($manager_name); ?></span>
+                                                    <span><strong>مدير المؤسسة:</strong> <?php echo esc_html($manager_name); ?></span>
                                                 </div>
                                                 <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <span class="dashicons dashicons-location" style="font-size: 15px; width: 15px; height: 15px; color: #0284c7;"></span>
-                                                    <span><strong>الدولة والجهة:</strong> <?php echo esc_html($inst->country ?: 'الإمارات'); ?><?php echo !empty($inst->address) ? ' - ' . esc_html($inst->address) : ''; ?></span>
+                                                    <span class="dashicons dashicons-welcome-widgets-menus" style="font-size: 15px; width: 15px; height: 15px; color: #0284c7;"></span>
+                                                    <span><strong>المدارس التابعة:</strong> <strong style="color: #0284c7;"><?php echo $child_schools_count; ?> مدارس / فروع</strong></span>
                                                 </div>
-                                                <?php if (!empty($inst->phone)): ?>
                                                 <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <span class="dashicons dashicons-phone" style="font-size: 15px; width: 15px; height: 15px; color: #16a34a;"></span>
-                                                    <span><strong>الهاتف:</strong> <?php echo esc_html($inst->phone); ?></span>
+                                                    <span class="dashicons dashicons-groups" style="font-size: 15px; width: 15px; height: 15px; color: #16a34a;"></span>
+                                                    <span><strong>إجمالي الطلاب بالمؤسسة:</strong> <strong style="color: #16a34a;"><?php echo $total_inst_students; ?> طالب</strong></span>
                                                 </div>
+
+                                                <?php if ($child_schools_count > 0): ?>
+                                                    <div style="margin-top: 6px; border-top: 1px solid #e2e8f0; padding-top: 6px;">
+                                                        <button type="button" onclick="jQuery('#inst-child-schools-<?php echo $inst->id; ?>').toggle()" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 800; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                                                            <span>عرض المدارس والفروع التابعة (<?php echo $child_schools_count; ?>)</span>
+                                                            <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 12px;"></span>
+                                                        </button>
+
+                                                        <div id="inst-child-schools-<?php echo $inst->id; ?>" style="display: none; margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                                                            <?php foreach ($child_schools as $cs):
+                                                                $cs_stu_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}sm_students WHERE school_id = %d", $cs->id)) ?: 0;
+                                                            ?>
+                                                                <div style="background: #ffffff; padding: 6px 10px; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                                                                    <div>
+                                                                        <strong style="color: #0f172a;"><?php echo esc_html($cs->name); ?></strong>
+                                                                        <span style="font-size: 9.5px; color: #64748b; font-family: monospace;">(كود: <?php echo intval($cs->school_code ?: $cs->id); ?>)</span>
+                                                                    </div>
+                                                                    <span style="background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 4px; font-weight: 800; font-size: 10px;"><?php echo $cs_stu_count; ?> طالب</span>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    </div>
                                                 <?php endif; ?>
-                                                <div style="display: flex; align-items: center; gap: 6px;">
-                                                    <span class="dashicons dashicons-groups" style="font-size: 15px; width: 15px; height: 15px; color: #475569;"></span>
-                                                    <span><strong>الكادر والمنسقون المسندون:</strong> <strong style="color: #881337;"><?php echo $staff_count; ?> موظف/كادر</strong></span>
-                                                </div>
                                             </div>
                                         </div>
 
                                         <!-- Circular Action Buttons -->
                                         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
-                                            <button type="button" onclick='eessOpenEditInstitutionModal(<?php echo json_encode($inst); ?>, <?php echo json_encode($assigned_staff_ids); ?>)' title="تعديل المؤسسة وتكليفات الكادر" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                                            <button type="button" onclick='eessOpenEditInstitutionModal(<?php echo json_encode($inst); ?>, <?php echo json_encode($assigned_staff_ids); ?>)' title="تعديل المؤسسة والمدير وتكليفات الكادر" style="width: 36px; height: 36px; border-radius: 50% !important; flex-shrink: 0; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                                                 <span class="dashicons dashicons-edit" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                                             </button>
 
