@@ -154,104 +154,99 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
 
             <!-- STEP 3: PROFESSIONAL & ACADEMIC ASSIGNMENT -->
             <div id="u_step_3_container" style="display: none;">
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
                     <h4 style="margin: 0 0 14px 0; font-size: 13.5px; font-weight: 800; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">التسكين المهني والأكاديمي</h4>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px; margin-top: 10px;">
-                        <div id="u_empid_wrapper" class="eess-float-group">
-                            <input type="text" name="employee_id" id="u_employee_id" class="sm-input eess-float-input" placeholder=" " required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold; direction: ltr; text-align: right;" oninput="eessSyncUsername(this)" onblur="eessCheckUniqueness('employee_id')">
-                            <label for="u_employee_id" class="eess-float-label">الرقم الوظيفي (Employee ID) <span style="color:#ef4444;">*</span></label>
-                            <input type="hidden" name="username" id="u_username">
-                            <span class="eess-field-error" id="err_u_employee_id" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى إدخال الرقم الوظيفي.</span>
+                    <div style="display: flex; flex-direction: column; gap: 18px; margin-top: 10px;">
+                        <!-- Row 1: School Selection & Employee Number -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div id="u_institution_wrapper" class="eess-float-group">
+                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">المدرسة / المؤسسة التعليمية <span style="color:#ef4444;">*</span></label>
+                                <select name="institution_id" id="u_institution_id" class="sm-select eess-float-input" onchange="eessOnInstitutionChanged()" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; width: 100%;">
+                                    <option value="">-- اختر المدرسة / المؤسسة التعليمية --</option>
+                                    <?php foreach ($institutions as $inst): ?>
+                                        <option value="<?php echo esc_attr($inst->id); ?>"><?php echo esc_html($inst->name); ?> — <?php echo esc_html(intval($inst->code ?: $inst->id)); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <span class="eess-field-error" id="err_u_institution_id" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى اختيار المؤسسة.</span>
+                            </div>
+
+                            <div id="u_empid_wrapper" class="eess-float-group">
+                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">الرقم الوظيفي (Employee ID) <span style="color:#ef4444;">*</span></label>
+                                <input type="text" name="employee_id" id="u_employee_id" class="sm-input eess-float-input" placeholder="مثال: 2001" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold; direction: ltr; text-align: right; width: 100%;" oninput="eessSyncUsername(this)" onblur="eessCheckUniqueness('employee_id')">
+                                <input type="hidden" name="username" id="u_username">
+                                <span class="eess-field-error" id="err_u_employee_id" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى إدخال الرقم الوظيفي.</span>
+                            </div>
                         </div>
 
-                        <div class="eess-float-group">
-                            <select name="user_role" id="u_user_role" class="sm-select eess-float-input" onchange="eessOnRoleChanged()" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold;">
-                                <option value="">-- اختر الرتبة --</option>
-                                <option value="sm_teacher">معلم / عضو هيئة تدريس</option>
-                                <option value="sm_hod">رئيس قسم (HOD)</option>
-                                <option value="sm_principal">مدير مدرسة / القائد التربوي</option>
-                                <option value="sm_supervisor">موجه / مشرف تربوي</option>
-                                <option value="sm_activities_supervisor">مشرف أنشطة وفعاليات</option>
-                                <option value="sm_clinic">طبيب / زائر صحي للمدرسة</option>
-                                <option value="administrator">مدير النظام (System Administrator)</option>
-                            </select>
-                            <label for="u_user_role" class="eess-float-label">الرتبة / المنصب الوظيفي <span style="color:#ef4444;">*</span></label>
-                            <span class="eess-field-error" id="err_u_user_role" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى تحديد الرتبة الوظيفية.</span>
+                        <!-- Row 2: Role & Department -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="eess-float-group">
+                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">الرتبة / المنصب الوظيفي <span style="color:#ef4444;">*</span></label>
+                                <select name="user_role" id="u_user_role" class="sm-select eess-float-input" onchange="eessOnRoleChanged()" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold; width: 100%;">
+                                    <option value="">-- اختر الرتبة --</option>
+                                    <option value="sm_teacher">معلم / عضو هيئة تدريس</option>
+                                    <option value="sm_hod">رئيس قسم (HOD)</option>
+                                    <option value="sm_principal">مدير مدرسة / القائد التربوي</option>
+                                    <option value="sm_supervisor">موجه / مشرف تربوي</option>
+                                    <option value="sm_activities_supervisor">مشرف أنشطة وفعاليات</option>
+                                    <option value="sm_clinic">طبيب / زائر صحي للمدرسة</option>
+                                    <option value="administrator">مدير النظام (System Administrator)</option>
+                                </select>
+                                <span class="eess-field-error" id="err_u_user_role" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى تحديد الرتبة الوظيفية.</span>
+                            </div>
+
+                            <div id="u_department_wrapper" class="eess-float-group">
+                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">القسم / الإدارة <span style="color:#ef4444;">*</span></label>
+                                <select name="department" id="u_department" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; width: 100%;">
+                                    <option value="">-- اختر القسم --</option>
+                                    <?php foreach ($departments as $dept_key => $dept_lbl): ?>
+                                        <option value="<?php echo esc_attr($dept_lbl); ?>"><?php echo esc_html($dept_lbl); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
                         </div>
 
-                        <div class="eess-float-group">
-                            <input type="number" name="appointment_year" id="u_appointment_year" class="sm-input eess-float-input" placeholder=" " min="1970" max="<?php echo date('Y'); ?>" value="<?php echo date('Y'); ?>" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold;">
-                            <label for="u_appointment_year" class="eess-float-label">سنة التعيين (Year of Appointment)</label>
+                        <!-- Row 3: Subject & Assigned Grade Levels -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div id="u_subject_wrapper" class="eess-float-group">
+                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">المادة / التخصص <span style="color:#ef4444;">*</span></label>
+                                <select name="specialization" id="u_specialization" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; width: 100%;">
+                                    <option value="">-- اختر المادة --</option>
+                                    <?php foreach ($subjects as $subj_code => $subj_name): ?>
+                                        <option value="<?php echo esc_attr($subj_name); ?>"><?php echo esc_html($subj_name); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <span class="eess-field-error" id="err_u_specialization" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى اختيار المادة للتخصص.</span>
+                            </div>
+
+                            <div id="u_grades_wrapper">
+                                <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 6px;">الصفوف الدراسية المسندة (كبسولات متعددة):</label>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px; background: #ffffff; padding: 10px; border-radius: 10px; border: 1px solid #cbd5e1; max-height: 120px; overflow-y: auto;">
+                                    <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 11.5px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
+                                        <input type="checkbox" name="assigned_grades[]" value="الروضة الأولى" onchange="eessToggleGradeCapsule(this)" style="display: none;">
+                                        <span>الروضة الأولى (KG1)</span>
+                                    </label>
+                                    <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 11.5px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
+                                        <input type="checkbox" name="assigned_grades[]" value="الروضة الثانية" onchange="eessToggleGradeCapsule(this)" style="display: none;">
+                                        <span>الروضة الثانية (KG2)</span>
+                                    </label>
+                                    <?php for ($g = 1; $g <= 12; $g++): ?>
+                                        <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 11.5px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
+                                            <input type="checkbox" name="assigned_grades[]" value="الصف <?php echo $g; ?>" onchange="eessToggleGradeCapsule(this)" style="display: none;">
+                                            <span>الصف <?php echo $g; ?></span>
+                                        </label>
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
                         </div>
-
-
-                        <div id="u_institution_wrapper" class="eess-float-group" style="grid-column: span 2;">
-                            <select name="institution_id" id="u_institution_id" class="sm-select eess-float-input" onchange="eessOnInstitutionChanged()" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                                <option value="">-- اختر المدرسة / المؤسسة التعليمية --</option>
-                                <?php foreach ($institutions as $inst): ?>
-                                    <option value="<?php echo esc_attr($inst->id); ?>"><?php echo esc_html($inst->name); ?> — <?php echo esc_html(intval($inst->code ?: $inst->id)); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="u_institution_id" class="eess-float-label">المدرسة / المؤسسة التعليمية <span style="color:#ef4444;">*</span></label>
-                            <span class="eess-field-error" id="err_u_institution_id" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى اختيار المؤسسة.</span>
-                        </div>
-
-                        <div id="u_department_wrapper" class="eess-float-group">
-                            <select name="department" id="u_department" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                                <option value="">-- اختر القسم --</option>
-                                <?php foreach ($departments as $dept_key => $dept_lbl): ?>
-                                    <option value="<?php echo esc_attr($dept_lbl); ?>"><?php echo esc_html($dept_lbl); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="u_department" class="eess-float-label">القسم / الإدارة</label>
-                        </div>
-
-                        <div id="u_admin_sec_wrapper" class="eess-float-group">
-                            <input type="text" name="admin_section" id="u_admin_section" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                            <label for="u_admin_section" class="eess-float-label">الشعبة الإدارية / المسمى الإداري</label>
-                        </div>
-                    </div>
-
-                    <div id="u_grades_wrapper" style="margin-bottom: 16px;">
-                        <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الصفوف الدراسية المسندة (كبسولات متعددة):</label>
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px; background: #ffffff; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1;">
-                            <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
-                                <input type="checkbox" name="assigned_grades[]" value="الروضة الأولى" onchange="eessToggleGradeCapsule(this)" style="display: none;">
-                                <span>الروضة الأولى (KG1)</span>
-                            </label>
-                            <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
-                                <input type="checkbox" name="assigned_grades[]" value="الروضة الثانية" onchange="eessToggleGradeCapsule(this)" style="display: none;">
-                                <span>الروضة الثانية (KG2)</span>
-                            </label>
-                            <?php for ($g = 1; $g <= 12; $g++): ?>
-                                <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
-                                    <input type="checkbox" name="assigned_grades[]" value="الصف <?php echo $g; ?>" onchange="eessToggleGradeCapsule(this)" style="display: none;">
-                                    <span>الصف <?php echo $g; ?></span>
-                                </label>
-                            <?php endfor; ?>
-                        </div>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px;">
-                        <div id="u_subject_wrapper" class="eess-float-group">
-                            <select name="specialization" id="u_specialization" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                                <option value="">-- اختر المادة --</option>
-                                <?php foreach ($subjects as $subj_code => $subj_name): ?>
-                                    <option value="<?php echo esc_attr($subj_name); ?>"><?php echo esc_html($subj_name); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="u_specialization" class="eess-float-label">المادة / التخصص <span style="color:#ef4444;">*</span></label>
-                            <span class="eess-field-error" id="err_u_specialization" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى اختيار المادة للتخصص.</span>
-                        </div>
-
                     </div>
                 </div>
             </div>
 
             <!-- STEP 4: LOGIN DATA & PASSWORDS -->
             <div id="u_step_4_container" style="display: none;">
-                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                <div style="background: transparent; border: none; padding: 10px 0; margin-bottom: 20px;">
                     <h4 style="margin: 0 0 14px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">بيانات الدخول لحساب المستخدم</h4>
 
                     <!-- First Row: Email and Username (Read-Only) -->

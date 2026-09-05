@@ -847,12 +847,13 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                         <option value="rejected" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'rejected'); ?>>مرفوض</option>
                     </select>
 
-                    <select name="sort_dir" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px; font-weight: bold; color: #881337;">
-                        <option value="desc" <?php selected(!isset($_GET['sort_dir']) || $_GET['sort_dir'] === 'desc'); ?>>ترتيب: الأحدث أولاً</option>
-                        <option value="asc" <?php selected(isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc'); ?>>ترتيب: الأقدم أولاً</option>
-                    </select>
+                    <?php $cur_sort = isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc' ? 'asc' : 'desc'; ?>
+                    <input type="hidden" name="sort_dir" id="eess_sort_dir_val" value="<?php echo $cur_sort; ?>">
+                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="الأحدث أولاً / الأقدم أولاً" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                        <span class="dashicons <?php echo $cur_sort === 'asc' ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                    </button>
 
-                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">تطبيق التصفية والفرز</button>
+                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">بحث وتصفية</button>
                 </form>
             </div>
 
@@ -998,7 +999,42 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 <?php endif; ?>
                                 <?php echo esc_html($sub->grade_level . ' (' . $sub->class_section . ')'); ?>
                             </td>
-                            <td><span style="font-weight:bold; color: #64748b;"><?php echo $sub->version; ?></span></td>
+                            <td>
+                                <?php
+                                $sub_created_time = strtotime($sub->created_at ?: $sub->lesson_date);
+                                $week_num = date('W', $sub_created_time);
+                                $is_pe = (strpos($sub->subject, 'بدنية') !== false || strpos($sub->subject, 'صحية') !== false || strpos($sub->subject, 'Physical') !== false);
+
+                                // Color palette cycling for weekly capsules
+                                $palette = array(
+                                    array('bg' => '#fef2f2', 'text' => '#881337', 'border' => '#fecdd3'),
+                                    array('bg' => '#eff6ff', 'text' => '#1d4ed8', 'border' => '#bfdbfe'),
+                                    array('bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0'),
+                                    array('bg' => '#fef3c7', 'text' => '#b45309', 'border' => '#fde68a'),
+                                    array('bg' => '#faf5ff', 'text' => '#6b21a8', 'border' => '#e9d5ff'),
+                                );
+                                $p_idx = intval($week_num) % count($palette);
+                                $p_style = $palette[$p_idx];
+
+                                // PE Specific deadline calculation: Friday 12:00 AM -> Monday 9:30 AM
+                                $is_pe_late = false;
+                                if ($is_pe) {
+                                    $day_of_week = date('N', $sub_created_time); // 1 (Mon) to 7 (Sun)
+                                    $time_hi = date('H:i', $sub_created_time);
+                                    if ($day_of_week == 1 && $time_hi > '09:30') {
+                                        $is_pe_late = true;
+                                    } elseif ($day_of_week > 1 && $day_of_week < 5) { // Tue, Wed, Thu
+                                        $is_pe_late = true;
+                                    }
+                                }
+                                ?>
+                                <span style="display: inline-block; padding: 3px 10px; border-radius: 50px; background: <?php echo $p_style['bg']; ?>; color: <?php echo $p_style['text']; ?>; border: 1px solid <?php echo $p_style['border']; ?>; font-weight: 800; font-size: 11px;">
+                                    الأسبوع <?php echo intval($week_num); ?> (v<?php echo $sub->version; ?>)
+                                </span>
+                                <?php if ($is_pe_late): ?>
+                                    <div style="font-size: 9.5px; color: #dc2626; font-weight: 800; margin-top: 2px;">⚠️ تسليم متأخر بعد الإثنين 9:30 ص</div>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <div style="margin-bottom: 4px;">
                                     <?php if ($sub->delay_seconds > 0): ?>
