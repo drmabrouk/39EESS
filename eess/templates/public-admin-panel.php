@@ -397,7 +397,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
             <?php endif; ?>
             <div>
                 <h1 style="margin:0; border: none; padding: 0; color: var(--sm-dark-color); font-weight: 800; font-size: 1.05em; text-decoration: none; line-height: 1;">
-                    <?php echo esc_html($school['school_name']); ?>
+                    مدرسة منارة الشارقة الخاصة
                 </h1>
                 <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
                     <!-- Enlarge Role Badge -->
@@ -425,6 +425,15 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         ?>
                     </div>
 
+                    <!-- Department / Section Capsule -->
+                    <?php
+                    $my_department = get_user_meta($user->ID, 'eess_department', true) ?: (get_user_meta($user->ID, 'department', true) ?: (get_user_meta($user->ID, 'sm_department', true) ?: 'قسم التربية البدنية والصحية'));
+                    if (!empty($my_department)): ?>
+                        <div style="display: inline-block; padding: 2px 10px; background: #fef3c7; color: #92400e; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #fde68a; line-height: 1;">
+                            🏢 <?php echo esc_html($my_department); ?>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Subject Badge for Teacher/Coordinator -->
                     <?php
                     $my_subject = get_user_meta($user->ID, 'sm_specialization', true);
@@ -434,23 +443,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                         </div>
                     <?php endif; ?>
 
-                    <!-- Assigned Institution/School Badge -->
-                    <?php 
-                    $user_scope = EESS_Org_Helper::get_user_scope($user->ID);
-                    $assigned_school_name = '';
-                    if (!empty($user_scope['schools'])) {
-                        $first_school_id = reset($user_scope['schools']);
-                        global $wpdb;
-                        $assigned_school_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM {$wpdb->prefix}eess_schools WHERE id = %d", $first_school_id));
-                    }
-                    if (empty($assigned_school_name)) {
-                        $assigned_school_name = get_user_meta($user->ID, 'eess_school_name', true) ?: ($school['school_name'] ?? '');
-                    }
-                    if (!$is_student && !$is_parent && !empty($assigned_school_name)): ?>
-                        <div style="display: inline-block; padding: 2px 10px; background: #f0fdf4; color: #166534; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #bbf7d0; line-height: 1;">
-                            <?php echo esc_html($assigned_school_name); ?>
-                        </div>
-                    <?php endif; ?>
+                    <!-- Assigned School Name Capsule -->
+                    <div style="display: inline-block; padding: 2px 10px; background: #f0fdf4; color: #166534; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #bbf7d0; line-height: 1;">
+                        مدرسة منارة الشارقة الخاصة
+                    </div>
                 </div>
             </div>
         </div>

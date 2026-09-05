@@ -138,7 +138,7 @@ class EESS_Org_Helper {
             1 => array('name' => 'مؤسسة الشعلة للتعليم والتطوير', 'parent_id' => null, 'type' => 'مؤسسة إدارية'),
             2 => array('name' => 'مدرسة الشعلة الخاصة - الصناعية', 'parent_id' => null, 'type' => 'مدرسة'),
             3 => array('name' => 'مدرسة الشعلة الخاصة - الفلاح', 'parent_id' => null, 'type' => 'مدرسة'),
-            4 => array('name' => 'مدرسة منارة الشارقة - الفلاح', 'parent_id' => null, 'type' => 'مدرسة'),
+            4 => array('name' => 'مدرسة منارة الشارقة الخاصة', 'parent_id' => null, 'type' => 'مدرسة'),
             5 => array('name' => 'مدرسة الشعلة الخاصة - عجمان', 'parent_id' => null, 'type' => 'مدرسة'),
             6 => array('name' => 'مدرسة الشعلة الأمريكية', 'parent_id' => null, 'type' => 'مدرسة')
         );
