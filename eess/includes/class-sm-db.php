@@ -1516,7 +1516,7 @@ class SM_DB {
             $bg = '#e0f2fe';
             $color = '#0369a1';
             $border = '#bae6fd';
-            $label = $exp_years > 0 ? ($exp_years . ' سنة') : 'جديد';
+            $label = ($exp_years > 0 ? $exp_years : '0') . ' سنة';
         } elseif ($exp_years <= 5) {
             $bg = '#dcfce7';
             $color = '#15803d';
