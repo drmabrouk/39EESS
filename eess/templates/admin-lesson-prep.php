@@ -857,20 +857,35 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                 </form>
             </div>
 
+            <style>
+                .eess-table-capsule {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    height: 24px !important;
+                    padding: 0 8px !important;
+                    border-radius: 12px !important;
+                    font-size: 11.5px !important;
+                    font-weight: 600 !important;
+                    line-height: 1 !important;
+                    white-space: nowrap !important;
+                    box-sizing: border-box !important;
+                    vertical-align: middle !important;
+                }
+            </style>
             <!-- Table of Submissions -->
             <div class="sm-table-container" style="overflow-x: auto;">
-                <table class="sm-table" style="min-width: 800px;">
+                <table class="sm-table" style="min-width: 850px; direction: rtl;">
                     <thead style="background: #000000 !important; color: #ffffff !important;">
                         <tr style="background: #000000 !important; color: #ffffff !important;">
                             <th style="width: 30px; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;"><input type="checkbox" onclick="eessToggleAllPrepCheckboxes(this)" title="تحديد الكل"></th>
-                            <?php if ($can_review): ?>
-                                <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المعلم والرتبة</th>
-                            <?php endif; ?>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">العنوان والمادة</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الصفوف والشعب المسندة</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الأسبوع الدراسية</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة التسليم والوقت</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الحالة الاعتمادية</th>
+                            <th style="width: 45px; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">#</th>
+                            <th style="text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المعلم ورقم الموظف</th>
+                            <th style="text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المدرسة والصفوف المسندة</th>
+                            <th style="text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">عنوان الدرس</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الأسبوع الدراسي</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة التسليم</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة الاعتماد</th>
                             <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الإجراءات</th>
                         </tr>
                     </thead>
@@ -960,152 +975,165 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 $sub_file_url = $parsed_sub_data['file_url'] ?? '';
                         ?>
                         <tr style="font-size: 12px;" id="prep-row-<?php echo $sub->id; ?>">
-                            <td style="text-align: center;"><input type="checkbox" class="eess-prep-cb" value="<?php echo $sub->id; ?>"></td>
-                            <?php if ($can_review): ?>
-                                <td style="vertical-align: middle;">
-                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                                        <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sub->teacher_id; ?>)" style="font-weight: 800; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
-                                            <?php echo esc_html($sub->teacher_name); ?>
-                                        </a>
-                                        <?php
-                                        $t_user = get_userdata($sub->teacher_id);
-                                        $t_roles = $t_user ? (array)$t_user->roles : array();
-                                        $primary_role = reset($t_roles) ?: 'sm_teacher';
-                                        $role_labels = array(
-                                            'administrator' => 'مدير النظام',
-                                            'sm_system_admin' => 'مدير تقني',
-                                            'sm_principal' => 'مدير مدرسة',
-                                            'sm_supervisor' => 'مشرف تربوي',
-                                            'sm_coordinator' => 'منسق مادة',
-                                            'sm_teacher' => 'معلم',
-                                            'sm_hod' => 'رئيس قسم'
-                                        );
-                                        $role_lbl = $role_labels[$primary_role] ?? 'معلم';
-                                        ?>
-                                        <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 12px; font-weight: 600; white-space: nowrap; box-sizing: border-box;">
-                                            <?php echo esc_html($role_lbl); ?>
-                                        </span>
-                                    </div>
-                                    <?php
-                                    $teacher_emp_id = get_user_meta($sub->teacher_id, 'eess_employee_number', true) ?: ('EMP-' . $sub->teacher_id);
-                                    ?>
-                                    <div style="margin-top: 4px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-                                        <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 12px; font-weight: 600; font-family: monospace; white-space: nowrap; box-sizing: border-box;">
-                                            <?php echo esc_html($teacher_emp_id); ?>
-                                        </span>
-                                    </div>
-                                    <?php
-                                    $is_contacted = get_user_meta($sub->teacher_id, 'eess_contacted_prep_' . $sub->id, true);
-                                    if ($is_contacted): ?>
-                                        <span style="display:inline-block; margin-top:4px; padding:2px 6px; background:#dcfce7; color:#15803d; border-radius:4px; font-size:9.5px; font-weight:800; border:1px solid #bbf7d0;">✓ تم التواصل</span>
-                                    <?php endif; ?>
-                                </td>
-                            <?php endif; ?>
-                            <td>
-                                <div style="font-weight:700; color:var(--sm-dark-color);"><?php echo esc_html($sub->title); ?></div>
-                                <div style="font-size:10px; color:#64748b;"><?php echo esc_html($sub->subject); ?></div>
-                            </td>
-                            <td>
-                                <?php
-                                $teacher_school = get_user_meta($sub->teacher_id, 'eess_school_name', true);
-                                if (empty($teacher_school)) {
-                                    $teacher_school = $school['school_name'] ?? '';
-                                }
-                                if (!empty($teacher_school)): ?>
-                                    <div style="font-size: 10px; color: #0284c7; font-weight: bold; margin-bottom: 3px;"><?php echo esc_html($teacher_school); ?></div>
-                                <?php endif; ?>
+                            <?php
+                            $parsed_sub_data = !empty($sub->lesson_data) ? json_decode($sub->lesson_data, true) : array();
+                            $sub_file_url = $parsed_sub_data['file_url'] ?? '';
 
-                                <?php
-                                // Retrieve configured grade & section assignments from user meta / assignments
-                                $assigned_sections_raw = get_user_meta($sub->teacher_id, 'sm_assigned_sections', true) ?: (get_user_meta($sub->teacher_id, 'eess_assigned_sections', true) ?: array());
-                                if (is_string($assigned_sections_raw)) {
-                                    $assigned_sections_raw = array_map('trim', explode(',', $assigned_sections_raw));
-                                }
-                                if (empty($assigned_sections_raw)) {
-                                    $assigned_sections_raw = array($sub->grade_level . ' (' . $sub->class_section . ')');
-                                }
-                                ?>
+                            // User meta & assignments
+                            $t_user = get_userdata($sub->teacher_id);
+                            $t_roles = $t_user ? (array)$t_user->roles : array();
+                            $primary_role = reset($t_roles) ?: 'sm_teacher';
+                            $role_labels = array(
+                                'administrator' => 'مدير النظام',
+                                'sm_system_admin' => 'مدير تقني',
+                                'sm_principal' => 'مدير مدرسة',
+                                'sm_supervisor' => 'مشرف تربوي',
+                                'sm_coordinator' => 'منسق مادة',
+                                'sm_teacher' => 'معلم',
+                                'sm_hod' => 'رئيس قسم'
+                            );
+                            $role_lbl = $role_labels[$primary_role] ?? 'معلم';
+                            $teacher_emp_id = get_user_meta($sub->teacher_id, 'eess_employee_number', true) ?: ('EMP-' . $sub->teacher_id);
+
+                            // School & Grade Assignments
+                            $teacher_school = get_user_meta($sub->teacher_id, 'eess_school_name', true);
+                            if (empty($teacher_school)) {
+                                $teacher_school = get_user_meta($sub->teacher_id, 'sm_school_name', true) ?: 'المدرسة الرئيسية';
+                            }
+
+                            // Get assigned grade levels directly from employee assignment metadata
+                            $assigned_grades_raw = get_user_meta($sub->teacher_id, 'sm_assigned_grades', true) ?: (get_user_meta($sub->teacher_id, 'eess_assigned_grades', true) ?: (get_user_meta($sub->teacher_id, 'sm_grade_level', true) ?: $sub->grade_level));
+                            if (is_string($assigned_grades_raw)) {
+                                $assigned_grades_raw = array_map('trim', explode(',', $assigned_grades_raw));
+                            }
+                            if (!is_array($assigned_grades_raw) || empty($assigned_grades_raw)) {
+                                $assigned_grades_raw = array($sub->grade_level);
+                            }
+                            $assigned_grades = array_unique(array_filter($assigned_grades_raw));
+                            ?>
+                            <!-- Column 1: Checkbox -->
+                            <td style="text-align: center; vertical-align: middle;">
+                                <input type="checkbox" class="eess-prep-cb" value="<?php echo $sub->id; ?>">
+                            </td>
+
+                            <!-- Column 2: # Record Number -->
+                            <td style="text-align: center; vertical-align: middle; color: #64748b; font-weight: 600; font-size: 11.5px; font-family: monospace;">
+                                <?php echo $sub->id; ?>
+                            </td>
+
+                            <!-- Column 3: Teacher & Employee Number (Single Row below Name; Removed Years of Experience) -->
+                            <td style="vertical-align: middle; text-align: right;">
+                                <div style="font-weight: 800; color: #0f172a; font-size: 13px; margin-bottom: 4px;">
+                                    <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sub->teacher_id; ?>)" style="color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7';" onmouseout="this.style.color='#0f172a';">
+                                        <?php echo esc_html($sub->teacher_name); ?>
+                                    </a>
+                                </div>
+                                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: nowrap;">
+                                    <!-- Employee Number Capsule -->
+                                    <span class="eess-table-capsule" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-family: monospace;">
+                                        <?php echo esc_html($teacher_emp_id); ?>
+                                    </span>
+                                    <!-- Role Capsule -->
+                                    <span class="eess-table-capsule" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
+                                        <?php echo esc_html($role_lbl); ?>
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- Column 4: School & Individual Grade Level Pastel Capsules -->
+                            <td style="vertical-align: middle; text-align: right;">
+                                <div style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                    <span>🏢</span>
+                                    <span><?php echo esc_html($teacher_school); ?></span>
+                                </div>
                                 <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
-                                    <?php foreach ($assigned_sections_raw as $sec_cap):
-                                        if (empty($sec_cap)) continue;
-                                    ?>
-                                        <span style="display: inline-block; padding: 2px 8px; border-radius: 50px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px; font-weight: 800;">
-                                            <?php echo esc_html($sec_cap); ?>
+                                    <?php foreach ($assigned_grades as $g_title): ?>
+                                        <span class="eess-table-capsule" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
+                                            <?php echo esc_html($g_title); ?>
                                         </span>
                                     <?php endforeach; ?>
                                 </div>
                             </td>
+
+                            <!-- Column 5: Lesson Title Only -->
+                            <td style="vertical-align: middle; text-align: right;">
+                                <div style="font-weight: 700; color: #0f172a; font-size: 12.5px;">
+                                    <?php echo esc_html($sub->title); ?>
+                                </div>
+                            </td>
+
+                            <!-- Column 6: Academic Week (Sequential from 30 August 2026) -->
                             <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $sub_created_time = strtotime($sub->created_at ?: $sub->lesson_date);
-
-                                // Weekly Cycle: Friday 12:00 AM -> Thursday 11:59:59 PM (Deadline Monday 9:30 AM)
                                 $w_day = date('N', $sub_created_time); // 1 (Mon) .. 5 (Fri) .. 7 (Sun)
                                 $w_time = date('H:i', $sub_created_time);
+
                                 // Academic Start Anchor: 30 August 2026 (Academic Week 1)
-                                // Standard academic cycle starts on Friday prior to week start (Friday 28 August 2026 00:00:00)
+                                // Standard cycle starts Friday prior (28 August 2026 00:00:00)
                                 $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
                                 if ($sub_created_time >= $acad_anchor_ts) {
                                     $diff_seconds = $sub_created_time - $acad_anchor_ts;
                                     $cycle_week_num = intval(floor($diff_seconds / (7 * 86400))) + 1;
                                 } else {
-                                    // For records prior to 2026-08-28, default to Academic Week 1 (الأسبوع الأول)
                                     $cycle_week_num = 1;
                                 }
 
-                                // Arabic ordinal week titles
                                 $arabic_weeks = array(
                                     1 => 'الأسبوع الأول', 2 => 'الأسبوع الثاني', 3 => 'الأسبوع الثالث', 4 => 'الأسبوع الرابع',
                                     5 => 'الأسبوع الخامس', 6 => 'الأسبوع السادس', 7 => 'الأسبوع السابع', 8 => 'الأسبوع الثامن',
                                     9 => 'الأسبوع التاسع', 10 => 'الأسبوع العاشر', 11 => 'الأسبوع الحادي عشر', 12 => 'الأسبوع الثاني عشر',
-                                    13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر',
-                                    17 => 'الأسبوع السابع عشر', 18 => 'الأسبوع الثامن عشر', 19 => 'الأسبوع التاسع عشر', 20 => 'الأسبوع العشرون'
+                                    13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
                                 );
                                 $week_title = $arabic_weeks[$cycle_week_num] ?? ('الأسبوع ' . $cycle_week_num);
 
-                                // Lateness check: Monday > 9:30 AM through Thursday 11:59:59 PM
+                                // Lateness check
                                 $is_cycle_late = false;
                                 if ($w_day == 1 && $w_time > '09:30') {
                                     $is_cycle_late = true;
-                                } elseif ($w_day >= 2 && $w_day <= 4) { // Tue, Wed, Thu
+                                } elseif ($w_day >= 2 && $w_day <= 4) {
                                     $is_cycle_late = true;
                                 }
                                 ?>
-                                <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 600; font-size: 12px; white-space: nowrap; box-sizing: border-box;">
+                                <span class="eess-table-capsule" style="background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;">
                                     <?php echo esc_html($week_title); ?>
                                 </span>
                             </td>
+
+                            <!-- Column 7: Submission Status (Centered & Compact with Late Notices strictly placed here) -->
                             <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $sub_dt = $sub->submission_time ?: $sub->created_at;
-                                $formatted_prep_date_time = date_i18n('j M Y • h:i A', strtotime($sub_dt));
-                                $formatted_prep_date_time = str_replace(array('AM', 'PM', 'صباحاً', 'مساءً', 'صباحا', 'مساء'), array('ص', 'م', 'ص', 'م', 'ص', 'م'), $formatted_prep_date_time);
+                                $formatted_time = date_i18n('j M Y • h:i A', strtotime($sub_dt));
+                                $formatted_time = str_replace(array('AM', 'PM', 'صباحاً', 'مساءً', 'صباحا', 'مساء'), array('ص', 'م', 'ص', 'م', 'ص', 'م'), $formatted_time);
                                 ?>
                                 <?php if ($sub->delay_seconds > 0 || $is_cycle_late): ?>
-                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; font-weight: 600; font-size: 12px; white-space: nowrap; box-sizing: border-box; cursor: pointer;">
-                                        ⚠️ متأخر (<?php echo esc_html($formatted_prep_date_time); ?>)
+                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_time); ?>" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: pointer;">
+                                        ⚠️ متأخر (<?php echo esc_html($formatted_time); ?>)
                                     </span>
                                 <?php else: ?>
-                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-weight: 600; font-size: 12px; white-space: nowrap; box-sizing: border-box; cursor: pointer;">
-                                        ✓ في الموعد (<?php echo esc_html($formatted_prep_date_time); ?>)
+                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_time); ?>" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; cursor: pointer;">
+                                        ✓ في الموعد (<?php echo esc_html($formatted_time); ?>)
                                     </span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+
+                            <!-- Column 8: Approval Status -->
+                            <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $status_labels = array(
-                                    'draft' => array('label' => 'مسودة', 'bg' => '#f1f5f9', 'color' => '#475569'),
-                                    'submitted' => array('label' => 'بانتظار المراجعة', 'bg' => '#fef9c3', 'color' => '#a16207'),
-                                    'approved' => array('label' => 'معتمد', 'bg' => '#dcfce7', 'color' => '#15803d'),
-                                    'revision_required' => array('label' => 'طلب تعديل', 'bg' => '#ffedd5', 'color' => '#c2410c'),
-                                    'rejected' => array('label' => 'مرفوض', 'bg' => '#fee2e2', 'color' => '#b91c1c'),
-                                    'late' => array('label' => 'تسليم متأخر', 'bg' => '#ffedd5', 'color' => '#8b1e1e'),
-                                    'resubmitted' => array('label' => 'معدل ومستلم', 'bg' => '#e0f2fe', 'color' => '#0369a1'),
+                                    'draft' => array('label' => 'مسودة', 'bg' => '#f1f5f9', 'color' => '#475569', 'border' => '#cbd5e1'),
+                                    'submitted' => array('label' => 'قيد المراجعة', 'bg' => '#e0f2fe', 'color' => '#0284c7', 'border' => '#bae6fd'),
+                                    'approved' => array('label' => 'معتمد', 'bg' => '#dcfce7', 'color' => '#15803d', 'border' => '#bbf7d0'),
+                                    'revision_required' => array('label' => 'طلب تعديل', 'bg' => '#ffedd5', 'color' => '#c2410c', 'border' => '#fed7aa'),
+                                    'rejected' => array('label' => 'مرفوض', 'bg' => '#fee2e2', 'color' => '#b91c1c', 'border' => '#fecdd3'),
+                                    'late' => array('label' => 'تسليم متأخر', 'bg' => '#ffedd5', 'color' => '#8b1e1e', 'border' => '#fed7aa'),
+                                    'resubmitted' => array('label' => 'معدل ومستلم', 'bg' => '#e0f2fe', 'color' => '#0369a1', 'border' => '#bae6fd'),
                                 );
-                                $badge = $status_labels[$sub->status] ?? array('label' => $sub->status, 'bg' => '#f1f5f9', 'color' => '#475569');
+                                $badge = $status_labels[$sub->status] ?? array('label' => $sub->status, 'bg' => '#f1f5f9', 'color' => '#475569', 'border' => '#cbd5e1');
                                 ?>
-                                <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; background:<?php echo $badge['bg']; ?>; color:<?php echo $badge['color']; ?>; border: 1px solid #cbd5e1; white-space: nowrap; box-sizing: border-box;">
-                                    <?php echo $badge['label']; ?>
+                                <span class="eess-table-capsule" style="background: <?php echo $badge['bg']; ?>; color: <?php echo $badge['color']; ?>; border: 1px solid <?php echo $badge['border']; ?>;">
+                                    <?php echo esc_html($badge['label']); ?>
                                 </span>
                             </td>
                             <td>
