@@ -3351,7 +3351,8 @@ class SM_Public {
         if (!current_user_can('إدارة_المستخدمين')) wp_send_json_error('Unauthorized');
         if (!wp_verify_nonce($_POST['sm_nonce'], 'sm_user_action')) wp_send_json_error('Security check failed');
 
-        $username = sanitize_user($_POST['user_login']);
+        $raw_uname = $_POST['user_login'] ?? ($_POST['employee_number'] ?? ($_POST['employee_id'] ?? ($_POST['username'] ?? '')));
+        $username = sanitize_user($raw_uname);
         $email = sanitize_email($_POST['user_email']);
         if (empty($email)) $email = $username . '@parent.local';
 

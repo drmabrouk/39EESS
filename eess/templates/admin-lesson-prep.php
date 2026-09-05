@@ -829,13 +829,30 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         <!-- List Panel (Compacted & Cleaned Up) -->
         <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
 
-            <!-- Table Header Bar: Right Title & Left Compact Search Control -->
+            <!-- Table Header Bar: Professional Search + Filter + Sort Unified Toolbar -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #cbd5e1;">
                 <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a;">سجلات تحضير الدروس المقدمة</h3>
-                <form method="get" style="display: flex; align-items: center; gap: 8px; margin: 0;">
-                    <input type="hidden" name="page" value="<?php echo isset($_GET['page']) ? esc_attr($_GET['page']) : ''; ?>">
-                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 14px; width: 240px;">
-                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">بحث</button>
+
+                <form method="get" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0;">
+                    <input type="hidden" name="sm_tab" value="lesson-plans">
+
+                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 14px; width: 200px;">
+
+                    <input type="date" name="filter_date" value="<?php echo isset($_GET['filter_date']) ? esc_attr($_GET['filter_date']) : ''; ?>" class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px;">
+
+                    <select name="filter_status" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px;">
+                        <option value="">جميع الحالات</option>
+                        <option value="pending" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'pending'); ?>>قيد المراجعة</option>
+                        <option value="approved" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'approved'); ?>>معتمد</option>
+                        <option value="rejected" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'rejected'); ?>>مرفوض</option>
+                    </select>
+
+                    <select name="sort_dir" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px; font-weight: bold; color: #881337;">
+                        <option value="desc" <?php selected(!isset($_GET['sort_dir']) || $_GET['sort_dir'] === 'desc'); ?>>ترتيب: الأحدث أولاً</option>
+                        <option value="asc" <?php selected(isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc'); ?>>ترتيب: الأقدم أولاً</option>
+                    </select>
+
+                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">تطبيق التصفية والفرز</button>
                 </form>
             </div>
 
@@ -909,7 +926,8 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                             $query .= " WHERE " . implode(" AND ", $conditions);
                         }
 
-                        $query .= " ORDER BY p.lesson_date DESC, p.created_at DESC";
+                        $sort_dir = (isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc') ? 'ASC' : 'DESC';
+                        $query .= " ORDER BY COALESCE(p.updated_at, p.created_at) {$sort_dir}, p.id {$sort_dir}";
 
                         if (!empty($params)) {
                             $submissions = $wpdb->get_results($wpdb->prepare($query, $params));
