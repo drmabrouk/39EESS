@@ -873,17 +873,21 @@ function eessTogglePlansTableSort() {
 </div>
 
 <!-- Quarterly & Annual Plans Bulk Download Modal -->
-<div id="eess-plan-bulk-download-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); direction: rtl; font-family: 'Cairo', sans-serif;">
-    <div style="background: #ffffff; width: 100%; max-width: 520px; border-radius: 18px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column;">
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: white; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
-                <span class="dashicons dashicons-download" style="font-size: 20px; width: 20px; height: 20px; color: #38bdf8;"></span>
-                تحميل أرشيف الخطط الفصلية والسنوية بالجملة
-            </h3>
-            <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='none'" style="background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+<div id="eess-plan-bulk-download-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; direction: rtl; font-family: 'Cairo', sans-serif;">
+    <div style="background: #ffffff; width: 100%; max-width: 520px; border-radius: 20px; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column;">
+        <!-- Minimal White Header -->
+        <div style="background: #ffffff; color: #0f172a; padding: 20px 24px 12px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <span class="dashicons dashicons-download" style="font-size: 22px; width: 22px; height: 22px; color: #0f172a; margin-top: 2px;"></span>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">تحميل أرشيف الخطط الفصلية والسنوية بالجملة</h3>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b; font-weight: 500;">تجميع كافة الخطط المرفوعة وتوليد الملف المضغوط مباشرة.</p>
+                </div>
+            </div>
+            <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='none'" style="background: none; border: none; color: #0f172a; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
-        <form action="<?php echo admin_url('admin-ajax.php'); ?>" method="get" target="_blank" style="padding: 22px;" onsubmit="setTimeout(() => { document.getElementById('eess-plan-bulk-download-modal').style.display='none'; }, 1000);">
+        <form id="eess-term-plan-bulk-form" onsubmit="eessExecuteTermPlanBulkDownloadInModal(event)" style="padding: 24px;">
             <input type="hidden" name="action" value="sm_bulk_download_term_plans">
             <input type="hidden" name="nonce" value="<?php echo wp_create_nonce('eess_admin_action'); ?>">
 
@@ -897,20 +901,72 @@ function eessTogglePlansTableSort() {
                 </select>
             </div>
 
-            <p style="margin: 0 0 18px 0; font-size: 11.5px; color: #64748b; font-weight: 600; line-height: 1.5; background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                💡 يتم تجميع كافة ملفات الخطط الفصلية المرفوعة وتسميتها آلياً بالنظام القياسي الموحد وتنسيقها داخل مجلدات المعلمين المعتمدين بملف مضغوط (ZIP).
-            </p>
+            <!-- Inline Loading State Indicator -->
+            <div id="eess_term_plan_bulk_loading_status" style="display: none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px; margin-bottom: 16px; text-align: center;">
+                <div style="font-size: 13px; font-weight: 800; color: #166534; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <span class="dashicons dashicons-update spin" style="font-size: 18px; width: 18px; height: 18px;"></span>
+                    <span id="eess_term_plan_bulk_loading_text">جاري استدعاء الخطط الفصلية والمستندات...</span>
+                </div>
+                <div style="font-size: 11.5px; color: #15803d; font-weight: 600; margin-top: 4px;">يرجى الانتظار داخل النافذة دون إغلاقها...</div>
+            </div>
 
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='none'" class="sm-btn" style="background: #f1f5f9; color: #475569; height: 38px; padding: 0 18px; border-radius: 8px; font-weight: 700; border: 1px solid #cbd5e1; cursor: pointer;">إلغاء</button>
-                <button type="submit" class="sm-btn" style="background: #2563eb; color: #ffffff; height: 38px; padding: 0 22px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <button type="submit" id="eess_term_plan_bulk_submit_btn" class="sm-btn" style="background: #0f172a; color: #ffffff; height: 38px; padding: 0 22px; border-radius: 9999px !important; font-weight: 800; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                     <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
-                    توليد وتحميل الأرشيف (ZIP)
+                    <span>توليد وتحميل الأرشيف (ZIP)</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+function eessExecuteTermPlanBulkDownloadInModal(e) {
+    e.preventDefault();
+    var form = document.getElementById('eess-term-plan-bulk-form');
+    var btn = document.getElementById('eess_term_plan_bulk_submit_btn');
+    var loadingBox = document.getElementById('eess_term_plan_bulk_loading_status');
+    var loadingText = document.getElementById('eess_term_plan_bulk_loading_text');
+
+    btn.disabled = true;
+    loadingBox.style.display = 'block';
+    loadingText.innerText = 'جاري البحث واستدعاء ملفات الخطط الفصلية والسنوية...';
+
+    setTimeout(() => { loadingText.innerText = 'جاري ضغط الملفات وتكوين أرشيف ZIP الموحد...'; }, 1200);
+
+    var params = new URLSearchParams(new FormData(form)).toString();
+    var fetchUrl = '<?php echo admin_url("admin-ajax.php"); ?>?' + params;
+
+    fetch(fetchUrl)
+    .then(response => {
+        if (!response.ok) throw new Error('فشل توليد الأرشيف');
+        return response.blob();
+    })
+    .then(blob => {
+        loadingText.innerText = 'جاري إتمام التنزيل المباشر...';
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'Term_Plans_Archive_' + new Date().toISOString().slice(0, 10) + '.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        setTimeout(() => {
+            btn.disabled = false;
+            loadingBox.style.display = 'none';
+            document.getElementById('eess-plan-bulk-download-modal').style.display = 'none';
+        }, 800);
+    })
+    .catch(err => {
+        btn.disabled = false;
+        loadingBox.style.display = 'none';
+        alert('حدث خطأ أثناء تنزيل الملف المضغوط.');
+    });
+}
+</script>
 
 <!-- School-Specific Term Plan Report Modal -->
 <div id="eess-school-plan-report-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
@@ -967,19 +1023,33 @@ function eessGenerateSchoolPlanReport() {
 
 <!-- Assign Term Plan Modal (System Administrator Only) -->
 <div id="eess-assign-plan-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
-    <div style="background: #ffffff; border-radius: 20px; max-width: 540px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden;">
-        <div style="background: #0f172a; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-user-freelance" style="font-size: 20px; width: 20px; height: 20px; color: #38bdf8;"></span>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;">إسناد ورفع خطة فصلية لمعلم</h3>
+    <div style="background: #ffffff; border-radius: 20px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden;">
+        <!-- Minimal White Header -->
+        <div style="background: #ffffff; color: #0f172a; padding: 20px 24px 12px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <span class="dashicons dashicons-user-freelance" style="font-size: 22px; width: 22px; height: 22px; color: #0f172a; margin-top: 2px;"></span>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">إسناد ورفع خطة فصلية لمعلم</h3>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b; font-weight: 500;">اختيار المعلم وتحديد الفصل مع استدعاء المادة والصفوف المسندة تلقائياً.</p>
+                </div>
             </div>
-            <button type="button" onclick="document.getElementById('eess-assign-plan-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            <button type="button" onclick="document.getElementById('eess-assign-plan-modal').style.display='none'" style="background: none; border: none; color: #0f172a; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
         <form id="eess-assign-plan-form" onsubmit="eessSubmitAssignPlanForm(event)" style="padding: 24px;">
             <div style="margin-bottom: 14px;">
                 <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">اختر المعلم المستهدف <span style="color:#ef4444;">*</span></label>
-                <?php $teachers_list = get_users(array('role' => 'sm_teacher', 'orderby' => 'display_name', 'order' => 'ASC')); ?>
-                <select id="assign_plan_teacher_id" class="sm-input" style="height: 40px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12.5px; font-weight: 700;" required>
+                <?php
+                $teachers_list = get_users(array('role' => 'sm_teacher', 'orderby' => 'display_name', 'order' => 'ASC'));
+                $teacher_plan_map = array();
+                foreach ($teachers_list as $t) {
+                    $t_subj = get_user_meta($t->ID, 'sm_specialization', true) ?: (get_user_meta($t->ID, 'specialization', true) ?: (get_user_meta($t->ID, 'subject', true) ?: 'التربية البدنية والصحية'));
+                    $t_grade = get_user_meta($t->ID, 'sm_assigned_grades', true) ?: (get_user_meta($t->ID, 'eess_assigned_grades', true) ?: (get_user_meta($t->ID, 'sm_grade_level', true) ?: 'الصف العاشر'));
+                    if (is_array($t_grade)) $t_grade = implode(',', $t_grade);
+                    $t_grade_clean = str_replace(array('[', ']', '"', "'"), '', (string)$t_grade);
+                    $teacher_plan_map[$t->ID] = array('subject' => $t_subj, 'grade' => $t_grade_clean);
+                }
+                ?>
+                <select id="assign_plan_teacher_id" onchange="eessAutoFillTeacherPlanAssignment(this.value)" class="sm-input" style="height: 40px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12.5px; font-weight: 700;" required>
                     <option value="">-- اختر المعلم --</option>
                     <?php foreach ($teachers_list as $t): ?>
                         <option value="<?php echo $t->ID; ?>"><?php echo esc_html($t->display_name . ' (' . $t->user_login . ')'); ?></option>
@@ -987,24 +1057,22 @@ function eessGenerateSchoolPlanReport() {
                 </select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-                <div>
-                    <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الفصل الدراسي</label>
-                    <select id="assign_plan_term_number" class="sm-input" style="height: 40px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px;">
-                        <option value="1">الفصل الأول</option>
-                        <option value="2">الفصل الثاني</option>
-                        <option value="3">الفصل الثالث</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">المادة الدراسية</label>
-                    <input type="text" id="assign_plan_subject" placeholder="مثال: التربية البدنية" class="sm-input" style="height: 40px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px;" required>
-                </div>
+            <!-- Auto-retrieved Teacher Metadata Display Capsule -->
+            <div id="assign_plan_auto_meta_badge" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 12px; color: #334155;">
+                <div>📚 <strong>المادة المسندة:</strong> <span id="assign_plan_auto_subj" style="color: #0284c7; font-weight: 800;">---</span></div>
+                <div style="margin-top: 4px;">🎓 <strong>الصف المعتمد:</strong> <span id="assign_plan_auto_grade" style="color: #166534; font-weight: 800;">---</span></div>
             </div>
 
+            <input type="hidden" id="assign_plan_subject" value="">
+            <input type="hidden" id="assign_plan_grade" value="">
+
             <div style="margin-bottom: 14px;">
-                <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الصف الدراسي / المنهج</label>
-                <input type="text" id="assign_plan_grade" placeholder="مثال: الصف العاشر" class="sm-input" style="height: 40px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px;" required>
+                <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الفصل الدراسي <span style="color:#ef4444;">*</span></label>
+                <select id="assign_plan_term_number" class="sm-input" style="height: 40px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px;">
+                    <option value="1">الفصل الدراسي الأول (Term 1)</option>
+                    <option value="2">الفصل الدراسي الثاني (Term 2)</option>
+                    <option value="3">الفصل الدراسي الثالث (Term 3)</option>
+                </select>
             </div>
 
             <div style="margin-bottom: 20px;">
@@ -1013,7 +1081,7 @@ function eessGenerateSchoolPlanReport() {
             </div>
 
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button type="submit" id="assign_plan_submit_btn" class="sm-btn" style="background: #000000; color: #ffffff !important; height: 38px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">إسناد ورفع الخطة</button>
+                <button type="submit" id="assign_plan_submit_btn" class="sm-btn" style="background: #0f172a; color: #ffffff !important; height: 38px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">إسناد ورفع الخطة</button>
                 <button type="button" onclick="document.getElementById('eess-assign-plan-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 38px; padding: 0 18px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;">إلغاء</button>
             </div>
         </form>
@@ -1021,6 +1089,25 @@ function eessGenerateSchoolPlanReport() {
 </div>
 
 <script>
+var eessTeacherPlanMap = <?php echo json_encode($teacher_plan_map); ?>;
+
+function eessAutoFillTeacherPlanAssignment(tUid) {
+    var badge = document.getElementById('assign_plan_auto_meta_badge');
+    if (tUid && eessTeacherPlanMap[tUid]) {
+        var info = eessTeacherPlanMap[tUid];
+        document.getElementById('assign_plan_subject').value = info.subject || 'التربية البدنية';
+        document.getElementById('assign_plan_grade').value = info.grade || 'الصف العاشر';
+
+        document.getElementById('assign_plan_auto_subj').innerText = info.subject || 'التربية البدنية';
+        document.getElementById('assign_plan_auto_grade').innerText = info.grade || 'الصف العاشر';
+        badge.style.display = 'block';
+    } else {
+        badge.style.display = 'none';
+        document.getElementById('assign_plan_subject').value = '';
+        document.getElementById('assign_plan_grade').value = '';
+    }
+}
+
 function eessSubmitAssignPlanForm(e) {
     e.preventDefault();
     var tUid = document.getElementById('assign_plan_teacher_id').value;
