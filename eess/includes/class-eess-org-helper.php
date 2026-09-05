@@ -465,7 +465,8 @@ class EESS_Org_Helper {
     public static function get_institutions() {
         global $wpdb;
         self::ensure_institutions_columns_exist();
-        return $wpdb->get_results("SELECT i.*, u.display_name as manager_display_name FROM {$wpdb->prefix}eess_institutions i LEFT JOIN {$wpdb->users} u ON i.manager_id = u.ID WHERE (i.status = 'active' OR i.status IS NULL) ORDER BY i.name ASC");
+        self::seed_mandatory_institutions();
+        return $wpdb->get_results("SELECT i.*, u.display_name as manager_display_name FROM {$wpdb->prefix}eess_institutions i LEFT JOIN {$wpdb->users} u ON i.manager_id = u.ID WHERE i.status = 'active' AND i.code IN (1,2,3,4,5,6) ORDER BY i.code ASC");
     }
 
     public static function get_institution_by_id($id) {

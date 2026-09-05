@@ -3410,18 +3410,18 @@ class SM_Public {
                 }
             }
 
-            $school_id = isset($_POST['institution']) ? intval($_POST['institution']) : 0;
-            if ($school_id) {
+            $inst_id = !empty($_POST['institution_id']) ? intval($_POST['institution_id']) : (!empty($_POST['institution']) ? intval($_POST['institution']) : 0);
+            if ($inst_id > 0) {
                 global $wpdb;
-                $school_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM {$wpdb->prefix}eess_schools WHERE id = %d", $school_id));
-                if ($school_name) {
-                    update_user_meta($user_id, 'eess_school_name', $school_name);
-                    update_user_meta($user_id, 'eess_school_id', $school_id);
+                $inst_name = $wpdb->get_var($wpdb->prepare("SELECT name FROM {$wpdb->prefix}eess_institutions WHERE id = %d", $inst_id));
+                if ($inst_name) {
+                    update_user_meta($user_id, 'eess_school_name', $inst_name);
+                    update_user_meta($user_id, 'eess_institution_id', $inst_id);
                     $wpdb->delete("{$wpdb->prefix}eess_user_assignments", array('user_id' => $user_id));
                     $wpdb->insert("{$wpdb->prefix}eess_user_assignments", array(
                         'user_id' => $user_id,
-                        'institution_id' => 1,
-                        'school_id' => $school_id
+                        'institution_id' => $inst_id,
+                        'school_id' => null
                     ));
                 }
             }

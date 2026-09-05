@@ -208,25 +208,15 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                             <label for="u_job_rank" class="eess-float-label">المرتبة الوظيفية (Job Rank)</label>
                         </div>
 
-                        <div id="u_inst_wrapper" class="eess-float-group">
+                        <div id="u_institution_wrapper" class="eess-float-group" style="grid-column: span 2;">
                             <select name="institution_id" id="u_institution_id" class="sm-select eess-float-input" onchange="eessOnInstitutionChanged()" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                                <option value="">-- اختر المؤسسة التابعة --</option>
+                                <option value="">-- اختر المدرسة / المؤسسة التعليمية --</option>
                                 <?php foreach ($institutions as $inst): ?>
-                                    <option value="<?php echo esc_attr($inst->id); ?>"><?php echo esc_html($inst->name); ?> (<?php echo esc_html($inst->type ?? 'مؤسسة'); ?>)</option>
+                                    <option value="<?php echo esc_attr($inst->id); ?>"><?php echo esc_html($inst->name); ?> — <?php echo esc_html(intval($inst->code ?: $inst->id)); ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <label for="u_institution_id" class="eess-float-label">المؤسسة / المدرسة <span style="color:#ef4444;">*</span></label>
+                            <label for="u_institution_id" class="eess-float-label">المدرسة / المؤسسة التعليمية <span style="color:#ef4444;">*</span></label>
                             <span class="eess-field-error" id="err_u_institution_id" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى اختيار المؤسسة.</span>
-                        </div>
-
-                        <div id="u_school_wrapper" class="eess-float-group">
-                            <select name="school_id" id="u_school_id" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                                <option value="">-- اختر المدرسة بالكامل --</option>
-                                <?php foreach ($all_schools as $sch): ?>
-                                    <option value="<?php echo esc_attr($sch->id); ?>" data-institution="<?php echo esc_attr($sch->institution_id ?? ''); ?>"><?php echo esc_html($sch->name); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <label for="u_school_id" class="eess-float-label">اسم المدرسة بالكامل</label>
                         </div>
 
                         <div id="u_department_wrapper" class="eess-float-group">

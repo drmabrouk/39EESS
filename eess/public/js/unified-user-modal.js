@@ -25,7 +25,7 @@ window.eessOpenUnifiedUserModal = function(mode, userId) {
         if (el) el.value = '';
     });
 
-    ['u_user_role', 'u_institution_id', 'u_school_id', 'u_department', 'u_specialization', 'u_gender', 'u_emirate', 'u_user_status'].forEach(function(id) {
+    ['u_user_role', 'u_institution_id', 'u_department', 'u_specialization', 'u_gender', 'u_emirate', 'u_user_status'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.selectedIndex = 0;
     });
@@ -182,9 +182,6 @@ window.eessRenderStepSummary = function() {
 
     var instSel = document.getElementById('u_institution_id');
     var instTxt = instSel.options[instSel.selectedIndex] ? instSel.options[instSel.selectedIndex].text : '-';
-
-    var schSel = document.getElementById('u_school_id');
-    var schTxt = schSel.options[schSel.selectedIndex] ? schSel.options[schSel.selectedIndex].text : '-';
 
     var specSel = document.getElementById('u_specialization');
     var specTxt = specSel.options[specSel.selectedIndex] ? specSel.options[specSel.selectedIndex].text : '-';
@@ -397,22 +394,7 @@ window.eessOnRoleChanged = function() {
 };
 
 window.eessOnInstitutionChanged = function() {
-    var instId = document.getElementById('u_institution_id').value;
-    var schoolSelect = document.getElementById('u_school_id');
-
-    if (!schoolSelect) return;
-
-    for (var i = 0; i < schoolSelect.options.length; i++) {
-        var opt = schoolSelect.options[i];
-        if (!opt.value) continue;
-
-        var optInst = opt.getAttribute('data-institution');
-        if (!instId || optInst === instId) {
-            opt.style.display = 'block';
-        } else {
-            opt.style.display = 'none';
-        }
-    }
+    // Institution selection is directly linked to the centralized master data
 };
 
 window.eessLoadUserData = function(userId) {
@@ -471,7 +453,6 @@ window.eessLoadUserData = function(userId) {
                 }
             }
             document.getElementById('u_institution_id').value = u.institution_id || '';
-            if (document.getElementById('u_school_id') && u.school_id) document.getElementById('u_school_id').value = u.school_id;
             document.getElementById('u_department').value = u.department || '';
             if (document.getElementById('u_admin_section') && u.admin_section) document.getElementById('u_admin_section').value = u.admin_section;
             document.getElementById('u_specialization').value = u.specialization || '';
