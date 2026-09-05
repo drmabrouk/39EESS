@@ -160,10 +160,13 @@ $arabic_term_names = array(
         <!-- Administrative Compliance & Follow-up Statistics for Term Plans -->
         <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02); margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
-                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-                    <span class="dashicons dashicons-chart-bar" style="color: #881337; font-size: 18px; width: 18px; height: 18px;"></span>
-                    <span>إحصائيات الامتثال ومتابعة الخطط الفصلية (العام الدراسي <?php echo esc_html($active_academic_year); ?>)</span>
-                </h3>
+                <div>
+                    <h3 style="margin: 0 0 2px 0; font-size: 15px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 8px;">
+                        <span class="dashicons dashicons-chart-bar" style="color: #000000; font-size: 18px; width: 18px; height: 18px;"></span>
+                        <span>إحصائيات الامتثال ومتابعة الخطط الفصلية</span>
+                    </h3>
+                    <p style="margin: 0; font-size: 12px; color: #64748b; font-weight: 600;">متابعة نسب تسليم واعتماد الخطط الفصلية والسنوية لمنتسبي الكادر التدريسي</p>
+                </div>
                 <span style="font-size: 12px; font-weight: 800; color: #0284c7; background: #e0f2fe; padding: 3px 12px; border-radius: 9999px; border: 1px solid #bae6fd;">نسبة الالتزام الإجمالية: <?php echo $plan_compliance_rate; ?>%</span>
             </div>
 

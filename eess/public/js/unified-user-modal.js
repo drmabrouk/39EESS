@@ -182,8 +182,8 @@ window.eessRenderStepSummary = function() {
     var phone = document.getElementById('u_country_code').value + ' ' + document.getElementById('u_phone_number').value;
     var country = document.getElementById('u_country_residence').value;
     var emirate = document.getElementById('u_emirate').value || 'غير محدد';
-    var address = document.getElementById('u_address').value || 'غير محدد';
-    var bldg = document.getElementById('u_building_info').value || 'غير محدد';
+    var address = 'غير محدد';
+    var bldg = 'غير محدد';
 
     var roleSel = document.getElementById('u_user_role');
     var roleTxt = roleSel.options[roleSel.selectedIndex] ? roleSel.options[roleSel.selectedIndex].text : '-';
