@@ -132,6 +132,16 @@ window.eessGoToStep = function(step) {
     if (btnSave) btnSave.style.display = (eessCurrentStep === 5) ? 'inline-block' : 'none';
 
     if (eessCurrentStep === 4) {
+        var emailInput = document.getElementById('u_user_email');
+        var empInput = document.getElementById('u_employee_id');
+        var loginEmail = document.getElementById('u_login_email_display');
+        var loginUsername = document.getElementById('u_login_username_display');
+
+        if (loginEmail && emailInput) loginEmail.value = emailInput.value;
+        if (loginUsername && empInput) loginUsername.value = empInput.value;
+    }
+
+    if (eessCurrentStep === 5) {
         eessRenderStepSummary();
     }
 
@@ -186,7 +196,7 @@ window.eessRenderStepSummary = function() {
     var specSel = document.getElementById('u_specialization');
     var specTxt = specSel.options[specSel.selectedIndex] ? specSel.options[specSel.selectedIndex].text : '-';
 
-    var sectionsTxt = document.getElementById('u_assigned_sections').value || 'جميع الشعب';
+    var sectionsTxt = 'جميع الشعب';
 
     var checkedGrades = [];
     document.querySelectorAll('input[name="assigned_grades[]"]:checked').forEach(function(g) {
