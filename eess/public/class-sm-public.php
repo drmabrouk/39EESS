@@ -7663,6 +7663,7 @@ class SM_Public {
 
             $term_num = isset($_GET['term_number']) ? intval($_GET['term_number']) : 1;
             if ($term_num < 1 || $term_num > 3) $term_num = 1;
+            $filter_week_num = isset($_GET['week_num']) ? intval($_GET['week_num']) : 0;
 
             global $wpdb;
             $acad_struct = SM_Settings::get_academic_structure();
@@ -7882,7 +7883,14 @@ class SM_Public {
             $school_logo = !empty($school_info['logo_url']) ? $school_info['logo_url'] : '';
 
             $is_prep_report = ($print_type === 'school_lesson_prep_report');
-            $report_title = $is_prep_report ? 'التقرير الرسمي الموحد لمتابعة تحضير الدروس — ' . $target_school : 'التقرير الرسمي الموحد لمتابعة الخطط الفصلية (الفصل ' . $term_num . ') — ' . $target_school;
+            $arabic_weeks_map = array(
+                1 => 'الأسبوع الأول', 2 => 'الأسبوع الثاني', 3 => 'الأسبوع الثالث', 4 => 'الأسبوع الرابع',
+                5 => 'الأسبوع الخامس', 6 => 'الأسبوع السادس', 7 => 'الأسبوع السابع', 8 => 'الأسبوع الثامن',
+                9 => 'الأسبوع التاسع', 10 => 'الأسبوع العاشر', 11 => 'الأسبوع الحادي عشر', 12 => 'الأسبوع الثاني عشر',
+                13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
+            );
+            $week_title_suffix = ($filter_week_num > 0 && isset($arabic_weeks_map[$filter_week_num])) ? ' (' . $arabic_weeks_map[$filter_week_num] . ')' : '';
+            $report_title = $is_prep_report ? 'التقرير الرسمي الموحد لمتابعة تحضير الدروس' . $week_title_suffix . ' — ' . $target_school : 'التقرير الرسمي الموحد لمتابعة الخطط الفصلية (الفصل ' . $term_num . ') — ' . $target_school;
 
             header('Content-Type: text/html; charset=utf-8');
             ?>
@@ -7950,7 +7958,21 @@ class SM_Public {
                     $t_subj = get_user_meta($t->ID, 'sm_specialization', true) ?: (get_user_meta($t->ID, 'specialization', true) ?: (get_user_meta($t->ID, 'subject', true) ?: 'عام'));
 
                     if ($is_prep_report) {
-                        $rec = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d ORDER BY created_at DESC LIMIT 1", $t->ID));
+                        if ($filter_week_num > 0) {
+                            $all_preps = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d ORDER BY created_at DESC", $t->ID));
+                            $rec = null;
+                            $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
+                            foreach ($all_preps as $p) {
+                                $p_ts = strtotime($p->updated_at ?: $p->created_at);
+                                $cw = ($p_ts >= $acad_anchor_ts) ? (intval(floor(($p_ts - $acad_anchor_ts) / (7 * 86400))) + 1) : 1;
+                                if ($cw === $filter_week_num) {
+                                    $rec = $p;
+                                    break;
+                                }
+                            }
+                        } else {
+                            $rec = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d ORDER BY created_at DESC LIMIT 1", $t->ID));
+                        }
                     } else {
                         $rec = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE teacher_id = %d AND term_number = %d ORDER BY created_at DESC LIMIT 1", $t->ID, $term_num));
                     }
@@ -10154,13 +10176,13 @@ class SM_Public {
     }
 
     public function ajax_bulk_download_term_plans() {
-        if (!is_user_logged_in()) wp_die('Unauthorized access');
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized access');
         if (!wp_verify_nonce($_REQUEST['nonce'] ?? '', 'sm_admin_action') && !wp_verify_nonce($_REQUEST['nonce'] ?? '', 'eess_admin_action')) {
-            wp_die('Security check failed');
+            wp_send_json_error('Security check failed');
         }
 
         if (!class_exists('ZipArchive')) {
-            wp_die('مكتبة ZipArchive غير مفعلة على هذا السيرفر.');
+            wp_send_json_error('مكتبة ZipArchive غير مفعلة على هذا السيرفر.');
         }
 
         global $wpdb;
@@ -10171,7 +10193,8 @@ class SM_Public {
 
         $query = "SELECT tp.*, u.display_name as teacher_name
                   FROM {$wpdb->prefix}sm_term_plans tp
-                  JOIN {$wpdb->prefix}users u ON tp.teacher_id = u.ID WHERE 1=1";
+                  JOIN {$wpdb->prefix}users u ON tp.teacher_id = u.ID
+                  WHERE tp.status IN ('submitted', 'approved', 'returned', 'resubmitted', 'rejected')";
         $params = array();
 
         if (!$user_scope['unrestricted']) {
@@ -10195,7 +10218,7 @@ class SM_Public {
         $records = !empty($params) ? $wpdb->get_results($wpdb->prepare($query, $params)) : $wpdb->get_results($query);
 
         if (empty($records)) {
-            wp_die('لا توجد خطط فصلية/سنوية مرفوعة تطابق خيارات التنزيل المحددة.');
+            wp_send_json_error('لا توجد خطط فصلية/سنوية مرفوعة تطابق خيارات التنزيل المحددة.');
         }
 
         $upload_dir = wp_upload_dir();
@@ -10204,14 +10227,14 @@ class SM_Public {
 
         $zip = new ZipArchive();
         if ($zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-            wp_die('تعذر إنشاء ملف الأرشيف المضغوط.');
+            wp_send_json_error('تعذر إنشاء ملف الأرشيف المضغوط.');
         }
 
         $added_count = 0;
         $skipped_count = 0;
 
         foreach ($records as $rec) {
-            $file_url = $rec->file_url;
+            $file_url = !empty($rec->plan_file_url) ? $rec->plan_file_url : ($rec->file_url ?? '');
             if (empty($file_url)) {
                 $skipped_count++;
                 continue;
@@ -10219,10 +10242,20 @@ class SM_Public {
 
             $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $file_url);
             if (!file_exists($local_path)) {
+                // Try relative path or absolute path if upload_dir replacement differed
+                $parsed_path = wp_parse_url($file_url, PHP_URL_PATH);
+                if ($parsed_path && file_exists(ABSPATH . ltrim($parsed_path, '/'))) {
+                    $local_path = ABSPATH . ltrim($parsed_path, '/');
+                }
+            }
+
+            if (!file_exists($local_path)) {
                 $skipped_count++;
                 continue;
             }
 
+            // Sync property for Naming Service
+            $rec->file_url = $file_url;
             $std_filename = EESS_File_Naming_Service::generate_term_plan_filename($rec);
             $zip_folder = sanitize_file_name($rec->teacher_name ?: 'المعلم');
             $zip_inner_path = $zip_folder . '/' . $std_filename;
@@ -10235,10 +10268,14 @@ class SM_Public {
 
         if ($added_count === 0) {
             if (file_exists($zip_path)) @unlink($zip_path);
-            wp_die('جميع سجلات الخطط الفصلية المحددة لا تحتوي على ملفات مرفقة صالحة.');
+            wp_send_json_error('جميع سجلات الخطط الفصلية المحددة لا تحتوي على ملفات مرفقة صالحة.');
         }
 
         SM_Logger::log('bulk_download', "قام المستخدم بإجراء تنزيل بالجملة لأرشيف الخطط الفصلية والسنوية ({$added_count} ملف)");
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
 
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="' . $zip_name . '"');
@@ -10246,7 +10283,9 @@ class SM_Public {
         header('Pragma: no-cache');
         header('Expires: 0');
         readfile($zip_path);
-        @unlink($zip_path);
+        if (file_exists($zip_path)) {
+            @unlink($zip_path);
+        }
         exit;
     }
 }
