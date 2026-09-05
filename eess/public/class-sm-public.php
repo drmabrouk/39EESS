@@ -4253,6 +4253,20 @@ class SM_Public {
         $role = sanitize_text_field($_POST['role']);
         SM_Settings::change_user_role($user_id, $role, $_POST);
 
+        // Employee Number Handling with Manual Correction Support
+        $emp_num = sanitize_text_field($_POST['employee_number'] ?? ($_POST['teacher_id'] ?? ''));
+        if (!empty($emp_num)) {
+            global $wpdb;
+            $duplicate_check = $wpdb->get_var($wpdb->prepare(
+                "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = 'eess_employee_number' AND meta_value = %s AND user_id != %d LIMIT 1",
+                $emp_num,
+                $user_id
+            ));
+            if (!$duplicate_check) {
+                update_user_meta($user_id, 'eess_employee_number', $emp_num);
+            }
+        }
+
         update_user_meta($user_id, 'sm_teacher_id', sanitize_text_field($_POST['teacher_id']));
         update_user_meta($user_id, 'sm_phone', sanitize_text_field($_POST['phone']));
         update_user_meta($user_id, 'sm_account_status', sanitize_text_field($_POST['account_status']));

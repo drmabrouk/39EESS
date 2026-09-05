@@ -148,9 +148,8 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
 
                     <div class="eess-float-group">
                         <select name="emirate" id="u_emirate" class="sm-select eess-float-input" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;" onchange="eessValidateField(this)">
-                            <option value="">-- اختر الإمارة --</option>
+                            <option value="دبي" selected>دبي (Dubai)</option>
                             <option value="أبوظبي">أبوظبي (Abu Dhabi)</option>
-                            <option value="دبي">دبي (Dubai)</option>
                             <option value="الشارقة">الشارقة (Sharjah)</option>
                             <option value="عجمان">عجمان (Ajman)</option>
                             <option value="أم القيوين">أم القيوين (Umm Al Quwain)</option>
