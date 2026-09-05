@@ -982,7 +982,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                         );
                                         $role_lbl = $role_labels[$primary_role] ?? 'معلم';
                                         ?>
-                                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 50px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px; font-weight: 800;">
+                                        <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 12px; font-weight: 600; white-space: nowrap; box-sizing: border-box;">
                                             <?php echo esc_html($role_lbl); ?>
                                         </span>
                                     </div>
@@ -990,7 +990,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     $teacher_emp_id = get_user_meta($sub->teacher_id, 'eess_employee_number', true) ?: ('EMP-' . $sub->teacher_id);
                                     ?>
                                     <div style="margin-top: 4px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-                                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
+                                        <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 12px; font-weight: 600; font-family: monospace; white-space: nowrap; box-sizing: border-box;">
                                             <?php echo esc_html($teacher_emp_id); ?>
                                         </span>
                                     </div>
@@ -1042,41 +1042,26 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 // Weekly Cycle: Friday 12:00 AM -> Thursday 11:59:59 PM (Deadline Monday 9:30 AM)
                                 $w_day = date('N', $sub_created_time); // 1 (Mon) .. 5 (Fri) .. 7 (Sun)
                                 $w_time = date('H:i', $sub_created_time);
-                                static $first_prep_cal_week = null;
-                                if ($first_prep_cal_week === null) {
-                                    $earliest_dt = $wpdb->get_var("SELECT MIN(created_at) FROM {$wpdb->prefix}sm_lesson_preps") ?: current_time('mysql');
-                                    $earliest_ts = strtotime($earliest_dt);
-                                    $earliest_day = date('N', $earliest_ts);
-                                    $first_prep_cal_week = intval(date('W', $earliest_ts));
-                                    if ($earliest_day >= 5) {
-                                        $first_prep_cal_week += 1;
-                                    }
+                                // Academic Start Anchor: 30 August 2026 (Academic Week 1)
+                                // Standard academic cycle starts on Friday prior to week start (Friday 28 August 2026 00:00:00)
+                                $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
+                                if ($sub_created_time >= $acad_anchor_ts) {
+                                    $diff_seconds = $sub_created_time - $acad_anchor_ts;
+                                    $cycle_week_num = intval(floor($diff_seconds / (7 * 86400))) + 1;
+                                } else {
+                                    // For records prior to 2026-08-28, default to Academic Week 1 (الأسبوع الأول)
+                                    $cycle_week_num = 1;
                                 }
-
-                                $cal_week = intval(date('W', $sub_created_time));
-                                $raw_cycle_week = ($w_day >= 5) ? ($cal_week + 1) : $cal_week;
-                                $cycle_week_num = max(1, ($raw_cycle_week - $first_prep_cal_week + 1));
 
                                 // Arabic ordinal week titles
                                 $arabic_weeks = array(
                                     1 => 'الأسبوع الأول', 2 => 'الأسبوع الثاني', 3 => 'الأسبوع الثالث', 4 => 'الأسبوع الرابع',
                                     5 => 'الأسبوع الخامس', 6 => 'الأسبوع السادس', 7 => 'الأسبوع السابع', 8 => 'الأسبوع الثامن',
                                     9 => 'الأسبوع التاسع', 10 => 'الأسبوع العاشر', 11 => 'الأسبوع الحادي عشر', 12 => 'الأسبوع الثاني عشر',
-                                    13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
+                                    13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر',
+                                    17 => 'الأسبوع السابع عشر', 18 => 'الأسبوع الثامن عشر', 19 => 'الأسبوع التاسع عشر', 20 => 'الأسبوع العشرون'
                                 );
-                                $week_disp_idx = (($cycle_week_num - 1) % 16) + 1;
-                                $week_title = $arabic_weeks[$week_disp_idx] ?? ('الأسبوع ' . $cycle_week_num);
-
-                                // Palette cycling per week
-                                $palette = array(
-                                    array('bg' => '#fef2f2', 'text' => '#881337', 'border' => '#fecdd3'),
-                                    array('bg' => '#eff6ff', 'text' => '#1d4ed8', 'border' => '#bfdbfe'),
-                                    array('bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0'),
-                                    array('bg' => '#fef3c7', 'text' => '#b45309', 'border' => '#fde68a'),
-                                    array('bg' => '#faf5ff', 'text' => '#6b21a8', 'border' => '#e9d5ff'),
-                                );
-                                $p_idx = intval($cycle_week_num) % count($palette);
-                                $p_style = $palette[$p_idx];
+                                $week_title = $arabic_weeks[$cycle_week_num] ?? ('الأسبوع ' . $cycle_week_num);
 
                                 // Lateness check: Monday > 9:30 AM through Thursday 11:59:59 PM
                                 $is_cycle_late = false;
@@ -1086,12 +1071,9 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     $is_cycle_late = true;
                                 }
                                 ?>
-                                <span style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 14px; border-radius: 50px; background: <?php echo $p_style['bg']; ?>; color: <?php echo $p_style['text']; ?>; border: 1px solid <?php echo $p_style['border']; ?>; font-weight: 800; font-size: 11.5px; text-align: center;">
+                                <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #f1f5f9; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 600; font-size: 12px; white-space: nowrap; box-sizing: border-box;">
                                     <?php echo esc_html($week_title); ?>
                                 </span>
-                                <?php if ($is_cycle_late): ?>
-                                    <div style="font-size: 9.5px; color: #dc2626; font-weight: 800; margin-top: 3px; text-align: center;">⚠️ تسليم متأخر بعد الإثنين 9:30 ص</div>
-                                <?php endif; ?>
                             </td>
                             <td style="text-align: center; vertical-align: middle;">
                                 <?php
@@ -1100,12 +1082,12 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 $formatted_prep_date_time = str_replace(array('AM', 'PM', 'صباحاً', 'مساءً', 'صباحا', 'مساء'), array('ص', 'م', 'ص', 'م', 'ص', 'م'), $formatted_prep_date_time);
                                 ?>
                                 <?php if ($sub->delay_seconds > 0 || $is_cycle_late): ?>
-                                    <span title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 50px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; font-weight: 800; font-size: 11px; cursor: pointer;">
-                                        ⚠️ متأخر
+                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; font-weight: 600; font-size: 12px; white-space: nowrap; box-sizing: border-box; cursor: pointer;">
+                                        ⚠️ متأخر (<?php echo esc_html($formatted_prep_date_time); ?>)
                                     </span>
                                 <?php else: ?>
-                                    <span title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 50px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-weight: 800; font-size: 11px; cursor: pointer;">
-                                        ✓ في الموعد
+                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-weight: 600; font-size: 12px; white-space: nowrap; box-sizing: border-box; cursor: pointer;">
+                                        ✓ في الموعد (<?php echo esc_html($formatted_prep_date_time); ?>)
                                     </span>
                                 <?php endif; ?>
                             </td>
@@ -1122,7 +1104,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 );
                                 $badge = $status_labels[$sub->status] ?? array('label' => $sub->status, 'bg' => '#f1f5f9', 'color' => '#475569');
                                 ?>
-                                <span style="display:inline-block; padding:2px 8px; border-radius:50px; font-size:10px; font-weight:bold; background:<?php echo $badge['bg']; ?>; color:<?php echo $badge['color']; ?>;">
+                                <span class="eess-table-capsule" style="display: inline-flex; align-items: center; justify-content: center; height: 26px; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; background:<?php echo $badge['bg']; ?>; color:<?php echo $badge['color']; ?>; border: 1px solid #cbd5e1; white-space: nowrap; box-sizing: border-box;">
                                     <?php echo $badge['label']; ?>
                                 </span>
                             </td>
