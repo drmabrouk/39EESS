@@ -8726,6 +8726,50 @@ class SM_Public {
         }
     }
 
+    public function ajax_update_prep_status_and_time() {
+        $nonce = $_POST['nonce'] ?? ($_POST['sm_nonce'] ?? '');
+        if (!wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        $user_id = get_current_user_id();
+        $roles = (array) wp_get_current_user()->roles;
+        $can_review = in_array('administrator', $roles) || in_array('sm_system_admin', $roles) || in_array('sm_principal', $roles) || in_array('sm_supervisor', $roles) || in_array('sm_coordinator', $roles) || in_array('sm_hod', $roles) || in_array('sm_activities_supervisor', $roles) || current_user_can('manage_options');
+
+        if (!$can_review) {
+            wp_send_json_error('عذراً، لا تمتلك الصلاحية الكافية لتعديل حالة وتاريخ التسليم.');
+        }
+
+        $prep_id = intval($_POST['prep_id'] ?? 0);
+        $status = sanitize_text_field($_POST['status'] ?? 'submitted');
+        $raw_dt = sanitize_text_field($_POST['submission_time'] ?? '');
+
+        if ($prep_id <= 0) {
+            wp_send_json_error('معرف تحضير الدرس غير صالح.');
+        }
+
+        global $wpdb;
+        $update_data = array(
+            'status' => $status,
+            'updated_at' => current_time('mysql')
+        );
+
+        if (!empty($raw_dt)) {
+            $formatted_dt = date('Y-m-d H:i:s', strtotime($raw_dt));
+            $update_data['submission_time'] = $formatted_dt;
+            $update_data['created_at'] = $formatted_dt;
+        }
+
+        $updated = $wpdb->update("{$wpdb->prefix}sm_lesson_preps", $update_data, array('id' => $prep_id));
+
+        if ($updated !== false) {
+            SM_Logger::log('تحديث حالة التحضير وموعده', "تم تعديل التحضير ID: $prep_id إلى الحالة ($status) وتعديل موعد التسليم بواسطة ID: $user_id");
+            wp_send_json_success(array('message' => 'تم تحديث حالة وتاريخ تسليم التحضير بنجاح.'));
+        } else {
+            wp_send_json_error('فشل تحديث بيانات تحضير الدرس بالخادم.');
+        }
+    }
+
     public function ajax_reject_lesson_prep() {
         $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
         if (!wp_verify_nonce($nonce, 'eess_lesson_prep_action') && !wp_verify_nonce($nonce, 'eess_admin_action') && !wp_verify_nonce($nonce, 'sm_admin_action')) {

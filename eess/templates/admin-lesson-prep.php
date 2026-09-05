@@ -829,31 +829,31 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         <!-- List Panel (Compacted & Cleaned Up) -->
         <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
 
-            <!-- Table Header Bar: Professional Search + Filter + Sort Unified Single Horizontal Row -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: nowrap; gap: 12px; background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #cbd5e1; overflow-x: auto;">
-                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap;">سجلات تحضير الدروس المقدمة</h3>
+            <!-- Table Header Bar: Compact Search + Status Filter + Sort -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; background: #ffffff; padding: 12px 16px; border-radius: 14px; border: 1px solid #cbd5e1;">
+                <h3 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #0f172a; white-space: nowrap;">سجلات تحضير الدروس المقدمة</h3>
 
-                <form method="get" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 0;">
+                <form method="get" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0; max-width: 100%;">
                     <input type="hidden" name="sm_tab" value="lesson-plans">
 
-                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 14px; width: 220px; flex-shrink: 0;">
+                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 32px; font-size: 11.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px; width: 180px; max-width: 100%;">
 
-                    <input type="date" name="filter_date" value="<?php echo isset($_GET['filter_date']) ? esc_attr($_GET['filter_date']) : ''; ?>" class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px; flex-shrink: 0;">
-
-                    <select name="filter_status" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px; flex-shrink: 0;">
+                    <select name="filter_status" class="sm-select" style="height: 32px; font-size: 11.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 8px;">
                         <option value="">جميع الحالات</option>
                         <option value="pending" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'pending'); ?>>قيد المراجعة</option>
+                        <option value="submitted" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'submitted'); ?>>مرفوع للمراجعة</option>
                         <option value="approved" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'approved'); ?>>معتمد</option>
+                        <option value="revision_required" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'revision_required'); ?>>طلب تعديل</option>
                         <option value="rejected" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'rejected'); ?>>مرفوض</option>
                     </select>
 
                     <?php $cur_sort = isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc' ? 'asc' : 'desc'; ?>
                     <input type="hidden" name="sort_dir" id="eess_sort_dir_val" value="<?php echo $cur_sort; ?>">
-                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="الأحدث أولاً / الأقدم أولاً" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
-                        <span class="dashicons <?php echo $cur_sort === 'asc' ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="<?php echo $cur_sort === 'asc' ? 'الترتيب: الأقدم إلى الأحدث' : 'الترتيب: الأحدث إلى الأقدم'; ?>" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+                        <span class="dashicons <?php echo $cur_sort === 'asc' ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
                     </button>
 
-                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0;">بحث وتصفية</button>
+                    <button type="submit" class="sm-btn" style="height: 32px; font-size: 11.5px; padding: 0 14px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0;">بحث وتصفية</button>
                 </form>
             </div>
 
@@ -862,10 +862,10 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     display: inline-flex !important;
                     align-items: center !important;
                     justify-content: center !important;
-                    height: 24px !important;
-                    padding: 0 8px !important;
-                    border-radius: 12px !important;
-                    font-size: 11.5px !important;
+                    height: 22px !important;
+                    padding: 0 6px !important;
+                    border-radius: 10px !important;
+                    font-size: 11px !important;
                     font-weight: 600 !important;
                     line-height: 1 !important;
                     white-space: nowrap !important;
@@ -954,81 +954,101 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                         if (empty($submissions)):
                         ?>
                         <tr>
-                            <td colspan="<?php echo $can_review ? 9 : 8; ?>" style="text-align: center; color: #94a3b8; padding: 25px; font-size: 13px;">لا توجد خطط تحضير مسجلة حالياً تطابق شروط التصفية.</td>
+                            <td colspan="9" style="text-align: center; color: #94a3b8; padding: 25px; font-size: 13px;">لا توجد خطط تحضير مسجلة حالياً تطابق شروط التصفية.</td>
                         </tr>
                         <?php
                         else:
-                            foreach ($submissions as $sub):
-                                $delay_desc = 'في الموعد';
-                                if ($sub->delay_seconds > 0) {
-                                    $days = floor($sub->delay_seconds / 86400);
-                                    $hours = floor(($sub->delay_seconds % 86400) / 3600);
-                                    $minutes = floor(($sub->delay_seconds % 3600) / 60);
+                            // Calculate total records for Chronological Oldest (1) -> Newest (Highest Number) numbering
+                            $total_subs_count = count($submissions);
+                            $sort_dir_is_asc = (isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc');
 
-                                    $delay_parts = array();
-                                    if ($days > 0) $delay_parts[] = $days . ' يوم';
-                                    if ($hours > 0) $delay_parts[] = $hours . ' ساعة';
-                                    if ($minutes > 0) $delay_parts[] = $minutes . ' دقيقة';
-                                    $delay_desc = implode(' و', $delay_parts);
-                                }
+                            // Pastel Multi-Color Palettes
+                            $grade_palette = array(
+                                array('bg' => '#f0fdf4', 'text' => '#166534', 'border' => '#bbf7d0'),
+                                array('bg' => '#e0f2fe', 'text' => '#0369a1', 'border' => '#bae6fd'),
+                                array('bg' => '#fef3c7', 'text' => '#b45309', 'border' => '#fde68a'),
+                                array('bg' => '#faf5ff', 'text' => '#6b21a8', 'border' => '#e9d5ff'),
+                                array('bg' => '#fdf2f8', 'text' => '#9d174d', 'border' => '#fbcfe8'),
+                            );
+
+                            $week_palette = array(
+                                1  => array('bg' => '#fef2f2', 'text' => '#881337', 'border' => '#fecdd3'),
+                                2  => array('bg' => '#eff6ff', 'text' => '#1d4ed8', 'border' => '#bfdbfe'),
+                                3  => array('bg' => '#f0fdf4', 'text' => '#15803d', 'border' => '#bbf7d0'),
+                                4  => array('bg' => '#fef3c7', 'text' => '#b45309', 'border' => '#fde68a'),
+                                5  => array('bg' => '#faf5ff', 'text' => '#6b21a8', 'border' => '#e9d5ff'),
+                                6  => array('bg' => '#fdf2f8', 'text' => '#9d174d', 'border' => '#fbcfe8'),
+                                7  => array('bg' => '#f0f9ff', 'text' => '#0369a1', 'border' => '#bae6fd'),
+                                8  => array('bg' => '#ecfdf5', 'text' => '#047857', 'border' => '#a7f3d0'),
+                                9  => array('bg' => '#fff7ed', 'text' => '#c2410c', 'border' => '#ffedd5'),
+                                10 => array('bg' => '#f5f3ff', 'text' => '#5b21b6', 'border' => '#ddd6fe'),
+                                11 => array('bg' => '#fff1f2', 'text' => '#be123c', 'border' => '#fecdd3'),
+                                12 => array('bg' => '#f0fdfa', 'text' => '#0f766e', 'border' => '#99f6e4'),
+                                13 => array('bg' => '#fefce8', 'text' => '#a16207', 'border' => '#fef08a'),
+                                14 => array('bg' => '#fdf4ff', 'text' => '#86198f', 'border' => '#f5d0fe'),
+                                15 => array('bg' => '#f8fafc', 'text' => '#334155', 'border' => '#cbd5e1'),
+                                16 => array('bg' => '#e0e7ff', 'text' => '#3730a3', 'border' => '#c7d2fe'),
+                            );
+
+                            foreach ($submissions as $index => $sub):
+                                // Chronological number calculation (Oldest submission = 1, Newest = Highest)
+                                $chrono_num = $sort_dir_is_asc ? ($index + 1) : ($total_subs_count - $index);
+
                                 $parsed_sub_data = !empty($sub->lesson_data) ? json_decode($sub->lesson_data, true) : array();
                                 $sub_file_url = $parsed_sub_data['file_url'] ?? '';
+
+                                // User meta & assignments
+                                $t_user = get_userdata($sub->teacher_id);
+                                $t_roles = $t_user ? (array)$t_user->roles : array();
+                                $primary_role = reset($t_roles) ?: 'sm_teacher';
+                                $role_labels = array(
+                                    'administrator' => 'مدير النظام',
+                                    'sm_system_admin' => 'مدير تقني',
+                                    'sm_principal' => 'مدير مدرسة',
+                                    'sm_supervisor' => 'مشرف تربوي',
+                                    'sm_coordinator' => 'منسق مادة',
+                                    'sm_teacher' => 'معلم',
+                                    'sm_hod' => 'رئيس قسم'
+                                );
+                                $role_lbl = $role_labels[$primary_role] ?? 'معلم';
+                                $teacher_emp_id = get_user_meta($sub->teacher_id, 'eess_employee_number', true) ?: ('EMP-' . $sub->teacher_id);
+
+                                // School & Grade Assignments
+                                $teacher_school = get_user_meta($sub->teacher_id, 'eess_school_name', true);
+                                if (empty($teacher_school)) {
+                                    $teacher_school = get_user_meta($sub->teacher_id, 'sm_school_name', true) ?: 'المدرسة الرئيسية';
+                                }
+
+                                // Clean Grade Levels parsing: strip brackets [], quotes "", trailing commas, etc.
+                                $assigned_grades_raw = get_user_meta($sub->teacher_id, 'sm_assigned_grades', true) ?: (get_user_meta($sub->teacher_id, 'eess_assigned_grades', true) ?: (get_user_meta($sub->teacher_id, 'sm_grade_level', true) ?: $sub->grade_level));
+                                if (is_array($assigned_grades_raw)) {
+                                    $assigned_grades_raw = implode(',', $assigned_grades_raw);
+                                }
+                                $assigned_grades_clean = str_replace(array('[', ']', '"', "'", '\\'), '', (string)$assigned_grades_raw);
+                                $assigned_grades_array = array_unique(array_filter(array_map('trim', explode(',', $assigned_grades_clean))));
+                                if (empty($assigned_grades_array)) {
+                                    $assigned_grades_array = array($sub->grade_level);
+                                }
                         ?>
-                        <tr style="font-size: 12px;" id="prep-row-<?php echo $sub->id; ?>">
-                            <?php
-                            $parsed_sub_data = !empty($sub->lesson_data) ? json_decode($sub->lesson_data, true) : array();
-                            $sub_file_url = $parsed_sub_data['file_url'] ?? '';
-
-                            // User meta & assignments
-                            $t_user = get_userdata($sub->teacher_id);
-                            $t_roles = $t_user ? (array)$t_user->roles : array();
-                            $primary_role = reset($t_roles) ?: 'sm_teacher';
-                            $role_labels = array(
-                                'administrator' => 'مدير النظام',
-                                'sm_system_admin' => 'مدير تقني',
-                                'sm_principal' => 'مدير مدرسة',
-                                'sm_supervisor' => 'مشرف تربوي',
-                                'sm_coordinator' => 'منسق مادة',
-                                'sm_teacher' => 'معلم',
-                                'sm_hod' => 'رئيس قسم'
-                            );
-                            $role_lbl = $role_labels[$primary_role] ?? 'معلم';
-                            $teacher_emp_id = get_user_meta($sub->teacher_id, 'eess_employee_number', true) ?: ('EMP-' . $sub->teacher_id);
-
-                            // School & Grade Assignments
-                            $teacher_school = get_user_meta($sub->teacher_id, 'eess_school_name', true);
-                            if (empty($teacher_school)) {
-                                $teacher_school = get_user_meta($sub->teacher_id, 'sm_school_name', true) ?: 'المدرسة الرئيسية';
-                            }
-
-                            // Get assigned grade levels directly from employee assignment metadata
-                            $assigned_grades_raw = get_user_meta($sub->teacher_id, 'sm_assigned_grades', true) ?: (get_user_meta($sub->teacher_id, 'eess_assigned_grades', true) ?: (get_user_meta($sub->teacher_id, 'sm_grade_level', true) ?: $sub->grade_level));
-                            if (is_string($assigned_grades_raw)) {
-                                $assigned_grades_raw = array_map('trim', explode(',', $assigned_grades_raw));
-                            }
-                            if (!is_array($assigned_grades_raw) || empty($assigned_grades_raw)) {
-                                $assigned_grades_raw = array($sub->grade_level);
-                            }
-                            $assigned_grades = array_unique(array_filter($assigned_grades_raw));
-                            ?>
+                        <tr style="font-size: 12px; vertical-align: middle;" id="prep-row-<?php echo $sub->id; ?>">
                             <!-- Column 1: Checkbox -->
                             <td style="text-align: center; vertical-align: middle;">
                                 <input type="checkbox" class="eess-prep-cb" value="<?php echo $sub->id; ?>">
                             </td>
 
-                            <!-- Column 2: # Record Number -->
-                            <td style="text-align: center; vertical-align: middle; color: #64748b; font-weight: 600; font-size: 11.5px; font-family: monospace;">
-                                <?php echo $sub->id; ?>
+                            <!-- Column 2: # Sequential Chronological Record Number (Oldest = 1 -> Newest = Highest) -->
+                            <td style="text-align: center; vertical-align: middle; color: #64748b; font-weight: 700; font-size: 11px; font-family: monospace;">
+                                <?php echo $chrono_num; ?>
                             </td>
 
                             <!-- Column 3: Teacher & Employee Number (Single Row below Name; Removed Years of Experience) -->
                             <td style="vertical-align: middle; text-align: right;">
-                                <div style="font-weight: 800; color: #0f172a; font-size: 13px; margin-bottom: 4px;">
+                                <div style="font-weight: 800; color: #0f172a; font-size: 12.5px; margin-bottom: 3px;">
                                     <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sub->teacher_id; ?>)" style="color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7';" onmouseout="this.style.color='#0f172a';">
                                         <?php echo esc_html($sub->teacher_name); ?>
                                     </a>
                                 </div>
-                                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: nowrap;">
+                                <div style="display: flex; gap: 4px; align-items: center; flex-wrap: nowrap;">
                                     <!-- Employee Number Capsule -->
                                     <span class="eess-table-capsule" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-family: monospace;">
                                         <?php echo esc_html($teacher_emp_id); ?>
@@ -1040,15 +1060,18 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 </div>
                             </td>
 
-                            <!-- Column 4: School & Individual Grade Level Pastel Capsules -->
+                            <!-- Column 4: School & Individual Multi-Color Grade Level Pastel Capsules -->
                             <td style="vertical-align: middle; text-align: right;">
-                                <div style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                <div style="font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 3px; display: flex; align-items: center; gap: 4px;">
                                     <span>🏢</span>
                                     <span><?php echo esc_html($teacher_school); ?></span>
                                 </div>
                                 <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
-                                    <?php foreach ($assigned_grades as $g_title): ?>
-                                        <span class="eess-table-capsule" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;">
+                                    <?php
+                                    foreach ($assigned_grades_array as $g_idx => $g_title):
+                                        $g_style = $grade_palette[$g_idx % count($grade_palette)];
+                                    ?>
+                                        <span class="eess-table-capsule" style="background: <?php echo $g_style['bg']; ?>; color: <?php echo $g_style['text']; ?>; border: 1px solid <?php echo $g_style['border']; ?>;">
                                             <?php echo esc_html($g_title); ?>
                                         </span>
                                     <?php endforeach; ?>
@@ -1057,12 +1080,12 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
                             <!-- Column 5: Lesson Title Only -->
                             <td style="vertical-align: middle; text-align: right;">
-                                <div style="font-weight: 700; color: #0f172a; font-size: 12.5px;">
+                                <div style="font-weight: 700; color: #0f172a; font-size: 12px;">
                                     <?php echo esc_html($sub->title); ?>
                                 </div>
                             </td>
 
-                            <!-- Column 6: Academic Week (Sequential from 30 August 2026) -->
+                            <!-- Column 6: Academic Week (Sequential with Distinct Pastel Color per Week) -->
                             <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $sub_created_time = strtotime($sub->created_at ?: $sub->lesson_date);
@@ -1070,7 +1093,6 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 $w_time = date('H:i', $sub_created_time);
 
                                 // Academic Start Anchor: 30 August 2026 (Academic Week 1)
-                                // Standard cycle starts Friday prior (28 August 2026 00:00:00)
                                 $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
                                 if ($sub_created_time >= $acad_anchor_ts) {
                                     $diff_seconds = $sub_created_time - $acad_anchor_ts;
@@ -1086,6 +1108,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
                                 );
                                 $week_title = $arabic_weeks[$cycle_week_num] ?? ('الأسبوع ' . $cycle_week_num);
+                                $wk_style = $week_palette[$cycle_week_num] ?? $week_palette[15];
 
                                 // Lateness check
                                 $is_cycle_late = false;
@@ -1095,25 +1118,26 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     $is_cycle_late = true;
                                 }
                                 ?>
-                                <span class="eess-table-capsule" style="background: #f8fafc; color: #334155; border: 1px solid #cbd5e1;">
+                                <span class="eess-table-capsule" style="background: <?php echo $wk_style['bg']; ?>; color: <?php echo $wk_style['text']; ?>; border: 1px solid <?php echo $wk_style['border']; ?>;">
                                     <?php echo esc_html($week_title); ?>
                                 </span>
                             </td>
 
-                            <!-- Column 7: Submission Status (Centered & Compact with Late Notices strictly placed here) -->
+                            <!-- Column 7: Submission Status Only (Date/Time strictly hidden inside Tooltip hover title attribute; Clickable for Edit Modal) -->
                             <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $sub_dt = $sub->submission_time ?: $sub->created_at;
                                 $formatted_time = date_i18n('j M Y • h:i A', strtotime($sub_dt));
                                 $formatted_time = str_replace(array('AM', 'PM', 'صباحاً', 'مساءً', 'صباحا', 'مساء'), array('ص', 'م', 'ص', 'م', 'ص', 'م'), $formatted_time);
+                                $can_click_edit = $can_review ? 'onclick="eessOpenEditPrepStatusModal(' . $sub->id . ', \'' . esc_js($sub->title) . '\', \'' . esc_js($sub->status) . '\', \'' . date('Y-m-d\TH:i', strtotime($sub_dt)) . '\')"' : '';
                                 ?>
                                 <?php if ($sub->delay_seconds > 0 || $is_cycle_late): ?>
-                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_time); ?>" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: pointer;">
-                                        ⚠️ متأخر (<?php echo esc_html($formatted_time); ?>)
+                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_time); ?>" <?php echo $can_click_edit; ?> style="background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; cursor: <?php echo $can_review ? 'pointer' : 'default'; ?>;">
+                                        ⚠️ تسليم متأخر
                                     </span>
                                 <?php else: ?>
-                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_time); ?>" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; cursor: pointer;">
-                                        ✓ في الموعد (<?php echo esc_html($formatted_time); ?>)
+                                    <span class="eess-table-capsule" title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_time); ?>" <?php echo $can_click_edit; ?> style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; cursor: <?php echo $can_review ? 'pointer' : 'default'; ?>;">
+                                        ✓ في الموعد
                                     </span>
                                 <?php endif; ?>
                             </td>
@@ -1399,6 +1423,92 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         </div>
     </div>
 </div>
+
+<!-- Modal for Editing Lesson Prep Submission Status & Date/Time (Authorized Reviewers Only) -->
+<div id="eess-edit-prep-status-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 480px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden;">
+        <div style="background: #0f172a; color: #ffffff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-edit" style="font-size: 20px; width: 20px; height: 20px; color: #38bdf8;"></span>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #ffffff;" id="eess_edit_prep_modal_title">تعديل حالة التسليم والموعد</h3>
+            </div>
+            <button type="button" onclick="document.getElementById('eess-edit-prep-status-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+        </div>
+        <form onsubmit="eessSubmitEditPrepStatus(event)" style="padding: 20px;">
+            <input type="hidden" id="eess_edit_prep_id" value="0">
+
+            <div style="margin-bottom: 14px;">
+                <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">حالة التسليم والاعتماد المباشر <span style="color:#ef4444;">*</span></label>
+                <select id="eess_edit_prep_status" class="sm-input" style="height: 38px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12.5px; font-weight: 700;" required>
+                    <option value="submitted">✓ في الموعد (مرفوع للمراجعة)</option>
+                    <option value="late">⚠️ تسليم متأخر</option>
+                    <option value="approved">✓ معتمد رسمياً</option>
+                    <option value="revision_required">⚠ طلب تعديل</option>
+                    <option value="rejected">✗ مرفوض</option>
+                    <option value="draft">مسودة</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تعديل تاريخ ووقت التسليم الفعلي <span style="color:#ef4444;">*</span></label>
+                <input type="datetime-local" id="eess_edit_prep_datetime" class="sm-input" style="height: 38px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px;" required>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="submit" id="eess_edit_prep_submit_btn" class="sm-btn" style="background: #0f172a; color: #ffffff !important; height: 36px; padding: 0 20px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">حفظ التعديلات</button>
+                <button type="button" onclick="document.getElementById('eess-edit-prep-status-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 36px; padding: 0 16px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function eessOpenEditPrepStatusModal(prepId, title, currentStatus, currentDatetime) {
+    document.getElementById('eess_edit_prep_id').value = prepId;
+    document.getElementById('eess_edit_prep_modal_title').innerText = 'تعديل حالة وتسليم: ' + title;
+    document.getElementById('eess_edit_prep_status').value = currentStatus || 'submitted';
+    if (currentDatetime) {
+        document.getElementById('eess_edit_prep_datetime').value = currentDatetime;
+    }
+    document.getElementById('eess-edit-prep-status-modal').style.display = 'flex';
+}
+
+function eessSubmitEditPrepStatus(e) {
+    e.preventDefault();
+    var prepId = document.getElementById('eess_edit_prep_id').value;
+    var newStatus = document.getElementById('eess_edit_prep_status').value;
+    var newDatetime = document.getElementById('eess_edit_prep_datetime').value;
+
+    if (!prepId) return;
+
+    var btn = document.getElementById('eess_edit_prep_submit_btn');
+    btn.disabled = true;
+    btn.innerText = 'جاري الحفظ...';
+
+    var formData = new FormData();
+    formData.append('action', 'sm_update_prep_status_and_time');
+    formData.append('prep_id', prepId);
+    formData.append('status', newStatus);
+    formData.append('submission_time', newDatetime);
+    formData.append('nonce', '<?php echo wp_create_nonce("eess_admin_action"); ?>');
+
+    fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'حفظ التعديلات';
+        if (res.success) {
+            document.getElementById('eess-edit-prep-status-modal').style.display = 'none';
+            if (typeof smShowNotification === 'function') {
+                smShowNotification(res.data.message || 'تم تحديث حالة وتاريخ تسليم التحضير بنجاح.');
+            }
+            setTimeout(() => location.reload(), 500);
+        } else {
+            alert('خطأ: ' + (res.data || 'فشل تحديث البيانات.'));
+        }
+    });
+}
+</script>
 
 <!-- Lesson Preparation Bulk Download Modal -->
 <div id="eess-prep-bulk-download-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); direction: rtl; font-family: 'Cairo', sans-serif;">
