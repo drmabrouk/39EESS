@@ -829,18 +829,18 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         <!-- List Panel (Compacted & Cleaned Up) -->
         <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
 
-            <!-- Table Header Bar: Professional Search + Filter + Sort Unified Toolbar -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #cbd5e1;">
-                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a;">سجلات تحضير الدروس المقدمة</h3>
+            <!-- Table Header Bar: Professional Search + Filter + Sort Unified Single Horizontal Row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: nowrap; gap: 12px; background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #cbd5e1; overflow-x: auto;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap;">سجلات تحضير الدروس المقدمة</h3>
 
-                <form method="get" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0;">
+                <form method="get" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; margin: 0;">
                     <input type="hidden" name="sm_tab" value="lesson-plans">
 
-                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 14px; width: 200px;">
+                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 14px; width: 220px; flex-shrink: 0;">
 
-                    <input type="date" name="filter_date" value="<?php echo isset($_GET['filter_date']) ? esc_attr($_GET['filter_date']) : ''; ?>" class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px;">
+                    <input type="date" name="filter_date" value="<?php echo isset($_GET['filter_date']) ? esc_attr($_GET['filter_date']) : ''; ?>" class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px; flex-shrink: 0;">
 
-                    <select name="filter_status" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px;">
+                    <select name="filter_status" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 10px; flex-shrink: 0;">
                         <option value="">جميع الحالات</option>
                         <option value="pending" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'pending'); ?>>قيد المراجعة</option>
                         <option value="approved" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'approved'); ?>>معتمد</option>
@@ -849,29 +849,29 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
                     <?php $cur_sort = isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc' ? 'asc' : 'desc'; ?>
                     <input type="hidden" name="sort_dir" id="eess_sort_dir_val" value="<?php echo $cur_sort; ?>">
-                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="الأحدث أولاً / الأقدم أولاً" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="الأحدث أولاً / الأقدم أولاً" style="width: 36px; height: 36px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
                         <span class="dashicons <?php echo $cur_sort === 'asc' ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
                     </button>
 
-                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer;">بحث وتصفية</button>
+                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 16px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0;">بحث وتصفية</button>
                 </form>
             </div>
 
             <!-- Table of Submissions -->
             <div class="sm-table-container" style="overflow-x: auto;">
                 <table class="sm-table" style="min-width: 800px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 30px; text-align: center;"><input type="checkbox" onclick="eessToggleAllPrepCheckboxes(this)" title="تحديد الكل"></th>
+                    <thead style="background: #000000 !important; color: #ffffff !important;">
+                        <tr style="background: #000000 !important; color: #ffffff !important;">
+                            <th style="width: 30px; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;"><input type="checkbox" onclick="eessToggleAllPrepCheckboxes(this)" title="تحديد الكل"></th>
                             <?php if ($can_review): ?>
-                                <th>المعلم</th>
+                                <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المعلم والرتبة</th>
                             <?php endif; ?>
-                            <th>العنوان / المادة</th>
-                            <th>الصف / الشعبة</th>
-                            <th>النسخة</th>
-                            <th>التأخير وتاريخ التسليم</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">العنوان والمادة</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الصفوف والشعب المسندة</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الأسبوع الدراسية</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة التسليم والوقت</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الحالة الاعتمادية</th>
+                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -962,20 +962,37 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                         <tr style="font-size: 12px;" id="prep-row-<?php echo $sub->id; ?>">
                             <td style="text-align: center;"><input type="checkbox" class="eess-prep-cb" value="<?php echo $sub->id; ?>"></td>
                             <?php if ($can_review): ?>
-                                <td>
-                                    <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sub->teacher_id; ?>)" style="font-weight: 800; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
-                                        <?php echo esc_html($sub->teacher_name); ?>
-                                    </a>
+                                <td style="vertical-align: middle;">
+                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                        <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sub->teacher_id; ?>)" style="font-weight: 800; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
+                                            <?php echo esc_html($sub->teacher_name); ?>
+                                        </a>
+                                        <?php
+                                        $t_user = get_userdata($sub->teacher_id);
+                                        $t_roles = $t_user ? (array)$t_user->roles : array();
+                                        $primary_role = reset($t_roles) ?: 'sm_teacher';
+                                        $role_labels = array(
+                                            'administrator' => 'مدير النظام',
+                                            'sm_system_admin' => 'مدير تقني',
+                                            'sm_principal' => 'مدير مدرسة',
+                                            'sm_supervisor' => 'مشرف تربوي',
+                                            'sm_coordinator' => 'منسق مادة',
+                                            'sm_teacher' => 'معلم',
+                                            'sm_hod' => 'رئيس قسم'
+                                        );
+                                        $role_lbl = $role_labels[$primary_role] ?? 'معلم';
+                                        ?>
+                                        <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 50px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px; font-weight: 800;">
+                                            <?php echo esc_html($role_lbl); ?>
+                                        </span>
+                                    </div>
                                     <?php
                                     $teacher_emp_id = get_user_meta($sub->teacher_id, 'eess_employee_number', true) ?: ('EMP-' . $sub->teacher_id);
-                                    $app_year = intval(get_user_meta($sub->teacher_id, 'eess_appointment_year', true) ?: get_user_meta($sub->teacher_id, 'sm_appointment_year', true));
-                                    $exp_years = $app_year > 0 ? (intval(date('Y')) - $app_year) : 0;
                                     ?>
                                     <div style="margin-top: 4px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
                                         <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; font-size: 10.5px; font-weight: 800; font-family: monospace;">
                                             <?php echo esc_html($teacher_emp_id); ?>
                                         </span>
-                                        <?php echo SM_DB::get_employee_experience_capsule($sub->teacher_id); ?>
                                     </div>
                                     <?php
                                     $is_contacted = get_user_meta($sub->teacher_id, 'eess_contacted_prep_' . $sub->id, true);
@@ -1025,14 +1042,20 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 // Weekly Cycle: Friday 12:00 AM -> Thursday 11:59:59 PM (Deadline Monday 9:30 AM)
                                 $w_day = date('N', $sub_created_time); // 1 (Mon) .. 5 (Fri) .. 7 (Sun)
                                 $w_time = date('H:i', $sub_created_time);
-                                $cal_week = intval(date('W', $sub_created_time));
-
-                                // Adjust week number if submission happens on Friday or weekend for upcoming cycle
-                                if ($w_day >= 5) { // Friday, Saturday, Sunday
-                                    $cycle_week_num = $cal_week + 1;
-                                } else {
-                                    $cycle_week_num = $cal_week;
+                                static $first_prep_cal_week = null;
+                                if ($first_prep_cal_week === null) {
+                                    $earliest_dt = $wpdb->get_var("SELECT MIN(created_at) FROM {$wpdb->prefix}sm_lesson_preps") ?: current_time('mysql');
+                                    $earliest_ts = strtotime($earliest_dt);
+                                    $earliest_day = date('N', $earliest_ts);
+                                    $first_prep_cal_week = intval(date('W', $earliest_ts));
+                                    if ($earliest_day >= 5) {
+                                        $first_prep_cal_week += 1;
+                                    }
                                 }
+
+                                $cal_week = intval(date('W', $sub_created_time));
+                                $raw_cycle_week = ($w_day >= 5) ? ($cal_week + 1) : $cal_week;
+                                $cycle_week_num = max(1, ($raw_cycle_week - $first_prep_cal_week + 1));
 
                                 // Arabic ordinal week titles
                                 $arabic_weeks = array(
@@ -1070,22 +1093,21 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     <div style="font-size: 9.5px; color: #dc2626; font-weight: 800; margin-top: 3px; text-align: center;">⚠️ تسليم متأخر بعد الإثنين 9:30 ص</div>
                                 <?php endif; ?>
                             </td>
-                            <td>
-                                <div style="margin-bottom: 4px;">
-                                    <?php if ($sub->delay_seconds > 0): ?>
-                                        <span style="color: #dc2626; font-weight: 700; font-size: 10px;">⚠️ متأخر: <?php echo $delay_desc; ?></span>
-                                    <?php else: ?>
-                                        <span style="color: #16a34a; font-weight: 700; font-size: 10px;">✓ في الموعد</span>
-                                    <?php endif; ?>
-                                </div>
+                            <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $sub_dt = $sub->submission_time ?: $sub->created_at;
                                 $formatted_prep_date_time = date_i18n('j M Y • h:i A', strtotime($sub_dt));
                                 $formatted_prep_date_time = str_replace(array('AM', 'PM', 'صباحاً', 'مساءً', 'صباحا', 'مساء'), array('ص', 'م', 'ص', 'م', 'ص', 'م'), $formatted_prep_date_time);
                                 ?>
-                                <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 700; font-family: monospace;">
-                                    📅 <?php echo esc_html($formatted_prep_date_time); ?>
-                                </span>
+                                <?php if ($sub->delay_seconds > 0 || $is_cycle_late): ?>
+                                    <span title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 50px; background: #fef2f2; color: #dc2626; border: 1px solid #fecdd3; font-weight: 800; font-size: 11px; cursor: pointer;">
+                                        ⚠️ متأخر
+                                    </span>
+                                <?php else: ?>
+                                    <span title="تاريخ ووقت التسليم: <?php echo esc_attr($formatted_prep_date_time); ?>" style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 12px; border-radius: 50px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; font-weight: 800; font-size: 11px; cursor: pointer;">
+                                        ✓ في الموعد
+                                    </span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <?php
