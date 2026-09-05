@@ -8562,8 +8562,8 @@ class SM_Public {
             );
 
             if (!empty($user_pass)) {
-                if (strlen($user_pass) < 6) {
-                    wp_send_json_error('كلمة المرور يجب أن لا تقل عن 6 خانات.');
+                if (strlen($user_pass) < 8 || !preg_match('/[A-Z]/', $user_pass) || !preg_match('/[a-z]/', $user_pass) || !preg_match('/[0-9]/', $user_pass)) {
+                    wp_send_json_error('كلمة المرور يجب أن تتضمن 8 خانات على الأقل مع حرف كبير وحرف صغير ورقم.');
                 }
                 $user_data['user_pass'] = $user_pass;
             }
@@ -8585,6 +8585,9 @@ class SM_Public {
             // New User
             if (empty($username) || empty($user_pass)) {
                 wp_send_json_error('يرجى تحديد اسم المستخدم وكلمة المرور للحساب الجديد.');
+            }
+            if (strlen($user_pass) < 8 || !preg_match('/[A-Z]/', $user_pass) || !preg_match('/[a-z]/', $user_pass) || !preg_match('/[0-9]/', $user_pass)) {
+                wp_send_json_error('كلمة المرور يجب أن تتضمن 8 خانات على الأقل مع حرف كبير وحرف صغير ورقم.');
             }
             if (username_exists($username)) {
                 wp_send_json_error('اسم المستخدم مُسجل سابقاً في المنصة.');

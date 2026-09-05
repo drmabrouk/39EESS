@@ -38,11 +38,11 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                 </div>
                 <div id="u_indicator_step4" class="u-step-indicator" style="background: #f1f5f9; color: #64748b; padding: 5px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 5px; border: 1px solid #cbd5e1;">
                     <span style="background: #cbd5e1; color: #334155; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px;">4</span>
-                    <span>المراجعة والتحقق</span>
+                    <span>بيانات الدخول</span>
                 </div>
                 <div id="u_indicator_step5" class="u-step-indicator" style="background: #f1f5f9; color: #64748b; padding: 5px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; display: flex; align-items: center; gap: 5px; border: 1px solid #cbd5e1;">
                     <span style="background: #cbd5e1; color: #334155; width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px;">5</span>
-                    <span>أمان الحساب</span>
+                    <span>التأكيد وحفظ البيانات</span>
                 </div>
             </div>
         </div>
@@ -195,18 +195,6 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                             <label for="u_appointment_year" class="eess-float-label">سنة التعيين (Year of Appointment)</label>
                         </div>
 
-                        <div class="eess-float-group">
-                            <select name="job_rank" id="u_job_rank" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold;">
-                                <option value="teacher">معلم / أخصائي</option>
-                                <option value="senior_teacher">معلم أول / خبير</option>
-                                <option value="coordinator">منسق مادة</option>
-                                <option value="supervisor">مشرف / موجه</option>
-                                <option value="vice_principal">نائب مدير مدرسة</option>
-                                <option value="principal">مدير مدرسة</option>
-                                <option value="sys_admin">مدير نظام</option>
-                            </select>
-                            <label for="u_job_rank" class="eess-float-label">المرتبة الوظيفية (Job Rank)</label>
-                        </div>
 
                         <div id="u_institution_wrapper" class="eess-float-group" style="grid-column: span 2;">
                             <select name="institution_id" id="u_institution_id" class="sm-select eess-float-input" onchange="eessOnInstitutionChanged()" required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
@@ -259,18 +247,58 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                             <span class="eess-field-error" id="err_u_specialization" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى اختيار المادة للتخصص.</span>
                         </div>
 
-                        <div id="u_sections_wrapper" class="eess-float-group">
-                            <input type="text" name="assigned_sections" id="u_assigned_sections" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                            <label for="u_assigned_sections" class="eess-float-label">الشعب المسندة (مثال: أ، ب)</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: LOGIN DATA & PASSWORDS -->
+            <div id="u_step_4_container" style="display: none;">
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 14px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">بيانات الدخول لحساب المستخدم</h4>
+
+                    <!-- First Row: Email and Username (Read-Only) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div class="eess-float-group">
+                            <input type="email" id="u_login_email_display" readonly class="sm-input eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; background: #f8fafc; font-weight: bold; cursor: not-allowed; direction: ltr; text-align: right;">
+                            <label class="eess-float-label">البريد الإلكتروني (للعرض فقط)</label>
+                        </div>
+
+                        <div class="eess-float-group">
+                            <input type="text" id="u_login_username_display" readonly class="sm-input eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; background: #f8fafc; font-weight: bold; cursor: not-allowed; direction: ltr; text-align: right;">
+                            <label class="eess-float-label">اسم المستخدم / الرقم الوظيفي (للعرض فقط)</label>
+                        </div>
+                    </div>
+
+                    <!-- Second Row: Passwords & Status -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="eess-float-group">
+                            <input type="password" name="user_pass" id="u_user_pass" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;" oninput="eessValidateField(this)">
+                            <label for="u_user_pass" class="eess-float-label">كلمة المرور <span style="color:#ef4444;">*</span></label>
+                            <span class="eess-field-error" id="err_u_user_pass" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">كلمة المرور يجب أن تتضمن 8 خانات على الأقل مع حرف كبير وحرف صغير ورقم.</span>
+                        </div>
+
+                        <div class="eess-float-group">
+                            <input type="password" name="user_pass_confirm" id="u_user_pass_confirm" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;" oninput="eessValidateField(this)">
+                            <label for="u_user_pass_confirm" class="eess-float-label">تأكيد كلمة المرور <span style="color:#ef4444;">*</span></label>
+                            <span class="eess-field-error" id="err_u_user_pass_confirm" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">كلمتا المرور غير متطابقتين.</span>
+                        </div>
+
+                        <div class="eess-float-group" style="grid-column: span 2;">
+                            <select name="user_status" id="u_user_status" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold;">
+                                <option value="active">نشط بالكامل (Active)</option>
+                                <option value="suspended">موقوف مؤقتاً (Suspended)</option>
+                                <option value="pending">قيد الانتظار (Pending Approval)</option>
+                            </select>
+                            <label for="u_user_status" class="eess-float-label">حالة الحساب والوصول <span style="color:#ef4444;">*</span></label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- STEP 4: DATA REVIEW & VERIFICATION -->
-            <div id="u_step_4_container" style="display: none;">
+            <!-- STEP 5: FINAL CONFIRMATION & REVIEW SUMMARY -->
+            <div id="u_step_5_container" style="display: none;">
                 <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 14px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">مراجعة والتحقق الشامل من كافة بيانات الموظف</h4>
+                    <h4 style="margin: 0 0 14px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">التأكيد وحفظ البيانات الشاملة</h4>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 13px; color: #334155;">
                         <div><strong>الاسم الكامل:</strong> <span id="rev_u_fullname">-</span></div>
@@ -283,41 +311,6 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                         <div><strong>الرتبة والرقم الوظيفي:</strong> <span id="rev_u_role_id" style="color: #881337; font-weight: 800;">-</span></div>
                         <div id="rev_u_inst_container"><strong>المؤسسة والتخصص:</strong> <span id="rev_u_inst_subj" style="color: #0284c7; font-weight: 800;">-</span></div>
                         <div id="rev_u_grades_container"><strong>الصفوف والشعب المسندة:</strong> <span id="rev_u_grades">-</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STEP 5: ACCOUNT SECURITY & PASSWORDS -->
-            <div id="u_step_5_container" style="display: none;">
-                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 14px 0; font-size: 14px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">أمان وكلمة مرور الحساب وحالة الوصول</h4>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 10px;">
-                        <div class="eess-float-group">
-                            <input type="text" id="u_sec_username_display" readonly class="sm-input eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; background: #f8fafc; font-weight: bold; direction: ltr; text-align: right;">
-                            <label class="eess-float-label">اسم المستخدم (مطابق للرقم الوظيفي)</label>
-                        </div>
-
-                        <div class="eess-float-group">
-                            <select name="user_status" id="u_user_status" class="sm-select eess-float-input" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; font-weight: bold;">
-                                <option value="active">نشط بالكامل (Active)</option>
-                                <option value="suspended">موقوف مؤقتاً (Suspended)</option>
-                                <option value="pending">قيد الانتظار (Pending Approval)</option>
-                            </select>
-                            <label for="u_user_status" class="eess-float-label">حالة الحساب والوصول <span style="color:#ef4444;">*</span></label>
-                        </div>
-
-                        <div class="eess-float-group">
-                            <input type="password" name="user_pass" id="u_user_pass" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;" oninput="eessValidateField(this)">
-                            <label for="u_user_pass" class="eess-float-label">كلمة المرور الجديدة</label>
-                            <span class="eess-field-error" id="err_u_user_pass" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">كلمة المرور يجب أن لا تقل عن 6 خانات.</span>
-                        </div>
-
-                        <div class="eess-float-group">
-                            <input type="password" name="user_pass_confirm" id="u_user_pass_confirm" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;" oninput="eessValidateField(this)">
-                            <label for="u_user_pass_confirm" class="eess-float-label">تأكيد كلمة المرور</label>
-                            <span class="eess-field-error" id="err_u_user_pass_confirm" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">كلمتا المرور غير متطابقتين.</span>
-                        </div>
                     </div>
                 </div>
             </div>
