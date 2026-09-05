@@ -1018,13 +1018,33 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     <?php endforeach; ?>
                                 </div>
                             </td>
-                            <td>
+                            <td style="text-align: center; vertical-align: middle;">
                                 <?php
                                 $sub_created_time = strtotime($sub->created_at ?: $sub->lesson_date);
-                                $week_num = date('W', $sub_created_time);
-                                $is_pe = (strpos($sub->subject, 'بدنية') !== false || strpos($sub->subject, 'صحية') !== false || strpos($sub->subject, 'Physical') !== false);
 
-                                // Color palette cycling for weekly capsules
+                                // Weekly Cycle: Friday 12:00 AM -> Thursday 11:59:59 PM (Deadline Monday 9:30 AM)
+                                $w_day = date('N', $sub_created_time); // 1 (Mon) .. 5 (Fri) .. 7 (Sun)
+                                $w_time = date('H:i', $sub_created_time);
+                                $cal_week = intval(date('W', $sub_created_time));
+
+                                // Adjust week number if submission happens on Friday or weekend for upcoming cycle
+                                if ($w_day >= 5) { // Friday, Saturday, Sunday
+                                    $cycle_week_num = $cal_week + 1;
+                                } else {
+                                    $cycle_week_num = $cal_week;
+                                }
+
+                                // Arabic ordinal week titles
+                                $arabic_weeks = array(
+                                    1 => 'الأسبوع الأول', 2 => 'الأسبوع الثاني', 3 => 'الأسبوع الثالث', 4 => 'الأسبوع الرابع',
+                                    5 => 'الأسبوع الخامس', 6 => 'الأسبوع السادس', 7 => 'الأسبوع السابع', 8 => 'الأسبوع الثامن',
+                                    9 => 'الأسبوع التاسع', 10 => 'الأسبوع العاشر', 11 => 'الأسبوع الحادي عشر', 12 => 'الأسبوع الثاني عشر',
+                                    13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
+                                );
+                                $week_disp_idx = (($cycle_week_num - 1) % 16) + 1;
+                                $week_title = $arabic_weeks[$week_disp_idx] ?? ('الأسبوع ' . $cycle_week_num);
+
+                                // Palette cycling per week
                                 $palette = array(
                                     array('bg' => '#fef2f2', 'text' => '#881337', 'border' => '#fecdd3'),
                                     array('bg' => '#eff6ff', 'text' => '#1d4ed8', 'border' => '#bfdbfe'),
@@ -1032,26 +1052,22 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     array('bg' => '#fef3c7', 'text' => '#b45309', 'border' => '#fde68a'),
                                     array('bg' => '#faf5ff', 'text' => '#6b21a8', 'border' => '#e9d5ff'),
                                 );
-                                $p_idx = intval($week_num) % count($palette);
+                                $p_idx = intval($cycle_week_num) % count($palette);
                                 $p_style = $palette[$p_idx];
 
-                                // PE Specific deadline calculation: Friday 12:00 AM -> Monday 9:30 AM
-                                $is_pe_late = false;
-                                if ($is_pe) {
-                                    $day_of_week = date('N', $sub_created_time); // 1 (Mon) to 7 (Sun)
-                                    $time_hi = date('H:i', $sub_created_time);
-                                    if ($day_of_week == 1 && $time_hi > '09:30') {
-                                        $is_pe_late = true;
-                                    } elseif ($day_of_week > 1 && $day_of_week < 5) { // Tue, Wed, Thu
-                                        $is_pe_late = true;
-                                    }
+                                // Lateness check: Monday > 9:30 AM through Thursday 11:59:59 PM
+                                $is_cycle_late = false;
+                                if ($w_day == 1 && $w_time > '09:30') {
+                                    $is_cycle_late = true;
+                                } elseif ($w_day >= 2 && $w_day <= 4) { // Tue, Wed, Thu
+                                    $is_cycle_late = true;
                                 }
                                 ?>
-                                <span style="display: inline-block; padding: 3px 10px; border-radius: 50px; background: <?php echo $p_style['bg']; ?>; color: <?php echo $p_style['text']; ?>; border: 1px solid <?php echo $p_style['border']; ?>; font-weight: 800; font-size: 11px;">
-                                    الأسبوع <?php echo intval($week_num); ?> (v<?php echo $sub->version; ?>)
+                                <span style="display: inline-flex; align-items: center; justify-content: center; padding: 4px 14px; border-radius: 50px; background: <?php echo $p_style['bg']; ?>; color: <?php echo $p_style['text']; ?>; border: 1px solid <?php echo $p_style['border']; ?>; font-weight: 800; font-size: 11.5px; text-align: center;">
+                                    <?php echo esc_html($week_title); ?>
                                 </span>
-                                <?php if ($is_pe_late): ?>
-                                    <div style="font-size: 9.5px; color: #dc2626; font-weight: 800; margin-top: 2px;">⚠️ تسليم متأخر بعد الإثنين 9:30 ص</div>
+                                <?php if ($is_cycle_late): ?>
+                                    <div style="font-size: 9.5px; color: #dc2626; font-weight: 800; margin-top: 3px; text-align: center;">⚠️ تسليم متأخر بعد الإثنين 9:30 ص</div>
                                 <?php endif; ?>
                             </td>
                             <td>
