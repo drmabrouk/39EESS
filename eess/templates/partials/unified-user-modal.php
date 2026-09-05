@@ -11,13 +11,13 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
 <div id="unified-user-modal" class="sm-modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 999999; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); position: fixed; inset: 0; padding: 20px; box-sizing: border-box;">
     <div class="sm-modal-content" style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 980px; max-height: 94vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); border: 1px solid #cbd5e1; font-family: 'Cairo', sans-serif; box-sizing: border-box; display: flex; flex-direction: column;" dir="rtl">
 
-        <!-- Modal Header -->
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: #0f172a; color: #ffffff; border-bottom: 1px solid #1e293b; box-sizing: border-box; width: 100%; margin: 0;">
+        <!-- Modal Header (Clean White Style) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: #ffffff; color: #000000; border-bottom: 1px solid #e2e8f0; box-sizing: border-box; width: 100%; margin: 0;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <span id="u_modal_icon" class="dashicons dashicons-admin-users" style="font-size: 24px; width: 24px; height: 24px; color: #ffffff; margin: 0;"></span>
-                <h3 id="u_modal_title" style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff; font-family: 'Cairo', sans-serif;">تعديل بيانات الحساب وتعيينات الموظف</h3>
+                <span id="u_modal_icon" class="dashicons dashicons-admin-users" style="font-size: 24px; width: 24px; height: 24px; color: #000000; margin: 0;"></span>
+                <h3 id="u_modal_title" style="margin: 0; font-size: 16px; font-weight: 800; color: #000000; font-family: 'Cairo', sans-serif;">تعديل بيانات الحساب وتعيينات الموظف</h3>
             </div>
-            <button type="button" class="sm-modal-close" onclick="eessCloseUnifiedUserModal()" style="background: transparent; border: none; font-size: 26px; color: #ffffff; cursor: pointer; line-height: 1;">&times;</button>
+            <button type="button" class="sm-modal-close" onclick="eessCloseUnifiedUserModal()" style="background: transparent; border: none; font-size: 26px; color: #000000; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <!-- 5-Step Indicator Bar -->
@@ -107,15 +107,15 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
             <!-- STEP 2: CONTACT & RESIDENCE -->
             <div id="u_step_2_container" style="display: none;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px; margin-top: 10px;">
-                    <div class="eess-float-group" style="grid-column: span 2;">
+                    <div class="eess-float-group">
                         <input type="email" name="user_email" id="u_user_email" class="sm-input eess-float-input" placeholder=" " required style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px; direction: ltr; text-align: right;" onblur="eessCheckUniqueness('email')" oninput="eessValidateField(this)">
                         <label for="u_user_email" class="eess-float-label">البريد الإلكتروني الرسمي <span style="color:#ef4444;">*</span></label>
                         <span class="eess-field-error" id="err_u_user_email" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى إدخال بريد إلكتروني صحيح.</span>
                     </div>
 
-                    <div id="u_phone_wrapper" style="grid-column: span 2;">
+                    <div id="u_phone_wrapper">
                         <div style="display: flex; gap: 8px; direction: ltr;">
-                            <select name="country_code" id="u_country_code" class="sm-select" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 12.5px; width: 140px; font-weight: bold;">
+                            <select name="country_code" id="u_country_code" class="sm-select" style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; font-size: 12.5px; width: 130px; font-weight: bold;">
                                 <option value="+971">🇦🇪 +971 (الإمارات)</option>
                                 <option value="+966">🇸🇦 +966 (السعودية)</option>
                                 <option value="+965">🇰🇼 +965 (الكويت)</option>
@@ -129,16 +129,6 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                             </div>
                         </div>
                         <span class="eess-field-error" id="err_u_phone_number" style="display:none; color:#dc2626; font-size:11px; font-weight:bold; margin-top:2px;">يرجى إدخال رقم الجوال الأساسي.</span>
-                    </div>
-
-                    <div class="eess-float-group" style="grid-column: span 2;">
-                        <input type="text" name="address" id="u_address" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                        <label for="u_address" class="eess-float-label">عنوان السكن / الشارع</label>
-                    </div>
-
-                    <div class="eess-float-group" style="grid-column: span 2;">
-                        <input type="text" name="building_info" id="u_building_info" class="sm-input eess-float-input" placeholder=" " style="height: 44px; border-radius: 12px; border: 1px solid #cbd5e1; padding: 0 14px; font-size: 13px;">
-                        <label for="u_building_info" class="eess-float-label">بيانات البناية / المجمع السكني / الشقة</label>
                     </div>
 
                     <div class="eess-float-group">
@@ -226,6 +216,14 @@ $departments  = class_exists('SM_Settings') ? SM_Settings::get_departments() : a
                     <div id="u_grades_wrapper" style="margin-bottom: 16px;">
                         <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الصفوف الدراسية المسندة (كبسولات متعددة):</label>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; background: #ffffff; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1;">
+                            <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
+                                <input type="checkbox" name="assigned_grades[]" value="الروضة الأولى" onchange="eessToggleGradeCapsule(this)" style="display: none;">
+                                <span>الروضة الأولى (KG1)</span>
+                            </label>
+                            <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
+                                <input type="checkbox" name="assigned_grades[]" value="الروضة الثانية" onchange="eessToggleGradeCapsule(this)" style="display: none;">
+                                <span>الروضة الثانية (KG2)</span>
+                            </label>
                             <?php for ($g = 1; $g <= 12; $g++): ?>
                                 <label class="u-grade-capsule-label" style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 9999px; background: #f1f5f9; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; color: #334155; cursor: pointer; user-select: none;">
                                     <input type="checkbox" name="assigned_grades[]" value="الصف <?php echo $g; ?>" onchange="eessToggleGradeCapsule(this)" style="display: none;">
