@@ -195,6 +195,7 @@ class EESS_Student_Data_Service {
 
         if (!empty($data['student_code'])) {
             $fields['student_code'] = sanitize_text_field($data['student_code']);
+            $fields['student_id']   = sanitize_text_field($data['student_code']);
         }
         if (!empty($data['parent_user_id'])) {
             $fields['parent_user_id'] = intval($data['parent_user_id']);
