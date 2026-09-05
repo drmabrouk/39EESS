@@ -10043,13 +10043,13 @@ class SM_Public {
     }
 
     public function ajax_bulk_download_lesson_preps() {
-        if (!is_user_logged_in()) wp_die('Unauthorized access');
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized access');
         if (!wp_verify_nonce($_REQUEST['nonce'] ?? '', 'sm_admin_action') && !wp_verify_nonce($_REQUEST['nonce'] ?? '', 'eess_admin_action')) {
-            wp_die('Security check failed');
+            wp_send_json_error('Security check failed');
         }
 
         if (!class_exists('ZipArchive')) {
-            wp_die('مكتبة ZipArchive غير مفعلة على هذا السيرفر.');
+            wp_send_json_error('مكتبة ZipArchive غير مفعلة على هذا السيرفر.');
         }
 
         global $wpdb;
@@ -10065,7 +10065,8 @@ class SM_Public {
 
         $query = "SELECT p.*, u.display_name as teacher_name
                   FROM {$wpdb->prefix}sm_lesson_preps p
-                  JOIN {$wpdb->prefix}users u ON p.teacher_id = u.ID WHERE 1=1";
+                  JOIN {$wpdb->prefix}users u ON p.teacher_id = u.ID
+                  WHERE p.status IN ('submitted', 'approved', 'returned', 'resubmitted', 'rejected')";
         $params = array();
 
         if (!$user_scope['unrestricted']) {
@@ -10079,10 +10080,7 @@ class SM_Public {
             }
         }
 
-        if ($download_scope === 'week' && $week_num > 0) {
-            $query .= " AND (WEEK(p.lesson_date, 1) - WEEK(DATE_SUB(p.lesson_date, INTERVAL DAYOFMONTH(p.lesson_date)-1 DAY), 1) + 1) = %d";
-            $params[] = $week_num;
-        } elseif ($download_scope === 'month' && !empty($month_val)) {
+        if ($download_scope === 'month' && !empty($month_val)) {
             $query .= " AND DATE_FORMAT(p.lesson_date, '%%Y-%%m') = %s";
             $params[] = $month_val;
         } elseif ($download_scope === 'date' && !empty($date_val)) {
@@ -10094,12 +10092,29 @@ class SM_Public {
             $params[] = $date_to;
         }
 
-        $query .= " ORDER BY p.lesson_date DESC, p.id DESC";
+        $query .= " ORDER BY p.created_at DESC, p.id DESC";
 
-        $records = !empty($params) ? $wpdb->get_results($wpdb->prepare($query, $params)) : $wpdb->get_results($query);
+        $raw_records = !empty($params) ? $wpdb->get_results($wpdb->prepare($query, $params)) : $wpdb->get_results($query);
+
+        // Filter by Academic Week using 30 August 2026 anchor logic
+        $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
+        $records = array();
+
+        foreach ($raw_records as $rec) {
+            if ($download_scope === 'week' || $week_num > 0) {
+                if ($week_num > 0) {
+                    $p_ts = strtotime($rec->updated_at ?: $rec->created_at);
+                    $cw = ($p_ts >= $acad_anchor_ts) ? (intval(floor(($p_ts - $acad_anchor_ts) / (7 * 86400))) + 1) : 1;
+                    if ($cw !== $week_num) {
+                        continue;
+                    }
+                }
+            }
+            $records[] = $rec;
+        }
 
         if (empty($records)) {
-            wp_die('لا توجد تحضيرات دروس مرفوعة تطابق خيارات الأرشيف المحددة.');
+            wp_send_json_error('لا توجد تحضيرات دروس مرفوعة تطابق خيارات الأرشيف المحددة.');
         }
 
         $upload_dir = wp_upload_dir();
@@ -10108,16 +10123,17 @@ class SM_Public {
 
         $zip = new ZipArchive();
         if ($zip->open($zip_path, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-            wp_die('تعذر إنشاء ملف الأرشيف المضغوط.');
+            wp_send_json_error('تعذر إنشاء ملف الأرشيف المضغوط.');
         }
 
         $added_count = 0;
         $skipped_count = 0;
+        $added_inner_paths = array();
 
         foreach ($records as $rec) {
-            $file_url = $rec->file_url;
-            if (empty($file_url)) {
-                $parsed = json_decode($rec->lesson_data ?? '{}', true);
+            $file_url = !empty($rec->file_url) ? $rec->file_url : '';
+            if (empty($file_url) && !empty($rec->lesson_data)) {
+                $parsed = json_decode($rec->lesson_data, true);
                 $file_url = $parsed['file_url'] ?? '';
             }
 
@@ -10136,10 +10152,9 @@ class SM_Public {
             } elseif (file_exists($file_url)) {
                 $local_path = $file_url;
             } else {
-                // Try attachment ID lookup
-                $att_id = attachment_url_to_postid($file_url);
-                if ($att_id) {
-                    $local_path = get_attached_file($att_id);
+                $parsed_path = wp_parse_url($file_url, PHP_URL_PATH);
+                if ($parsed_path && file_exists(ABSPATH . ltrim($parsed_path, '/'))) {
+                    $local_path = ABSPATH . ltrim($parsed_path, '/');
                 }
             }
 
@@ -10148,11 +10163,20 @@ class SM_Public {
                 continue;
             }
 
+            $rec->file_url = $file_url;
             $std_filename = EESS_File_Naming_Service::generate_lesson_prep_filename($rec);
             $zip_folder = sanitize_file_name($rec->teacher_name ?: 'المعلم');
             $zip_inner_path = $zip_folder . '/' . $std_filename;
 
+            // Ensure unique inner path inside ZIP to prevent collisions
+            if (in_array($zip_inner_path, $added_inner_paths, true)) {
+                $ext = pathinfo($std_filename, PATHINFO_EXTENSION);
+                $base = pathinfo($std_filename, PATHINFO_FILENAME);
+                $zip_inner_path = $zip_folder . '/' . $base . '_' . $rec->id . ($ext ? '.' . $ext : '');
+            }
+
             $zip->addFile($local_path, $zip_inner_path);
+            $added_inner_paths[] = $zip_inner_path;
             $added_count++;
         }
 
@@ -10160,10 +10184,14 @@ class SM_Public {
 
         if ($added_count === 0) {
             if (file_exists($zip_path)) @unlink($zip_path);
-            wp_die('جميع سجلات التحضير المحددة لا تحتوي على ملفات مرفقة صالحة.');
+            wp_send_json_error('جميع سجلات تحضير الدروس المحددة لا تحتوي على ملفات مرفقة صالحة.');
         }
 
         SM_Logger::log('bulk_download', "قام المستخدم بإجراء تنزيل بالجملة لأرشيف التحضيرات ({$added_count} ملف)");
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
 
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="' . $zip_name . '"');
@@ -10171,7 +10199,9 @@ class SM_Public {
         header('Pragma: no-cache');
         header('Expires: 0');
         readfile($zip_path);
-        @unlink($zip_path);
+        if (file_exists($zip_path)) {
+            @unlink($zip_path);
+        }
         exit;
     }
 

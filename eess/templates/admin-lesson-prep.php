@@ -845,31 +845,44 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         <!-- List Panel (Compacted & Cleaned Up) -->
         <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
 
-            <!-- Table Header Bar: Compact Search + Status Filter + Sort -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; background: #ffffff; padding: 12px 16px; border-radius: 14px; border: 1px solid #cbd5e1;">
-                <h3 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #0f172a; white-space: nowrap;">سجلات تحضير الدروس المقدمة</h3>
+            <!-- Table Header Bar: Compact Single-Row Search + Status Filter + Sort -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; background: #ffffff; padding: 12px 18px; border-radius: 14px; border: 1px solid #cbd5e1; font-family: 'Cairo', sans-serif;">
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; display: flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-list-view" style="font-size: 18px; width: 18px; height: 18px; color: #881337;"></span>
+                    <span>سجلات تحضير الدروس المقدمة</span>
+                </h3>
 
-                <form method="get" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0; max-width: 100%;">
+                <form method="get" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0; max-width: 100%; direction: rtl;">
                     <input type="hidden" name="sm_tab" value="lesson-plans">
 
-                    <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 32px; font-size: 11.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px; width: 180px; max-width: 100%;">
+                    <div style="position: relative; width: 220px; max-width: 100%;">
+                        <input type="text" name="s_query" value="<?php echo isset($_GET['s_query']) ? esc_attr($_GET['s_query']) : ''; ?>" placeholder="بحث باسم المعلم، المادة، أو الدرس..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 32px 0 12px; width: 100%; box-sizing: border-box;">
+                        <span class="dashicons dashicons-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; width: 15px; height: 15px; color: #94a3b8; pointer-events: none;"></span>
+                    </div>
 
-                    <select name="filter_status" class="sm-select" style="height: 32px; font-size: 11.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 8px;">
+                    <select name="filter_status" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px 0 28px; font-weight: 700; color: #334155; background-color: #ffffff;">
                         <option value="">جميع الحالات</option>
                         <option value="pending" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'pending'); ?>>قيد المراجعة</option>
                         <option value="submitted" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'submitted'); ?>>مرفوع للمراجعة</option>
-                        <option value="approved" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'approved'); ?>>معتمد</option>
+                        <option value="approved" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'approved'); ?>>معتمد رسمياً</option>
                         <option value="revision_required" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'revision_required'); ?>>طلب تعديل</option>
                         <option value="rejected" <?php selected(isset($_GET['filter_status']) && $_GET['filter_status'] === 'rejected'); ?>>مرفوض</option>
                     </select>
 
                     <?php $cur_sort = isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc' ? 'asc' : 'desc'; ?>
                     <input type="hidden" name="sort_dir" id="eess_sort_dir_val" value="<?php echo $cur_sort; ?>">
-                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="<?php echo $cur_sort === 'asc' ? 'الترتيب: الأقدم إلى الأحدث' : 'الترتيب: الأحدث إلى الأقدم'; ?>" style="width: 32px; height: 32px; border-radius: 50% !important; background: #fef2f2; color: #881337; border: 1px solid #fecdd3; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
-                        <span class="dashicons <?php echo $cur_sort === 'asc' ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                    <button type="button" onclick="const sInput = document.getElementById('eess_sort_dir_val'); sInput.value = (sInput.value === 'desc' ? 'asc' : 'desc'); this.form.submit();" title="<?php echo $cur_sort === 'asc' ? 'الترتيب الحقيقي: الأقدم أولاً' : 'الترتيب الحقيقي: الأحدث أولاً'; ?>" style="height: 36px; padding: 0 12px; border-radius: 9999px !important; background: #ffffff; color: #475569; border: 1px solid #cbd5e1; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0;" onmouseover="this.style.borderColor='#881337'" onmouseout="this.style.borderColor='#cbd5e1'">
+                        <span class="dashicons <?php echo $cur_sort === 'asc' ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'; ?>" style="font-size: 14px; width: 14px; height: 14px; margin: 0; color: #881337;"></span>
+                        <span><?php echo $cur_sort === 'asc' ? 'الأقدم أولاً' : 'الأحدث أولاً'; ?></span>
                     </button>
 
-                    <button type="submit" class="sm-btn" style="height: 32px; font-size: 11.5px; padding: 0 14px; background: #881337; border-radius: 9999px !important; color: white !important; font-weight: 800; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0;">بحث وتصفية</button>
+                    <button type="submit" class="sm-btn" style="height: 36px; font-size: 12px; padding: 0 18px; background: #881337; border-radius: 9999px !important; color: #ffffff !important; font-weight: 800; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; box-shadow: 0 1px 3px rgba(136,19,55,0.2);">بحث وتصفية</button>
+                    <?php if (!empty($_GET['s_query']) || !empty($_GET['filter_status']) || (isset($_GET['sort_dir']) && $_GET['sort_dir'] === 'asc')): ?>
+                        <a href="<?php echo esc_url(remove_query_arg(array('s_query', 'filter_status', 'sort_dir'))); ?>" class="sm-btn sm-btn-outline" style="height: 36px; font-size: 11.5px; padding: 0 12px; border-radius: 9999px !important; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 700;" title="إلغاء التصفية">
+                            <span>إلغاء</span>
+                            <span class="dashicons dashicons-dismiss" style="font-size: 12px; width: 12px; height: 12px; margin: 0;"></span>
+                        </a>
+                    <?php endif; ?>
                 </form>
             </div>
 
@@ -1558,11 +1571,19 @@ function eessSubmitEditPrepStatus(e) {
 
             <!-- Scope Field: Week -->
             <div id="eess-prep-scope-week" style="display: none; margin-bottom: 16px;">
-                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر الأسبوع:</label>
+                <label style="display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px;">اختر الأسبوع الأكاديمي (المرجع: 30 أغسطس 2026):</label>
                 <select name="week_num" class="sm-select" style="height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; width: 100%;">
-                    <?php for ($w = 1; $w <= 18; $w++): ?>
-                        <option value="<?php echo $w; ?>">الأسبوع <?php echo $w; ?></option>
-                    <?php endfor; ?>
+                    <option value="0">جميع الأسابيع (تقرير شامل كافة التقديمات)</option>
+                    <?php
+                    $arabic_weeks_list = array(
+                        1 => 'الأسبوع الأول', 2 => 'الأسبوع الثاني', 3 => 'الأسبوع الثالث', 4 => 'الأسبوع الرابع',
+                        5 => 'الأسبوع الخامس', 6 => 'الأسبوع السادس', 7 => 'الأسبوع السابع', 8 => 'الأسبوع الثامن',
+                        9 => 'الأسبوع التاسع', 10 => 'الأسبوع العاشر', 11 => 'الأسبوع الحادي عشر', 12 => 'الأسبوع الثاني عشر',
+                        13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
+                    );
+                    foreach ($arabic_weeks_list as $w_num => $w_title): ?>
+                        <option value="<?php echo $w_num; ?>"><?php echo esc_html($w_title . ' (Week ' . $w_num . ')'); ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
 
