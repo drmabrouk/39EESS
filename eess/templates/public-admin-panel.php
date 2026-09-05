@@ -396,57 +396,67 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 </div>
             <?php endif; ?>
             <div>
+                <?php
+                $user_roles = (array) $user->roles;
+                $primary_role = reset($user_roles);
+                $is_dev_sys_admin = in_array('administrator', $user_roles) || in_array('sm_system_admin', $user_roles);
+                $my_school_name = get_user_meta($user->ID, 'eess_school_name', true) ?: (get_user_meta($user->ID, 'school_name', true) ?: ($school['school_name'] ?? 'مدرسة منارة الشارقة الخاصة'));
+                ?>
                 <h1 style="margin:0; border: none; padding: 0; color: var(--sm-dark-color); font-weight: 800; font-size: 1.05em; text-decoration: none; line-height: 1;">
-                    مدرسة منارة الشارقة الخاصة
+                    <?php echo esc_html($is_dev_sys_admin ? 'خدمات الأنظمة الإلكترونية التعليمية (EESS)' : $my_school_name); ?>
                 </h1>
                 <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 4px;">
-                    <!-- Enlarge Role Badge -->
-                    <div style="display: inline-block; padding: 2px 10px; background: #fee2e2; color: #991b1b; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #fca5a5; line-height: 1;">
+                    <?php if ($is_dev_sys_admin): ?>
+                        <div style="display: inline-block; padding: 2px 10px; background: #fee2e2; color: #991b1b; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #fca5a5; line-height: 1;">
+                            مدير النظام المطور
+                        </div>
+                    <?php else: ?>
+                        <!-- Role Badge -->
+                        <div style="display: inline-block; padding: 2px 10px; background: #fee2e2; color: #991b1b; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #fca5a5; line-height: 1;">
+                            <?php
+                            $role_labels = array(
+                                'administrator' => 'مدير النظام المطور',
+                                'sm_system_admin' => 'مدير النظام المطور',
+                                'sm_principal' => 'مدير المدرسة',
+                                'sm_supervisor' => 'مشرف تربوي',
+                                'sm_coordinator' => 'منسق مادة',
+                                'sm_teacher' => 'معلم',
+                                'sm_student' => 'طالب',
+                                'sm_parent' => 'ولي أمر',
+                                'sm_discipline_supervisor' => 'مشرف سلوك / انضباط',
+                                'sm_activities_supervisor' => 'مشرف أنشطة',
+                                'sm_transportation_supervisor' => 'مشرف نقل ومواصلات',
+                                'sm_bus_supervisor' => 'مشرف حافلة',
+                                'sm_clinic' => 'العيادة المدرسية',
+                                'sm_hr' => 'الموارد البشرية (HR)'
+                            );
+                            echo esc_html($role_labels[$primary_role] ?? 'مستخدم النظام');
+                            ?>
+                        </div>
+
+                        <!-- Department / Section Capsule -->
                         <?php
-                        $user_roles = (array) $user->roles;
-                        $primary_role = reset($user_roles);
-                        $role_labels = array(
-                            'administrator' => 'مدير النظام المطور',
-                            'sm_system_admin' => 'مدير النظام التقني',
-                            'sm_principal' => 'مدير المدرسة',
-                            'sm_supervisor' => 'مشرف تربوي',
-                            'sm_coordinator' => 'منسق مادة',
-                            'sm_teacher' => 'معلم',
-                            'sm_student' => 'طالب',
-                            'sm_parent' => 'ولي أمر',
-                            'sm_discipline_supervisor' => 'مشرف سلوك / انضباط',
-                            'sm_activities_supervisor' => 'مشرف أنشطة',
-                            'sm_transportation_supervisor' => 'مشرف نقل ومواصلات',
-                            'sm_bus_supervisor' => 'مشرف حافلة',
-                            'sm_clinic' => 'العيادة المدرسية',
-                            'sm_hr' => 'الموارد البشرية (HR)'
-                        );
-                        echo esc_html($role_labels[$primary_role] ?? 'مستخدم النظام');
-                        ?>
-                    </div>
+                        $my_department = get_user_meta($user->ID, 'eess_department', true) ?: (get_user_meta($user->ID, 'department', true) ?: get_user_meta($user->ID, 'sm_department', true));
+                        if (!empty($my_department)): ?>
+                            <div style="display: inline-block; padding: 2px 10px; background: #fef3c7; color: #92400e; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #fde68a; line-height: 1;">
+                                <?php echo esc_html($my_department); ?>
+                            </div>
+                        <?php endif; ?>
 
-                    <!-- Department / Section Capsule -->
-                    <?php
-                    $my_department = get_user_meta($user->ID, 'eess_department', true) ?: (get_user_meta($user->ID, 'department', true) ?: (get_user_meta($user->ID, 'sm_department', true) ?: 'قسم التربية البدنية والصحية'));
-                    if (!empty($my_department)): ?>
-                        <div style="display: inline-block; padding: 2px 10px; background: #fef3c7; color: #92400e; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #fde68a; line-height: 1;">
-                            🏢 <?php echo esc_html($my_department); ?>
+                        <!-- Subject Badge for Teacher/Coordinator -->
+                        <?php
+                        $my_subject = get_user_meta($user->ID, 'sm_specialization', true);
+                        if (($is_teacher || $is_coordinator) && !empty($my_subject)): ?>
+                            <div style="display: inline-block; padding: 2px 10px; background: #e0f2fe; color: #0369a1; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #bae6fd; line-height: 1;">
+                                <?php echo esc_html($my_subject); ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Assigned School Name Capsule -->
+                        <div style="display: inline-block; padding: 2px 10px; background: #f0fdf4; color: #166534; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #bbf7d0; line-height: 1;">
+                            <?php echo esc_html($my_school_name); ?>
                         </div>
                     <?php endif; ?>
-
-                    <!-- Subject Badge for Teacher/Coordinator -->
-                    <?php
-                    $my_subject = get_user_meta($user->ID, 'sm_specialization', true);
-                    if (($is_teacher || $is_coordinator) && !empty($my_subject)): ?>
-                        <div style="display: inline-block; padding: 2px 10px; background: #e0f2fe; color: #0369a1; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #bae6fd; line-height: 1;">
-                            <?php echo esc_html($my_subject); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <!-- Assigned School Name Capsule -->
-                    <div style="display: inline-block; padding: 2px 10px; background: #f0fdf4; color: #166534; border-radius: 50px; font-size: 11px; font-weight: 700; border: 1px solid #bbf7d0; line-height: 1;">
-                        مدرسة منارة الشارقة الخاصة
-                    </div>
                 </div>
             </div>
         </div>

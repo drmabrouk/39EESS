@@ -1679,7 +1679,7 @@ function eessUpdatePrepScopeFields(scope) {
             <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
         </div>
         <div style="padding: 24px;">
-            <div style="margin-bottom: 18px;">
+            <div style="margin-bottom: 14px;">
                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">اختر المدرسة / المؤسسة التعليمية المستهدفة <span style="color:#ef4444;">*</span></label>
                 <select id="eess_target_school_prep" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
                     <?php
@@ -1693,6 +1693,28 @@ function eessUpdatePrepScopeFields(scope) {
                     <?php endif; ?>
                 </select>
             </div>
+            <div style="margin-bottom: 18px;">
+                <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الأسبوع الأكاديمي المستهدف</label>
+                <select id="eess_target_week_prep" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                    <option value="0">جميع الأسابيع (تقرير شامل)</option>
+                    <option value="1">الأسبوع الأول (Week 1)</option>
+                    <option value="2">الأسبوع الثاني (Week 2)</option>
+                    <option value="3">الأسبوع الثالث (Week 3)</option>
+                    <option value="4">الأسبوع الرابع (Week 4)</option>
+                    <option value="5">الأسبوع الخامس (Week 5)</option>
+                    <option value="6">الأسبوع السادس (Week 6)</option>
+                    <option value="7">الأسبوع السابع (Week 7)</option>
+                    <option value="8">الأسبوع الثامن (Week 8)</option>
+                    <option value="9">الأسبوع التاسع (Week 9)</option>
+                    <option value="10">الأسبوع العاشر (Week 10)</option>
+                    <option value="11">الأسبوع الحادي عشر (Week 11)</option>
+                    <option value="12">الأسبوع الثاني عشر (Week 12)</option>
+                    <option value="13">الأسبوع الثالث عشر (Week 13)</option>
+                    <option value="14">الأسبوع الرابع عشر (Week 14)</option>
+                    <option value="15">الأسبوع الخامس عشر (Week 15)</option>
+                    <option value="16">الأسبوع السادس عشر (Week 16)</option>
+                </select>
+            </div>
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
                 <button type="button" onclick="eessGenerateSchoolPrepReport()" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 40px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">🖨️ طباعة التقرير الرسمي A4</button>
                 <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 40px; padding: 0 18px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;">إلغاء</button>
@@ -1704,9 +1726,10 @@ function eessUpdatePrepScopeFields(scope) {
 <script>
 function eessGenerateSchoolPrepReport() {
     var schId = document.getElementById('eess_target_school_prep').value;
+    var wkNum = document.getElementById('eess_target_week_prep') ? document.getElementById('eess_target_week_prep').value : '0';
     if (!schId) return;
     document.getElementById('eess-school-prep-report-modal').style.display = 'none';
-    window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=school_lesson_prep_report&school_id='); ?>' + encodeURIComponent(schId), '_blank');
+    window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=school_lesson_prep_report&school_id='); ?>' + encodeURIComponent(schId) + '&week_num=' + encodeURIComponent(wkNum), '_blank');
 }
 </script>
 
