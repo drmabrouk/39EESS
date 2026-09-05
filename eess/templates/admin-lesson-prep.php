@@ -121,24 +121,40 @@ if (isset($_POST['eess_save_lesson_prep']) && wp_verify_nonce($_POST['eess_lesso
     $submission_time = null;
 
     if ($status === 'submitted') {
-        $submission_time = current_time('mysql');
-        $submit_timestamp = strtotime($submission_time);
-        $deadline_for_lesson = strtotime($lesson_date . ' ' . $deadline_time);
+        // Authoritative server timestamp (Asia/Dubai timezone configured for WordPress)
+        $submit_timestamp = current_time('timestamp');
+        $submission_time  = date('Y-m-d H:i:s', $submit_timestamp);
+
+        // Determine weekly deadline on the server:
+        // Weekly Cycle: Friday 00:00:00 -> Monday 09:30:00 deadline.
+        // Submissions between Monday 09:30:01 and Thursday 23:59:59 are marked late.
+        $w_day = intval(date('N', $submit_timestamp)); // 1 (Mon) .. 7 (Sun)
+        $w_time = date('H:i:s', $submit_timestamp);
+
+        $is_late = false;
+        if ($w_day == 1 && $w_time > '09:30:00') {
+            $is_late = true;
+        } elseif ($w_day >= 2 && $w_day <= 4) { // Tuesday, Wednesday, Thursday
+            $is_late = true;
+        }
 
         // Exemption check for PE (English/Arabic matching)
         $is_pe = (strpos(strtolower($subject), 'رياضية') !== false || strpos(strtolower($subject), 'بدنية') !== false || strpos(strtolower($subject), 'pe') !== false || strpos(strtolower($subject), 'physical') !== false);
-        $is_monday = (date('N', strtotime($lesson_date)) == 1);
-        $exempt = false;
-
-        if ($is_pe && ($prep_settings['pe_monday_only'] ?? 'yes') === 'yes' && !$is_monday) {
-            $exempt = true;
+        if ($is_pe && ($prep_settings['pe_monday_only'] ?? 'yes') === 'yes' && $w_day != 1) {
+            $is_late = false;
         }
 
-        if ($submit_timestamp > $deadline_for_lesson && !$exempt) {
-            $delay_seconds = $submit_timestamp - $deadline_for_lesson;
-            $final_status = 'late';
+        if ($is_late) {
+            // Calculate delay relative to Monday 9:30 AM deadline of current week
+            $monday_deadline_ts = strtotime('this Monday 09:30:00', $submit_timestamp);
+            if ($monday_deadline_ts > $submit_timestamp) {
+                $monday_deadline_ts = strtotime('last Monday 09:30:00', $submit_timestamp);
+            }
+            $delay_seconds = max(1, $submit_timestamp - $monday_deadline_ts);
+            $final_status  = 'late';
         } else {
-            $final_status = 'submitted';
+            $delay_seconds = 0;
+            $final_status  = 'submitted';
         }
     }
 
