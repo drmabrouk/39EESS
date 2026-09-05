@@ -10060,8 +10060,24 @@ class SM_Public {
                 continue;
             }
 
-            $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $file_url);
-            if (!file_exists($local_path)) {
+            // Enhanced multi-strategy local file path resolution
+            $local_path = '';
+            if (strpos($file_url, $upload_dir['baseurl']) !== false) {
+                $local_path = str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $file_url);
+            } elseif (strpos($file_url, '/wp-content/uploads/') !== false) {
+                $rel_path = substr($file_url, strpos($file_url, '/wp-content/uploads/') + 19);
+                $local_path = $upload_dir['basedir'] . '/' . ltrim($rel_path, '/');
+            } elseif (file_exists($file_url)) {
+                $local_path = $file_url;
+            } else {
+                // Try attachment ID lookup
+                $att_id = attachment_url_to_postid($file_url);
+                if ($att_id) {
+                    $local_path = get_attached_file($att_id);
+                }
+            }
+
+            if (empty($local_path) || !file_exists($local_path)) {
                 $skipped_count++;
                 continue;
             }

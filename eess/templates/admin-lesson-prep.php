@@ -997,7 +997,26 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 if (!empty($teacher_school)): ?>
                                     <div style="font-size: 10px; color: #0284c7; font-weight: bold; margin-bottom: 3px;"><?php echo esc_html($teacher_school); ?></div>
                                 <?php endif; ?>
-                                <?php echo esc_html($sub->grade_level . ' (' . $sub->class_section . ')'); ?>
+
+                                <?php
+                                // Retrieve configured grade & section assignments from user meta / assignments
+                                $assigned_sections_raw = get_user_meta($sub->teacher_id, 'sm_assigned_sections', true) ?: (get_user_meta($sub->teacher_id, 'eess_assigned_sections', true) ?: array());
+                                if (is_string($assigned_sections_raw)) {
+                                    $assigned_sections_raw = array_map('trim', explode(',', $assigned_sections_raw));
+                                }
+                                if (empty($assigned_sections_raw)) {
+                                    $assigned_sections_raw = array($sub->grade_level . ' (' . $sub->class_section . ')');
+                                }
+                                ?>
+                                <div style="display: flex; gap: 4px; flex-wrap: wrap; align-items: center;">
+                                    <?php foreach ($assigned_sections_raw as $sec_cap):
+                                        if (empty($sec_cap)) continue;
+                                    ?>
+                                        <span style="display: inline-block; padding: 2px 8px; border-radius: 50px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px; font-weight: 800;">
+                                            <?php echo esc_html($sec_cap); ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
                             </td>
                             <td>
                                 <?php
@@ -1046,6 +1065,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 <?php
                                 $sub_dt = $sub->submission_time ?: $sub->created_at;
                                 $formatted_prep_date_time = date_i18n('j M Y • h:i A', strtotime($sub_dt));
+                                $formatted_prep_date_time = str_replace(array('AM', 'PM', 'صباحاً', 'مساءً', 'صباحا', 'مساء'), array('ص', 'م', 'ص', 'م', 'ص', 'م'), $formatted_prep_date_time);
                                 ?>
                                 <span style="display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px; background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 700; font-family: monospace;">
                                     📅 <?php echo esc_html($formatted_prep_date_time); ?>
