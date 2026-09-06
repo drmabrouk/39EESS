@@ -164,6 +164,7 @@ class School_Management {
         // Unified User & Employee Modal AJAX Handlers
         $this->loader->add_action('wp_ajax_eess_check_user_uniqueness', $plugin_public, 'ajax_check_user_uniqueness');
         $this->loader->add_action('wp_ajax_eess_get_user_unified', $plugin_public, 'ajax_get_user_unified');
+        $this->loader->add_action('wp_ajax_eess_get_teacher_profile_summary', $plugin_public, 'ajax_get_teacher_profile_summary');
         $this->loader->add_action('wp_ajax_eess_save_user_unified', $plugin_public, 'ajax_save_user_unified');
 
         // Lesson Prep Quick Actions & Bulk Operations

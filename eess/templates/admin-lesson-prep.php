@@ -1073,7 +1073,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                             <!-- Column 3: Teacher & Employee Number (Single Row below Name; Removed Years of Experience) -->
                             <td style="vertical-align: middle; text-align: right;">
                                 <div style="font-weight: 800; color: #0f172a; font-size: 12.5px; margin-bottom: 3px;">
-                                    <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sub->teacher_id; ?>)" style="color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7';" onmouseout="this.style.color='#0f172a';">
+                                    <a href="javascript:void(0)" onclick="window.eessOpenTeacherProfile(<?php echo $sub->teacher_id; ?>)" style="color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7';" onmouseout="this.style.color='#0f172a';">
                                         <?php echo esc_html($sub->teacher_name); ?>
                                     </a>
                                 </div>
@@ -1755,6 +1755,7 @@ function eessGenerateSchoolPrepReport() {
 </script>
 
 <?php include_once SM_PLUGIN_DIR . 'templates/partials/unified-user-modal.php'; ?>
+<?php include_once SM_PLUGIN_DIR . 'templates/partials/teacher-profile-readonly-modal.php'; ?>
 
 <!-- Assign Lesson Prep Modal (System Administrator Only) -->
 <div id="eess-assign-prep-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">

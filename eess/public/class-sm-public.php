@@ -8087,6 +8087,206 @@ class SM_Public {
             </html>
             <?php
             exit;
+        } elseif ($print_type === 'teacher_profile_report') {
+            $t_id = intval($_GET['teacher_id'] ?? 0);
+            $user = get_userdata($t_id);
+            if (!$user) wp_die('الموظف غير موجود بالنظام.');
+
+            global $wpdb;
+            $roles = (array) $user->roles;
+            $primary_role = !empty($roles) ? reset($roles) : 'sm_teacher';
+            $role_labels = array(
+                'administrator' => 'مدير النظام المطور',
+                'sm_system_admin' => 'مدير النظام المطور',
+                'sm_principal' => 'مدير المدرسة',
+                'sm_supervisor' => 'مشرف تربوي',
+                'sm_coordinator' => 'منسق مادة',
+                'sm_teacher' => 'معلم',
+                'sm_student' => 'طالب',
+                'sm_parent' => 'ولي أمر',
+                'sm_discipline_supervisor' => 'مشرف سلوك / انضباط',
+                'sm_activities_supervisor' => 'مشرف أنشطة',
+                'sm_transportation_supervisor' => 'مشرف نقل ومواصلات',
+                'sm_bus_supervisor' => 'مشرف حافلة',
+                'sm_clinic' => 'العيادة المدرسية',
+                'sm_hr' => 'الموارد البشرية (HR)'
+            );
+
+            $emp_number = get_user_meta($t_id, 'eess_employee_number', true) ?: (get_user_meta($t_id, 'sm_employee_id', true) ?: $user->user_login);
+            $school_name = get_user_meta($t_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+            $department = get_user_meta($t_id, 'eess_department', true) ?: (get_user_meta($t_id, 'department', true) ?: get_user_meta($t_id, 'sm_department', true) ?: 'قسم التربية البدنية والصحية');
+            $subject = get_user_meta($t_id, 'sm_specialization', true) ?: (get_user_meta($t_id, 'specialization', true) ?: 'التربية البدنية والصحية');
+
+            $assigned_grades_raw = get_user_meta($t_id, 'sm_assigned_grades', true) ?: (get_user_meta($t_id, 'eess_assigned_grades', true) ?: (get_user_meta($t_id, 'sm_grade_level', true) ?: 'الصف العاشر'));
+            if (is_array($assigned_grades_raw)) $assigned_grades_raw = implode(', ', $assigned_grades_raw);
+            $assigned_grades_clean = str_replace(array('[', ']', '"', "'", '\\'), '', (string)$assigned_grades_raw);
+
+            $assigned_sections_raw = get_user_meta($t_id, 'sm_assigned_sections', true) ?: (get_user_meta($t_id, 'eess_assigned_sections', true) ?: 'شعبة 1، شعبة 2');
+            if (is_array($assigned_sections_raw)) $assigned_sections_raw = implode(', ', $assigned_sections_raw);
+
+            $phone = get_user_meta($t_id, 'phone_number', true) ?: (get_user_meta($t_id, 'sm_phone', true) ?: '---');
+            $civil_id = get_user_meta($t_id, 'eess_civil_id', true) ?: (get_user_meta($t_id, 'civil_id', true) ?: '---');
+            $emirate = get_user_meta($t_id, 'eess_emirate', true) ?: 'دبي';
+            $appoint_year = get_user_meta($t_id, 'eess_appointment_year', true) ?: (get_user_meta($t_id, 'appointment_year', true) ?: '2022');
+            $photo_url = get_avatar_url($t_id, array('size' => 120));
+
+            $school_info = SM_Settings::get_school_info();
+            $school_logo = !empty($school_info['logo_url']) ? $school_info['logo_url'] : '';
+
+            // Activity Queries
+            $term_plans = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_term_plans WHERE teacher_id = %d ORDER BY term_number ASC", $t_id));
+            $lesson_preps = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d ORDER BY created_at DESC LIMIT 15", $t_id));
+
+            header('Content-Type: text/html; charset=utf-8');
+            ?>
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>الملف الوظيفي والأكاديمي — <?php echo esc_html($user->display_name); ?></title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+                <style>
+                    @page { size: A4 portrait; margin: 12mm 15mm; }
+                    body { font-family: 'Cairo', sans-serif; background: #fff; color: #0f172a; margin: 0; padding: 15px; direction: rtl; font-size: 11px; }
+                    .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 15px; }
+                    .brand-box { display: flex; align-items: center; gap: 12px; }
+                    .brand-logo { width: 52px; height: 52px; object-fit: contain; }
+                    .report-title { font-size: 15px; font-weight: 900; color: #881337; margin: 0 0 3px 0; }
+                    .report-subtitle { font-size: 11px; color: #475569; font-weight: 700; margin: 0; }
+                    .card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 15px; margin-bottom: 14px; }
+                    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
+                    th { background: #0f172a; color: #fff; padding: 6px 10px; font-weight: 800; text-align: right; border: 1px solid #0f172a; }
+                    td { padding: 6px 10px; border: 1px solid #cbd5e1; text-align: right; vertical-align: middle; }
+                    @media print { body { padding: 0; } .no-print { display: none; } }
+                </style>
+            </head>
+            <body>
+                <div class="no-print" style="margin-bottom: 15px; text-align: left;">
+                    <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 8px 20px; font-family: 'Cairo'; font-weight: 800; border-radius: 9999px; cursor: pointer; font-size: 12px;">🖨️ طباعة التقرير PDF</button>
+                </div>
+
+                <div class="report-header">
+                    <div class="brand-box">
+                        <?php if ($school_logo): ?>
+                            <img src="<?php echo esc_url($school_logo); ?>" class="brand-logo" alt="Logo">
+                        <?php endif; ?>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 900; color: #0f172a;">مؤسسة الشعلة للتعليم والتطوير</div>
+                            <div style="font-size: 11.5px; color: #0284c7; font-weight: 800;"><?php echo esc_html($school_name); ?></div>
+                            <div style="font-size: 10px; color: #64748b; font-weight: 700;">وزارة التربية والتعليم — دولة الإمارات العربية المتحدة</div>
+                        </div>
+                    </div>
+                    <div style="text-align: left;">
+                        <h1 class="report-title">الملف الوظيفي والأكاديمي الشامل</h1>
+                        <p class="report-subtitle">تاريخ التقرير: <?php echo current_time('Y-m-d H:i'); ?></p>
+                    </div>
+                </div>
+
+                <!-- Teacher Header Identity -->
+                <div class="card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <img src="<?php echo esc_url($photo_url); ?>" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #0284c7;">
+                        <div>
+                            <h2 style="margin:0 0 4px 0; font-size: 16px; font-weight: 900; color: #0f172a;"><?php echo esc_html($user->display_name); ?></h2>
+                            <div style="font-size: 11px; color: #475569; font-weight: 700;">
+                                <strong>الرتبة:</strong> <?php echo esc_html($role_labels[$primary_role] ?? 'معلم'); ?> |
+                                <strong>الكود:</strong> <?php echo esc_html($emp_number); ?> |
+                                <strong>المدرسة:</strong> <?php echo esc_html($school_name); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal & Academic Assignment Card -->
+                <div class="card">
+                    <h4 style="margin:0 0 8px 0; font-size: 12.5px; font-weight: 800; color: #881337; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">البيانات الشخصية والتكليفات التعليمية</h4>
+                    <div class="grid-2">
+                        <div><strong>القسم / المادة:</strong> <?php echo esc_html($department . ' | ' . $subject); ?></div>
+                        <div><strong>الصفوف المسندة:</strong> <?php echo esc_html($assigned_grades_clean ?: 'الكل'); ?></div>
+                        <div><strong>الشعب الدراسية:</strong> <?php echo esc_html($assigned_sections_raw ?: 'الكل'); ?></div>
+                        <div><strong>الهاتف والبريد:</strong> <?php echo esc_html($phone . ' | ' . $user->user_email); ?></div>
+                        <div><strong>سنة التعيين والإمارة:</strong> <?php echo esc_html($appoint_year . ' — ' . $emirate); ?></div>
+                        <div><strong>الهوية الوطنية:</strong> <?php echo esc_html($civil_id); ?></div>
+                    </div>
+                </div>
+
+                <!-- Term Plans Summary Card -->
+                <div class="card">
+                    <h4 style="margin:0 0 8px 0; font-size: 12.5px; font-weight: 800; color: #0284c7; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">نشاط وإنجاز الخطط الفصلية والسنوية (<?php echo count($term_plans); ?> خطط)</h4>
+                    <?php if (empty($term_plans)): ?>
+                        <div style="color: #64748b;">لا توجد خطط فصلية مرفوعة حالياً.</div>
+                    <?php else: ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الفصل الدراسي</th>
+                                    <th>المادة والصف</th>
+                                    <th>تاريخ التسليم</th>
+                                    <th>الحالة الرسمية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($term_plans as $tp):
+                                    $st = 'مسودة';
+                                    if ($tp->status === 'submitted') $st = 'مرفوعة للمراجعة';
+                                    elseif ($tp->status === 'approved') $st = 'معتمدة رسمياً';
+                                    elseif ($tp->status === 'returned') $st = 'طلب تعديل';
+                                ?>
+                                    <tr>
+                                        <td>الفصل الدراسي <?php echo intval($tp->term_number); ?></td>
+                                        <td><?php echo esc_html($tp->subject . ' (' . $tp->grade . ')'); ?></td>
+                                        <td><?php echo esc_html(date_i18n('Y-m-d H:i', strtotime($tp->updated_at ?: $tp->created_at))); ?></td>
+                                        <td><strong><?php echo $st; ?></strong></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Lesson Prep Summary Card -->
+                <div class="card">
+                    <h4 style="margin:0 0 8px 0; font-size: 12.5px; font-weight: 800; color: #16a34a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">نشاط تحضير الدروس الأخيرة (أحدث <?php echo count($lesson_preps); ?> تحضيرات)</h4>
+                    <?php if (empty($lesson_preps)): ?>
+                        <div style="color: #64748b;">لا توجد تحضيرات دروس مسجلة حالياً.</div>
+                    <?php else: ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>عنوان الدرس</th>
+                                    <th>المادة والصف</th>
+                                    <th>تاريخ ووقت التسليم</th>
+                                    <th>الحالة الرسمية</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
+                                foreach ($lesson_preps as $lp):
+                                    $dt = $lp->updated_at ?: $lp->created_at;
+                                    $p_ts = strtotime($dt);
+                                    $cw = ($p_ts >= $acad_anchor_ts) ? (intval(floor(($p_ts - $acad_anchor_ts) / (7 * 86400))) + 1) : 1;
+                                    $st = 'مسودة';
+                                    if ($lp->status === 'submitted') $st = 'مرفوع للمراجعة';
+                                    elseif ($lp->status === 'approved') $st = 'معتمد رسمياً';
+                                    elseif ($lp->status === 'revision_required' || $lp->status === 'returned') $st = 'طلب تعديل';
+                                ?>
+                                    <tr>
+                                        <td>الأسبوع <?php echo $cw; ?>: <?php echo esc_html($lp->title ?: 'تحضير درس'); ?></td>
+                                        <td><?php echo esc_html($lp->subject . ' (' . $lp->grade_level . ')'); ?></td>
+                                        <td><?php echo esc_html(date_i18n('Y-m-d H:i', strtotime($dt))); ?></td>
+                                        <td><strong><?php echo $st; ?></strong></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+            </body>
+            </html>
+            <?php
+            exit;
         } elseif ($print_type === 'parent_summons') {
             $summons_id = intval($_GET['summons_id'] ?? 0);
             global $wpdb;
@@ -8388,6 +8588,147 @@ class SM_Public {
         }
 
         wp_send_json_success(array('exists' => false));
+    }
+
+    public function ajax_get_teacher_profile_summary() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error('غير مصرح لك بالوصول.');
+        }
+
+        $user_id = intval($_POST['user_id'] ?? 0);
+        if ($user_id <= 0) {
+            wp_send_json_error('معرف الموظف غير صحيح.');
+        }
+
+        $user = get_userdata($user_id);
+        if (!$user) {
+            wp_send_json_error('الموظف غير موجود بالنظام.');
+        }
+
+        global $wpdb;
+
+        $roles = (array) $user->roles;
+        $primary_role = !empty($roles) ? reset($roles) : 'sm_teacher';
+        $role_labels = array(
+            'administrator' => 'مدير النظام المطور',
+            'sm_system_admin' => 'مدير النظام المطور',
+            'sm_principal' => 'مدير المدرسة',
+            'sm_supervisor' => 'مشرف تربوي',
+            'sm_coordinator' => 'منسق مادة',
+            'sm_teacher' => 'معلم',
+            'sm_student' => 'طالب',
+            'sm_parent' => 'ولي أمر',
+            'sm_discipline_supervisor' => 'مشرف سلوك / انضباط',
+            'sm_activities_supervisor' => 'مشرف أنشطة',
+            'sm_transportation_supervisor' => 'مشرف نقل ومواصلات',
+            'sm_bus_supervisor' => 'مشرف حافلة',
+            'sm_clinic' => 'العيادة المدرسية',
+            'sm_hr' => 'الموارد البشرية (HR)'
+        );
+
+        $emp_number = get_user_meta($user_id, 'eess_employee_number', true) ?: (get_user_meta($user_id, 'sm_employee_id', true) ?: $user->user_login);
+        $school_name = get_user_meta($user_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+        $department = get_user_meta($user_id, 'eess_department', true) ?: (get_user_meta($user_id, 'department', true) ?: get_user_meta($user_id, 'sm_department', true) ?: 'قسم التربية البدنية والصحية');
+        $subject = get_user_meta($user_id, 'sm_specialization', true) ?: (get_user_meta($user_id, 'specialization', true) ?: 'التربية البدنية والصحية');
+
+        $assigned_grades_raw = get_user_meta($user_id, 'sm_assigned_grades', true) ?: (get_user_meta($user_id, 'eess_assigned_grades', true) ?: (get_user_meta($user_id, 'sm_grade_level', true) ?: 'الصف العاشر'));
+        if (is_array($assigned_grades_raw)) $assigned_grades_raw = implode(', ', $assigned_grades_raw);
+        $assigned_grades_clean = str_replace(array('[', ']', '"', "'", '\\'), '', (string)$assigned_grades_raw);
+
+        $assigned_sections_raw = get_user_meta($user_id, 'sm_assigned_sections', true) ?: (get_user_meta($user_id, 'eess_assigned_sections', true) ?: 'شعبة 1، شعبة 2');
+        if (is_array($assigned_sections_raw)) $assigned_sections_raw = implode(', ', $assigned_sections_raw);
+
+        $phone = get_user_meta($user_id, 'phone_number', true) ?: (get_user_meta($user_id, 'sm_phone', true) ?: '---');
+        $civil_id = get_user_meta($user_id, 'eess_civil_id', true) ?: (get_user_meta($user_id, 'civil_id', true) ?: '---');
+        $emirate = get_user_meta($user_id, 'eess_emirate', true) ?: 'دبي';
+        $appoint_year = get_user_meta($user_id, 'eess_appointment_year', true) ?: (get_user_meta($user_id, 'appointment_year', true) ?: '2022');
+        $photo_url = get_avatar_url($user_id, array('size' => 120));
+
+        // Fetch Term Plans Activity
+        $term_plans = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, term_number, subject, grade, status, updated_at, created_at, plan_file_url FROM {$wpdb->prefix}sm_term_plans WHERE teacher_id = %d ORDER BY term_number ASC, updated_at DESC",
+            $user_id
+        ));
+        $term_plans_count = count($term_plans);
+        $term_plans_summary = array();
+        $latest_term_plan_date = '---';
+
+        foreach ($term_plans as $tp) {
+            $dt = $tp->updated_at ?: $tp->created_at;
+            if ($latest_term_plan_date === '---' && !empty($dt)) {
+                $latest_term_plan_date = date_i18n('Y-m-d H:i', strtotime($dt));
+            }
+            $term_plans_summary[] = array(
+                'id' => $tp->id,
+                'term_number' => $tp->term_number,
+                'subject' => $tp->subject,
+                'grade' => $tp->grade,
+                'status' => $tp->status,
+                'date' => date_i18n('Y-m-d H:i', strtotime($dt)),
+                'file_url' => $tp->plan_file_url ?: ''
+            );
+        }
+
+        // Fetch Lesson Preparation Activity
+        $lesson_preps = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, title, subject, grade_level, status, created_at, updated_at, file_url FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d ORDER BY created_at DESC LIMIT 10",
+            $user_id
+        ));
+        $total_lesson_preps_count = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}sm_lesson_preps WHERE teacher_id = %d",
+            $user_id
+        )) ?: 0;
+
+        $lesson_preps_summary = array();
+        $latest_lesson_prep_date = '---';
+        $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
+        $weeks_set = array();
+
+        foreach ($lesson_preps as $lp) {
+            $dt = $lp->updated_at ?: $lp->created_at;
+            if ($latest_lesson_prep_date === '---' && !empty($dt)) {
+                $latest_lesson_prep_date = date_i18n('Y-m-d H:i', strtotime($dt));
+            }
+            $p_ts = strtotime($dt);
+            $cw = ($p_ts >= $acad_anchor_ts) ? (intval(floor(($p_ts - $acad_anchor_ts) / (7 * 86400))) + 1) : 1;
+            $weeks_set[$cw] = true;
+
+            $lesson_preps_summary[] = array(
+                'id' => $lp->id,
+                'title' => $lp->title ?: 'تحضير درس',
+                'subject' => $lp->subject,
+                'grade' => $lp->grade_level,
+                'status' => $lp->status,
+                'week' => $cw,
+                'date' => date_i18n('Y-m-d H:i', strtotime($dt)),
+                'file_url' => $lp->file_url ?: ''
+            );
+        }
+
+        wp_send_json_success(array(
+            'user_id' => $user_id,
+            'full_name' => $user->display_name,
+            'employee_number' => $emp_number,
+            'user_email' => $user->user_email,
+            'role_label' => $role_labels[$primary_role] ?? 'مستخدم النظام',
+            'school_name' => $school_name,
+            'department' => $department,
+            'subject' => $subject,
+            'assigned_grades' => $assigned_grades_clean ?: 'الكل',
+            'assigned_sections' => $assigned_sections_raw ?: 'الكل',
+            'phone' => $phone,
+            'civil_id' => $civil_id,
+            'emirate' => $emirate,
+            'appointment_year' => $appoint_year,
+            'photo_url' => $photo_url,
+            'term_plans_count' => $term_plans_count,
+            'latest_term_plan_date' => $latest_term_plan_date,
+            'term_plans_summary' => $term_plans_summary,
+            'lesson_preps_count' => $total_lesson_preps_count,
+            'weeks_covered_count' => count($weeks_set),
+            'latest_lesson_prep_date' => $latest_lesson_prep_date,
+            'lesson_preps_summary' => $lesson_preps_summary
+        ));
     }
 
     public function ajax_get_user_unified() {
