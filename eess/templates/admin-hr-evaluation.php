@@ -21,622 +21,620 @@ if (!$can_evaluate) {
     return;
 }
 
-// Arabic role translation map
-$role_map = array(
-    'administrator' => 'الإدارة المركزية',
-    'sm_system_admin' => 'مدير النظام التقني',
-    'sm_principal' => 'مدير المدرسة',
-    'sm_supervisor' => 'مشرف تربوي',
-    'sm_coordinator' => 'منسق مادة',
-    'sm_hod' => 'رئيس قسم',
-    'sm_teacher' => 'معلم',
-    'sm_discipline_supervisor' => 'مشرف سلوك / انضباط',
-    'sm_activities_supervisor' => 'مشرف أنشطة',
-    'sm_transportation_supervisor' => 'مشرف نقل ومواصلات',
-    'sm_bus_supervisor' => 'مشرف حافلة',
-    'sm_clinic' => 'العيادة المدرسية',
-    'sm_hr' => 'الموارد البشرية'
-);
-
-// Form templates definition
-$eval_templates = array(
-    'academic' => array(
-        'name' => 'نموذج تقييم الكادر التدريسي والأكاديمي',
-        'metrics' => array(
-            'm1' => array('label' => 'جودة الأداء التعليمي والتدريس الفعال', 'max' => 20),
-            'm2' => array('label' => 'التخطيط التربوي وتحضير الدروس والابتكار', 'max' => 20),
-            'm3' => array('label' => 'الالتزام بالسلوك والانضباط الوظيفي والمواعيد', 'max' => 20),
-            'm4' => array('label' => 'التفاعل والتواصل مع الطلاب وأولياء الأمور', 'max' => 20),
-            'm5' => array('label' => 'القيادة والمبادرة والمساهمة في الأنشطة', 'max' => 20)
-        )
-    ),
-    'phys_health' => array(
-        'name' => 'نموذج تقييم التربية البدنية والصحية (Physical Education)',
-        'metrics' => array(
-            'm1' => array('label' => 'اللياقة البدنية وتطبيق المهارات الرياضية والحركية بفاعلية', 'max' => 20),
-            'm2' => array('label' => 'الاهتمام بالتثقيف الصحي والعادات الغذائية السليمة والوقاية', 'max' => 20),
-            'm3' => array('label' => 'إدارة وتنظيم الأنشطة الرياضية والمسابقات المدرسية والتفاعلية', 'max' => 20),
-            'm4' => array('label' => 'تأمين بيئة رياضية آمنة خالية من الإصابات وتطبيق معايير السلامة', 'max' => 20),
-            'm5' => array('label' => 'تطوير القيادة والروح الرياضية والعمل الجماعي والمثابرة لدى الطلاب', 'max' => 20)
-        )
-    ),
-    'administrative' => array(
-        'name' => 'نموذج تقييم الكادر الإداري والوظائف المعاونة',
-        'metrics' => array(
-            'm1' => array('label' => 'القيام بالواجبات والمهام الوظيفية الإدارية بدقة', 'max' => 25),
-            'm2' => array('label' => 'التعاون والعمل بروح الفريق الواحد والاتصال', 'max' => 25),
-            'm3' => array('label' => 'الالتزام والاتساق مع اللوائح والسياسات المعتمدة', 'max' => 25),
-            'm4' => array('label' => 'المبادرة بتقديم اقتراحات وحل المشكلات التنظيمية', 'max' => 25)
-        )
-    ),
-    'leadership' => array(
-        'name' => 'نموذج تقييم الكادر القيادي والإشرافي والمنسقين',
-        'metrics' => array(
-            'm1' => array('label' => 'التخطيط الاستراتيجي ومتابعة وتقييم أداء الفرق', 'max' => 25),
-            'm2' => array('label' => 'تمكين وتحفيز وتطوير مهارات مرؤوسيه بفاعلية', 'max' => 25),
-            'm3' => array('label' => 'الإدارة والاستغلال الأمثل للموارد والميزانيات المتاحة', 'max' => 25),
-            'm4' => array('label' => 'سرعة اتخاذ القرارات الصحيحة وإدارة الأزمات', 'max' => 25)
-        )
-    ),
-    'duty_supervision' => array(
-        'name' => 'نموذج تقييم المناوبة والإشراف اليومي (Duty Supervision - 10 Metrics)',
-        'metrics' => array(
-            'm1'  => array('label' => '1. الالتزام بمواعيد الانضباط والحضور المبكر للمناوبة', 'max' => 10),
-            'm2'  => array('label' => '2. المراقبة والإشراف المباشر على ساحات وممرات الطلاب', 'max' => 10),
-            'm3'  => array('label' => '3. تطبيق معايير السلامة الوقائية ومنع التدافع أو الحوادث', 'max' => 10),
-            'm4'  => array('label' => '4. التعامل التربوي الحازم والايجابي مع السلوكيات الخاطئة', 'max' => 10),
-            'm5'  => array('label' => '5. التنسيق والتعاون الفعال مع الفريق المشرف ومشرف السلوك', 'max' => 10),
-            'm6'  => array('label' => '6. متابعة انضباط دخول وخروج الطلاب من الحافلات والمقصف', 'max' => 10),
-            'm7'  => array('label' => '7. التجاوب السريع مع حالات الطوارئ والإسعافات الأولية', 'max' => 10),
-            'm8'  => array('label' => '8. توثيق وتسجيل التقرير اليومي لسجل المناوبة بوضوح', 'max' => 10),
-            'm9'  => array('label' => '9. توجيه وإرشاد الطلاب نحو النظافة العامة والانضباط', 'max' => 10),
-            'm10' => array('label' => '10. التحلي بالمسؤولية المهنية والقدوة الحسنة أثناء الإشراف', 'max' => 10)
-        )
-    )
-);
-
-// Print PDF standalone trigger interceptor
-if (isset($_GET['eess_print_eval'])) {
-    $print_eval_id = sanitize_text_field($_GET['eess_print_eval']);
-    $global_evals = get_option('eess_global_evaluations', array());
-    $target_eval = null;
-    foreach ($global_evals as $ev) {
-        if ($ev['id'] === $print_eval_id) {
-            $target_eval = $ev;
-            break;
-        }
-    }
-
-    if ($target_eval) {
-        $pe_user = get_userdata($target_eval['employee_id']);
-        if ($pe_user) {
-            $emp_num_val = get_user_meta($pe_user->ID, 'eess_employee_number', true) ?: 'غير محدد';
-            $emp_dept_val = get_user_meta($pe_user->ID, 'eess_department', true) ?: 'غير محدد';
-            $emp_school_val = get_user_meta($pe_user->ID, 'eess_school_name', true) ?: 'غير محدد';
-            $emp_role_val = !empty($pe_user->roles) ? $pe_user->roles[0] : '';
-            $emp_role_lbl = $role_map[$emp_role_val] ?? $emp_role_val;
-            ?>
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <title>تقرير تقييم الأداء المهني المعتمد - <?php echo esc_html($pe_user->display_name); ?></title>
-                <style>
-                    body { font-family: 'Cairo', sans-serif; padding: 40px; color: #1e293b; background: white; line-height: 1.6; }
-                    .header { border-bottom: 3px solid #1e293b; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-                    .title { font-size: 22px; font-weight: 900; margin: 0; color: #1e293b; }
-                    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-                    .meta-table th, .meta-table td { border: 1px solid #cbd5e1; padding: 12px; text-align: right; }
-                    .meta-table th { background: #f8fafc; font-weight: bold; width: 30%; }
-                    .section-title { font-size: 16px; font-weight: 800; border-bottom: 2px solid #cbd5e1; padding-bottom: 5px; margin: 30px 0 15px 0; color: #1e293b; }
-                    .records-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-                    .records-table th, .records-table td { border: 1px solid #cbd5e1; padding: 12px; text-align: right; font-size: 13px; }
-                    .records-table th { background: #f1f5f9; font-weight: bold; }
-                    .score-big { font-size: 32px; font-weight: 900; color: #16a34a; text-align: center; margin: 20px 0; }
-                    @media print {
-                        .no-print { display: none; }
-                    }
-                </style>
-            </head>
-            <body onload="window.print()">
-                <div class="no-print" style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:30px; text-align:center;">
-                    <button onclick="window.print()" style="padding:10px 20px; font-weight:bold; cursor:pointer; font-family:'Cairo';">🖨️ بدء طباعة تقرير التقييم</button>
-                </div>
-
-                <div class="header">
-                    <div>
-                        <h1 class="title">تقرير تقييم الأداء المهني والسنوي المعتمد</h1>
-                        <p style="margin:5px 0 0 0; color:#64748b;">خدمات الأنظمة الإلكترونية التعليمية (EESS)</p>
-                    </div>
-                    <div style="font-weight: 900; font-size: 20px; color: #334155;">EESS ONLINE</div>
-                </div>
-
-                <div style="display:flex; gap:30px; align-items:center; margin-bottom:30px;">
-                    <?php echo get_avatar($pe_user->ID, 90, '', '', array('style' => 'border-radius: 50%; border: 3px solid #cbd5e1; width: 90px; height: 90px;')); ?>
-                    <div>
-                        <h2 style="margin:0; font-weight:800; font-size:18px;"><?php echo esc_html($pe_user->display_name); ?></h2>
-                        <p style="margin:5px 0 0 0; color:#475569;">المسمى الوظيفي: <?php echo esc_html($emp_role_lbl); ?></p>
-                    </div>
-                </div>
-
-                <h3 class="section-title">📋 بيانات الموظف والتعيين</h3>
-                <table class="meta-table">
-                    <tr><th>الرقم الوظيفي</th><td><?php echo esc_html($emp_num_val); ?></td></tr>
-                    <tr><th>القسم / الإدارة</th><td><?php echo esc_html($emp_dept_val); ?></td></tr>
-                    <tr><th>المؤسسة / المدرسة التابع لها</th><td><?php echo esc_html($emp_school_val); ?></td></tr>
-                    <tr><th>البريد الإلكتروني المعتمد</th><td><?php echo esc_html($pe_user->user_email); ?></td></tr>
-                    <tr><th>فترة التقييم الحالية</th><td><?php echo esc_html($target_eval['period']); ?></td></tr>
-                    <tr><th>النموذج المستخدم</th><td><?php echo esc_html($eval_templates[$target_eval['template']]['name'] ?? 'نموذج مخصص'); ?></td></tr>
-                    <tr><th>تاريخ الاعتماد الرسمي</th><td><?php echo date_i18n('Y-m-d H:i', strtotime($target_eval['date'])); ?></td></tr>
-                </table>
-
-                <h3 class="section-title">📊 تفاصيل درجات وبنود التقييم</h3>
-                <table class="records-table">
-                    <thead>
-                        <tr>
-                            <th>البند / عنصر التقييم المعتمد</th>
-                            <th>الدرجة المستحقة</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $template_key = $target_eval['template'];
-                        $metrics = $eval_templates[$template_key]['metrics'] ?? array();
-                        $scores = $target_eval['scores'] ?? array();
-                        $i = 0;
-                        foreach ($metrics as $m_key => $m_data):
-                            $sc = $scores[$i] ?? 0;
-                            $i++;
-                        ?>
-                            <tr>
-                                <td><?php echo esc_html($m_data['label']); ?></td>
-                                <td style="font-weight:bold; font-family:monospace;"><?php echo $sc; ?> / <?php echo $m_data['max']; ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        <tr style="background:#f8fafc; font-weight:bold;">
-                            <td>الدرجة الإجمالية النهائية المستحقة</td>
-                            <td style="color:#16a34a; font-family:monospace;"><?php echo $target_eval['score']; ?>%</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="score-big">
-                    التقدير النهائي العام: <?php echo esc_html($target_eval['grade']); ?>
-                </div>
-
-                <h3 class="section-title">📝 توصيات وملاحظات وتوقيع جهة الاعتماد</h3>
-                <div style="background:#f8fafc; padding:20px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; color:#334155; margin-bottom:40px;">
-                    <?php echo nl2br(esc_html($target_eval['notes'])); ?>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:50px; font-size:12px; color:#475569;">
-                    <div>
-                        <p>توقيع واعتماد المقيّم المباشر:</p>
-                        <p style="font-weight:bold; margin-bottom:5px;">المشرف / المدير: <?php echo esc_html($target_eval['evaluator']); ?></p>
-                        <p>التوقيع: _______________________</p>
-                    </div>
-                    <div style="text-align:left;">
-                        <p>اعتماد قسم الموارد البشرية واللوائح العامة:</p>
-                        <p style="font-weight:bold; margin-bottom:5px;">التاريخ: <?php echo date('Y-m-d'); ?></p>
-                        <p>الختم والتوقيع الرسمي: _______________________</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            <?php
-            exit;
-        }
-    }
-}
-
-// Global evaluations options setup
-$global_evals = get_option('eess_global_evaluations', array());
-if (!is_array($global_evals)) $global_evals = array();
-
-// Handle creating new evaluation records
-$success_msg = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eess_submit_evaluation'])) {
-    if (!isset($_POST['eess_eval_nonce']) || !wp_verify_nonce($_POST['eess_eval_nonce'], 'eess_submit_evaluation_action')) {
-        wp_die('عذراً، انتهت صلاحية الجلسة. يرجى المحاولة مجدداً.');
-    }
-
-    $target_emp_id  = intval($_POST['employee_id'] ?? 0);
-    $period         = sanitize_text_field($_POST['eval_period'] ?? '');
-    $template_key   = sanitize_text_field($_POST['eval_template'] ?? 'academic');
-    $comments       = sanitize_textarea_field($_POST['eval_comments'] ?? '');
-    $status_wf      = sanitize_text_field($_POST['workflow_status'] ?? 'approved');
-
-    // Retrieve dynamically submitted metrics scores
-    $scores = array();
-    $total_score = 0;
-
-    $selected_tmpl = $eval_templates[$template_key] ?? $eval_templates['academic'];
-    $i = 1;
-    foreach ($selected_tmpl['metrics'] as $m_key => $m_data) {
-        $sc = intval($_POST['m_score_' . $i] ?? 0);
-        if ($sc > $m_data['max']) $sc = $m_data['max'];
-        if ($sc < 0) $sc = 0;
-        $scores[] = $sc;
-        $total_score += $sc;
-        $i++;
-    }
-
-    // Determine Arabic Grade
-    if ($total_score >= 90) {
-        $grade = 'ممتاز';
-    } elseif ($total_score >= 80) {
-        $grade = 'جيد جداً';
-    } elseif ($total_score >= 70) {
-        $grade = 'جيد';
-    } elseif ($total_score >= 60) {
-        $grade = 'مقبول';
-    } else {
-        $grade = 'ضعيف / غير مرضٍ';
-    }
-
-    if ($target_emp_id > 0 && !empty($period)) {
-        $eval_id = uniqid();
-        $new_eval = array(
-            'id'           => $eval_id,
-            'employee_id'  => $target_emp_id,
-            'date'         => current_time('Y-m-d H:i:s'),
-            'period'       => $period,
-            'template'     => $template_key,
-            'scores'       => $scores,
-            'score'        => $total_score,
-            'grade'        => $grade,
-            'notes'        => $comments,
-            'status'       => $status_wf,
-            'evaluator'    => $current_user->display_name,
-            'evaluator_id' => $current_user->ID
-        );
-
-        // Append to employee's own Work Profile meta
-        $employee_evals = get_user_meta($target_emp_id, 'eess_hr_evaluations', true) ?: array();
-        if (!is_array($employee_evals)) $employee_evals = json_decode($employee_evals, true) ?: array();
-        array_unshift($employee_evals, $new_eval);
-        update_user_meta($target_emp_id, 'eess_hr_evaluations', $employee_evals);
-
-        // Append to global searchable evaluations table
-        array_unshift($global_evals, $new_eval);
-        update_option('eess_global_evaluations', $global_evals);
-
-        // Log into employee's activity timeline
-        $timeline = get_user_meta($target_emp_id, 'eess_hr_activity_timeline', true) ?: array();
-        if (!is_array($timeline)) $timeline = array();
-        array_unshift($timeline, array(
-            'date' => current_time('Y-m-d H:i:s'),
-            'action' => 'تقييم أداء جديد',
-            'actor' => $current_user->display_name,
-            'details' => "تم تسجيل تقييم أداء للفترة ($period) بالدرجة $total_score% بتقدير ($grade)، الحالة ($status_wf)."
-        ));
-        update_user_meta($target_emp_id, 'eess_hr_activity_timeline', $timeline);
-
-        clean_user_cache($target_emp_id);
-        wp_cache_flush();
-
-        $success_msg = '✅ تم تسجيل وحفظ تقييم الأداء بنجاح في السجل ومزامنته مع الملف الوظيفي للموظف فوراً.';
-        // Refresh local memory global evaluations reference
-        $global_evals = get_option('eess_global_evaluations', array());
-    }
-}
-
-// Fetch all staff users for selection (exclude student/parent)
-$staff_users = get_users(array(
-    'role__not_in' => array('sm_student', 'sm_parent'),
-    'orderby'      => 'display_name',
-    'order'        => 'ASC'
-));
+$acad_struct = SM_Settings::get_academic_structure();
+$active_academic_year = $acad_struct['academic_year'] ?? '2025/2026';
 ?>
 
-<div class="sm-container" style="padding: 10px 0; font-family: 'Cairo', sans-serif !important; direction: rtl;">
+<div class="sm-content-wrapper" dir="rtl" style="font-family: 'Cairo', sans-serif !important;">
 
-    <!-- Single Main Banner Header (Matching Teacher Term & Annual Plans) -->
-    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <!-- Top Banner Card -->
+    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div style="display: flex; align-items: center; gap: 14px;">
             <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
-                <span class="dashicons dashicons-awards" style="font-size: 24px; width: 24px; height: 24px;"></span>
+                <span class="dashicons dashicons-award" style="font-size: 24px; width: 24px; height: 24px;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">تقييم أداء الموظفين</h2>
-                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">المنظومة الاحترافية الشاملة لتقييم الأداء السنوي، الفصلي والدوري لمنتسبي الهيئة الأكاديمية والإدارية والقيادية</p>
+                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">منظومة تقييم أداء الموظفين والكادر التعليمي</h2>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">تقييم أداء الموظفين خطوة بخطوة، ربط المؤشرات الموضوعية، وإدارة أرشيف التقييمات السنوية</p>
             </div>
         </div>
 
-        <?php if ($can_evaluate): ?>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <button type="button" onclick="jQuery('#eess-new-eval-container').slideToggle();" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
-                <span>إجراء تقييم جديد</span>
-            </button>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span style="font-size: 12px; font-weight: 800; color: #881337; background: #fef2f2; border: 1px solid #fecdd3; padding: 6px 14px; border-radius: 9999px;">
+                العام الدراسي المعتمد: <?php echo esc_html($active_academic_year); ?>
+            </span>
         </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+        <button type="button" onclick="eessSwitchEvalTab('wizard')" id="eval_tab_btn_wizard" class="sm-btn" style="background: #0f172a; color: #ffffff !important; height: 38px; border-radius: 8px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; width: 16px; height: 16px;"></span>
+            <span>إجراء تقييم جديد (Workflow Wizard)</span>
+        </button>
+        <button type="button" onclick="eessSwitchEvalTab('archive')" id="eval_tab_btn_archive" class="sm-btn sm-btn-outline" style="height: 38px; border-radius: 8px; font-weight: 700; font-size: 12.5px; border: 1px solid #cbd5e1; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+            <span class="dashicons dashicons-archive" style="font-size: 16px; width: 16px; height: 16px;"></span>
+            <span>أرشيف التقييمات التاريخية</span>
+        </button>
+        <?php if ($is_admin || $is_sys_admin || $is_hr): ?>
+            <button type="button" onclick="eessSwitchEvalTab('templates')" id="eval_tab_btn_templates" class="sm-btn sm-btn-outline" style="height: 38px; border-radius: 8px; font-weight: 700; font-size: 12.5px; border: 1px solid #cbd5e1; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <span class="dashicons dashicons-admin-generic" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <span>إدارة نماذج وأسئلة التقييم</span>
+            </button>
         <?php endif; ?>
     </div>
 
-    <?php if (!empty($success_msg)): ?>
-        <div style="background: #dcfce7; color: #15803d; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; font-weight: 700; margin-bottom: 25px; font-size: 13px;">
-            <?php echo $success_msg; ?>
+    <!-- TAB 1: EVALUATION WORKFLOW WIZARD -->
+    <div id="eval_tab_wizard" style="display: block;">
+        <div style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+
+            <!-- Stepper Track -->
+            <div style="background: #f8fafc; padding: 14px 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div id="ew_node_1" style="font-weight: 800; font-size: 12px; color: #881337; display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #881337; color: white; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                    <span>البحث واختيار الموظف</span>
+                </div>
+                <div id="ew_node_2" style="font-weight: 700; font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #e2e8f0; color: #475569; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                    <span>المؤشرات الموضوعية وتحديد الفئة</span>
+                </div>
+                <div id="ew_node_3" style="font-weight: 700; font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #e2e8f0; color: #475569; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                    <span>الإجابة على أسئلة التقييم (0–10)</span>
+                </div>
+                <div id="ew_node_4" style="font-weight: 700; font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 6px;">
+                    <span style="background: #e2e8f0; color: #475569; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">4</span>
+                    <span>مراجعة النتيجة والحفظ للأرشيف</span>
+                </div>
+            </div>
+
+            <!-- STEP 1: EMPLOYEE SEARCH -->
+            <div id="ew_step_1" style="display: block;">
+                <h4 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 800; color: #0f172a;">الخطوة 1: البحث عن الموظف واختياره من سجلات النظام</h4>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: #64748b;">ادخل اسم الموظف أو الكود الوظيفي للاستدعاء المباشر من قاعدة المستخدمين المركزية:</p>
+
+                <div style="position: relative; width: 100%; max-width: 480px; margin-bottom: 20px;">
+                    <input type="text" id="ew_emp_search_input" onkeyup="eessSearchEmployeeForEval(this.value)" class="sm-input" placeholder="ابحث باسم الموظف أو الكود..." style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 36px 0 14px; font-size: 13px; width: 100%; box-sizing: border-box;">
+                    <span class="dashicons dashicons-search" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></span>
+                </div>
+
+                <div id="ew_emp_results_grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px;">
+                    <!-- Filled dynamically via JS -->
+                </div>
+
+                <!-- Selected Employee Profile Summary Card -->
+                <div id="ew_selected_emp_card" style="display: none; background: #f8fafc; border: 1.5px solid #881337; border-radius: 16px; padding: 18px; margin-top: 20px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <img id="ew_s_photo" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #881337;">
+                            <div>
+                                <h3 id="ew_s_name" style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">-</h3>
+                                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 11px;">
+                                    <span id="ew_s_emp_id" style="background: #f1f5f9; color: #334155; padding: 2px 8px; border-radius: 6px; font-family: monospace; font-weight: 800;">-</span>
+                                    <span id="ew_s_school" style="background: #f0fdf4; color: #166534; padding: 2px 8px; border-radius: 6px; font-weight: 800;">-</span>
+                                    <span id="ew_s_dept" style="background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 6px; font-weight: 800;">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" onclick="eessProceedToEvalStep2()" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 22px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer;">
+                            <span>متابعة لتحديد التقييم والمؤشرات ←</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: SYSTEM OBJECTIVE INDICATORS & CATEGORY SELECTION -->
+            <div id="ew_step_2" style="display: none;">
+                <h4 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 800; color: #0f172a;">الخطوة 2: مؤشرات الأداء الموضوعية وتحديد فئة التقييم</h4>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: #64748b;">المؤشرات التلقائية المستخرجة مباشرة من سجلات تحضير الدروس والخطط الفصلية والسنوية بالمنظومة:</p>
+
+                <!-- System Performance Indicators Card -->
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 14px; padding: 18px; margin-bottom: 20px;">
+                    <h5 style="margin: 0 0 12px 0; font-size: 13.5px; font-weight: 800; color: #0369a1; display: flex; align-items: center; gap: 6px;">
+                        <span class="dashicons dashicons-analytics"></span>
+                        <span>المؤشرات الأكاديمية الموضوعية (System Performance Indicators)</span>
+                    </h5>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: center;">
+                        <div style="background: #ffffff; padding: 12px; border-radius: 10px; border: 1px solid #bae6fd;">
+                            <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;">التزام تحضير الدروس الأسبوعية</div>
+                            <div id="ew_sys_prep_pct" style="font-size: 20px; font-weight: 900; color: #0284c7;">100%</div>
+                            <small id="ew_sys_prep_sub" style="font-size: 10px; color: #94a3b8;">---</small>
+                        </div>
+                        <div style="background: #ffffff; padding: 12px; border-radius: 10px; border: 1px solid #bae6fd;">
+                            <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;">التزام اعتماد الخطط الفصلية</div>
+                            <div id="ew_sys_plan_pct" style="font-size: 20px; font-weight: 900; color: #16a34a;">100%</div>
+                            <small id="ew_sys_plan_sub" style="font-size: 10px; color: #94a3b8;">---</small>
+                        </div>
+                        <div style="background: #ffffff; padding: 12px; border-radius: 10px; border: 1px solid #bae6fd;">
+                            <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;">معدل الامتثال العام بالنظام</div>
+                            <div id="ew_sys_overall_score" style="font-size: 20px; font-weight: 900; color: #881337;">100%</div>
+                            <small style="font-size: 10px; color: #94a3b8;">مستخرج تلقائياً</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Select Category -->
+                <h5 style="margin: 0 0 10px 0; font-size: 13.5px; font-weight: 800; color: #0f172a;">اختر فئة التقييم المطلوبة للبدء:</h5>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 24px;">
+                    <button type="button" onclick="eessSelectEvalCategory('تقييم الانضباط والسلوك')" class="sm-btn sm-btn-outline" style="height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px; text-align: center; border: 1.5px solid #cbd5e1;">📋 تقييم الانضباط والسلوك</button>
+                    <button type="button" onclick="eessSelectEvalCategory('التقييم التربوي والمهني')" class="sm-btn sm-btn-outline" style="height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px; text-align: center; border: 1.5px solid #cbd5e1;">🎓 التقييم التربوي والمهني</button>
+                    <button type="button" onclick="eessSelectEvalCategory('تقييم الأداء الوظيفي')" class="sm-btn sm-btn-outline" style="height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px; text-align: center; border: 1.5px solid #cbd5e1;">💼 تقييم الأداء الوظيفي</button>
+                    <button type="button" onclick="eessSelectEvalCategory('تقييم الالتزام والتواصل')" class="sm-btn sm-btn-outline" style="height: 48px; border-radius: 12px; font-weight: 800; font-size: 13px; text-align: center; border: 1.5px solid #cbd5e1;">🤝 تقييم التواصل والتفاعل</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" onclick="eessGoToEvalStep(1)" class="sm-btn sm-btn-outline" style="height: 38px; border-radius: 9999px !important; font-size: 12px; font-weight: 700;">← العودة للخطوة 1</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: ANSWER QUESTIONS (0-10 SCALE) -->
+            <div id="ew_step_3" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                    <div>
+                        <h4 id="ew_category_title_display" style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #0f172a;">الخطوة 3: التقييم التقديري (معايير 0–10)</h4>
+                        <p style="margin: 0; font-size: 12px; color: #64748b;">حدد درجة الموظف لكل معيار بضغطة زر واحدة (من 0 إلى 10):</p>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 800; color: #881337;">
+                        المجموع التقديري: <strong id="ew_live_score_sum" style="font-size: 14px;">0 / 100</strong>
+                    </div>
+                </div>
+
+                <div id="ew_questions_container" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+                    <!-- Filled dynamically via JS -->
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 12.5px; font-weight: 800; color: #334155; margin-bottom: 6px;">ملاحظات المقيم والتوصيات الرسمية (اختياري):</label>
+                    <textarea id="ew_comments_input" rows="3" class="sm-input" placeholder="اكتب أي ملاحظات إدارية، نقاط قوة، أو فرص تطوير للموظف..." style="width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 8px 12px; font-size: 12.5px; box-sizing: border-box;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" onclick="eessGoToEvalStep(2)" class="sm-btn sm-btn-outline" style="height: 38px; border-radius: 9999px !important; font-size: 12px; font-weight: 700;">← العودة للخطوة 2</button>
+                    <button type="button" onclick="eessProceedToEvalStep4()" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 24px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer;">مراجعة النتيجة الإجمالية ←</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: REVIEW & SUMMARY BEFORE SUBMISSION -->
+            <div id="ew_step_4" style="display: none;">
+                <h4 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 800; color: #0f172a;">الخطوة 4: مراجعة نتيجة التقييم واعتماد حفظ السجل</h4>
+                <p style="margin: 0 0 16px 0; font-size: 12.5px; color: #64748b;">راجع تفاصيل الدرجات والنتيجة النهائية قبل التثبيت النهائي في الأرشيف التاريخي:</p>
+
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; font-size: 13px; color: #334155; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+                        <div>الموظف التقييم: <strong id="ew_rev_emp_name" style="color: #0f172a;">-</strong></div>
+                        <div>فئة التقييم: <strong id="ew_rev_category" style="color: #881337;">-</strong></div>
+                        <div>العام الدراسي: <strong style="color: #0284c7;"><?php echo esc_html($active_academic_year); ?></strong></div>
+                        <div>المقيم المسجّل: <strong style="color: #0f172a;"><?php echo esc_html($current_user->display_name); ?></strong></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 14px; border-radius: 12px; border: 1px solid #cbd5e1; margin-bottom: 16px;">
+                        <div>
+                            <span style="font-size: 12px; color: #64748b; font-weight: 700; display: block;">النتيجة النهائية والنسبة المئوية:</span>
+                            <strong id="ew_rev_score_text" style="font-size: 22px; font-weight: 900; color: #16a34a;">0 / 100 (0%)</strong>
+                        </div>
+                        <span id="ew_rev_status_badge" style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; padding: 4px 14px; border-radius: 9999px; font-weight: 800; font-size: 12px;">ممتاز</span>
+                    </div>
+
+                    <div id="ew_rev_answers_summary" style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" onclick="eessGoToEvalStep(3)" class="sm-btn sm-btn-outline" style="height: 38px; border-radius: 9999px !important; font-size: 12px; font-weight: 700;">← العودة للتعديل</button>
+                    <button type="button" onclick="eessSubmitFinalEvaluation()" id="ew_final_submit_btn" class="sm-btn" style="background: #16a34a; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 28px; font-weight: 800; font-size: 13px; border: none; cursor: pointer;">
+                        <span>تأكيد واعتماد التقييم رسمياً ✓</span>
+                    </button>
+                </div>
+            </div>
+
         </div>
+    </div>
+
+    <!-- TAB 2: HISTORICAL EVALUATION ARCHIVE -->
+    <div id="eval_tab_archive" style="display: none;">
+        <div style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">سجل وأرشيف التقييمات التاريخية للموظفين</h3>
+
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="eval_archive_search" onkeyup="eessLoadEvaluationsArchive()" placeholder="بحث باسم الموظف أو المقيم..." class="sm-input" style="height: 36px; border-radius: 9999px !important; border: 1px solid #cbd5e1; font-size: 12px; padding: 0 14px; width: 220px;">
+                    <select id="eval_archive_year_filter" onchange="eessLoadEvaluationsArchive()" class="sm-select" style="height: 36px; border-radius: 9999px !important; border: 1px solid #cbd5e1; font-size: 12px; padding: 0 10px;">
+                        <option value="">كافة الأعوام الدراسية</option>
+                        <option value="2025/2026" selected>العام 2025/2026</option>
+                        <option value="2024/2025">العام 2024/2025</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; font-size: 12.5px;">
+                    <thead>
+                        <tr style="background: #0f172a; color: #ffffff;">
+                            <th style="padding: 10px 14px; font-weight: 800; border-radius: 0 8px 0 0;">الموظف والكود</th>
+                            <th style="padding: 10px 14px; font-weight: 800;">فئة التقييم والعام</th>
+                            <th style="padding: 10px 14px; font-weight: 800;">المقيم والمسجل</th>
+                            <th style="padding: 10px 14px; font-weight: 800; text-align: center;">النتيجة المئوية</th>
+                            <th style="padding: 10px 14px; font-weight: 800; text-align: center;">تاريخ التقييم</th>
+                            <th style="padding: 10px 14px; font-weight: 800; text-align: center; border-radius: 8px 0 0 0;">التقرير الرسمية</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eval_archive_tbody">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: TEMPLATE & QUESTION MANAGEMENT (Admin/HR Only) -->
+    <?php if ($is_admin || $is_sys_admin || $is_hr): ?>
+    <div id="eval_tab_templates" style="display: none;">
+        <div style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+            <h3 style="margin: 0 0 14px 0; font-size: 16px; font-weight: 800; color: #0f172a;">إنشاء وتخصيص نماذج وأسئلة التقييم (0–10)</h3>
+            <p style="margin: 0 0 20px 0; font-size: 12.5px; color: #64748b;">إضافة نموذج جديد وتحديد الأسئلة المخصصة لكل رتبة أو قسم بالفصل:</p>
+
+            <form id="eess_create_template_form" onsubmit="eessSaveEvalTemplateSubmit(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 4px;">عنوان النموذج التقييمي *</label>
+                        <input type="text" id="tmpl_title" required placeholder="مثال: نموذج تقييم معلمي التربية البدنية والصحية" class="sm-input" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 4px;">الرتبة المستهدفة بالتقييم *</label>
+                        <select id="tmpl_role_key" class="sm-select" style="width: 100%; height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px;">
+                            <option value="sm_teacher">معلم (sm_teacher)</option>
+                            <option value="sm_coordinator">منسق مادة (sm_coordinator)</option>
+                            <option value="sm_supervisor">مشرف تربوي (sm_supervisor)</option>
+                            <option value="sm_hod">رئيس قسم (sm_hod)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 12px; font-weight: 800; color: #334155; margin-bottom: 8px;">أسئلة ومعايير التقييم (مقياس 0 إلى 10 نقاط):</label>
+                    <div id="tmpl_questions_builder" style="display: flex; flex-direction: column; gap: 10px;">
+                        <input type="text" class="sm-input tmpl-q-input" placeholder="السؤال 1: الالتزام بالجدول الدراسي والمواعيد..." style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px;">
+                        <input type="text" class="sm-input tmpl-q-input" placeholder="السؤال 2: جودة التحضير والتخطيط الأكاديمي..." style="height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px;">
+                    </div>
+                    <button type="button" onclick="eessAddTemplateQuestionRow()" class="sm-btn sm-btn-outline" style="margin-top: 10px; height: 34px; font-size: 11.5px; border-radius: 8px; font-weight: 700;">+ إضافة سؤال جديد</button>
+                </div>
+
+                <button type="submit" id="tmpl_save_btn" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 40px; border-radius: 9999px !important; padding: 0 24px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer;">حفظ واعتماد النموذج الجديد</button>
+            </form>
+        </div>
+    </div>
     <?php endif; ?>
-
-    <!-- Interactive Section: New Evaluation Form -->
-    <div id="eess-new-eval-container" style="display: none; background: #fff; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px; box-shadow: var(--sm-shadow);">
-        <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; font-size: 14px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">📋 استمارة تقييم أداء جديدة</h3>
-
-        <form method="POST" action="" oninput="eessLiveCalculateScore()">
-            <?php wp_nonce_field('eess_submit_evaluation_action', 'eess_eval_nonce'); ?>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <!-- Employee Selector -->
-                <div>
-                    <select name="employee_id" required class="sm-select" style="width: 100%; height: 40px; font-size: 13px; font-family:'Cairo'; border-radius:8px;">
-                        <option value="">اختر الموظف المراد تقييمه *</option>
-                        <?php foreach ($staff_users as $staff):
-                            $staff_role = !empty($staff->roles) ? $staff->roles[0] : '';
-                            $role_lbl = $role_map[$staff_role] ?? $staff_role;
-                        ?>
-                            <option value="<?php echo $staff->ID; ?>">
-                                <?php echo esc_html($staff->display_name); ?> (<?php echo esc_html($role_lbl); ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Template Selector -->
-                <div>
-                    <select name="eval_template" id="eval_template_sel" required onchange="eessSwitchEvalTemplate(this.value)" class="sm-select" style="width: 100%; height: 40px; font-size: 13px; font-family:'Cairo'; border-radius:8px;">
-                        <option value="academic">نموذج تقييم الكادر التدريسي والأكاديمي</option>
-                        <option value="phys_health">نموذج تقييم التربية البدنية والصحية (Physical Education)</option>
-                        <option value="administrative">نموذج تقييم الكادر الإداري والوظائف المعاونة</option>
-                        <option value="leadership">نموذج تقييم الكادر القيادي والإشرافي</option>
-                    </select>
-                </div>
-
-                <!-- Evaluation Period -->
-                <div>
-                    <select name="eval_period" required class="sm-select" style="width: 100%; height: 40px; font-size: 13px; font-family:'Cairo'; border-radius:8px;">
-                        <option value="">اختر فترة التقييم المستهدفة *</option>
-                        <option value="التقييم السنوي للعام الدراسي 2024">التقييم السنوي للعام الدراسي 2024</option>
-                        <option value="التقييم الفصلي - الفصل الأول 2024-2025">التقييم الفصلي - الفصل الأول 2024-2025</option>
-                        <option value="التقييم الفصلي - الفصل الثاني 2024-2025">التقييم الفصلي - الفصل الثاني 2024-2025</option>
-                        <option value="التقييم الفصلي - الفصل الثالث 2024-2025">التقييم الفصلي - الفصل الثالث 2024-2025</option>
-                    </select>
-                </div>
-
-                <!-- Workflow Status -->
-                <div>
-                    <select name="workflow_status" class="sm-select" style="width: 100%; height: 40px; font-size: 13px; font-family:'Cairo'; border-radius:8px;">
-                        <option value="approved">معتمد رسمياً (Approved)</option>
-                        <option value="pending_approval">مسودة - قيد المراجعة والاعتماد</option>
-                        <option value="draft">تحت التحضير (Draft)</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Dynamic Metrics Forms Container -->
-            <div id="eess-metrics-wrapper" style="background:#f8fafc; padding:20px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:20px;">
-                <!-- Filled dynamically by JavaScript -->
-            </div>
-
-            <!-- Total Score live calculation -->
-            <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <strong style="font-size: 13px; color: #1e293b;">الدرجة الكلية والتقدير التلقائي:</strong>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <span id="eess-live-score" style="background:#334155; color:white; padding:4px 12px; border-radius:6px; font-weight:800; font-family:monospace;">0 %</span>
-                    <span id="eess-live-grade" style="background:#dc2626; color:white; padding:4px 12px; border-radius:6px; font-weight:800; font-size:12px;">ضعيف</span>
-                </div>
-            </div>
-
-            <!-- Evaluator Comments -->
-            <div style="margin-bottom: 20px;">
-                <textarea name="eval_comments" rows="3" required placeholder="توصيات وملاحظات المقيّم المباشر للتحسين..." style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: 'Cairo'; font-size: 13px; resize: vertical;"></textarea>
-            </div>
-
-            <div style="text-align: left;">
-                <button type="submit" name="eess_submit_evaluation" class="sm-btn" style="background:#000; border: 1px solid #000; color:#fff; border-radius:8px; font-weight:700; height:38px; cursor:pointer;">
-                    💾 اعتماد وإرسال نموذج التقييم فوراً
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Advanced Search and Filtering Engine for History -->
-    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
-        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 13px;">محرك البحث والتصفية المتقدم لتقارير التقييمات</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
-            <input type="text" id="filter-employee" onkeyup="eessFilterHistory()" placeholder="ابحث باسم الموظف المقيّم..." class="sm-input" style="height: 36px; font-size: 12px;">
-            <input type="text" id="filter-evaluator" onkeyup="eessFilterHistory()" placeholder="ابحث باسم المقيّم المعتمد..." class="sm-input" style="height: 36px; font-size: 12px;">
-            <input type="text" id="filter-dept" onkeyup="eessFilterHistory()" placeholder="تصفية حسب القسم..." class="sm-input" style="height: 36px; font-size: 12px;">
-            <select id="filter-template" onchange="eessFilterHistory()" class="sm-select" style="height: 36px; font-size: 12px; font-family:'Cairo';">
-                <option value="">الكل (النماذج)</option>
-                <option value="academic">الكادر التدريسي والأكاديمي</option>
-                <option value="administrative">الكادر الإداري</option>
-                <option value="leadership">الكادر القيادي</option>
-            </select>
-            <select id="filter-grade" onchange="eessFilterHistory()" class="sm-select" style="height: 36px; font-size: 12px; font-family:'Cairo';">
-                <option value="">الكل (التقدير)</option>
-                <option value="ممتاز">ممتاز</option>
-                <option value="جيد جداً">جيد جداً</option>
-                <option value="جيد">جيد</option>
-                <option value="مقبول">مقبول</option>
-                <option value="ضعيف">ضعيف / غير مرضٍ</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Complete Evaluation History Section (Direct Clean Table without outer container framing) -->
-    <div style="margin-bottom: 25px;">
-        <h3 style="margin: 0 0 15px 0; font-weight: 800; color: #1e293b; font-size: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">أرشيف وسجل التقييمات التاريخي للعام الدراسي</h3>
-
-        <div style="overflow-x: auto;">
-            <table class="sm-table" id="eess-eval-history-table" style="width:100%; border-collapse: separate; border-spacing: 0; border: none;">
-                <thead>
-                    <tr>
-                        <th style="text-align: right; padding-right: 20px;">تفاصيل الموظف والتقييم</th>
-                        <th>النتيجة الكلية والتقدير</th>
-                        <th>حالة الاعتماد</th>
-                        <th>إجراءات</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($global_evals)): ?>
-                        <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 30px;">لا يوجد أي سجلات تقييم أداء مدخلة في النظام حتى الآن.</td></tr>
-                    <?php else: ?>
-                        <?php foreach ($global_evals as $ev):
-                            $e_user = get_userdata($ev['employee_id']);
-                            if (!$e_user) continue;
-                            $e_dept = get_user_meta($e_user->ID, 'eess_department', true) ?: 'غير محدد';
-                        ?>
-                            <tr class="eess-eval-row"
-                                data-employee="<?php echo esc_attr(strtolower($e_user->display_name)); ?>"
-                                data-evaluator="<?php echo esc_attr(strtolower($ev['evaluator'])); ?>"
-                                data-dept="<?php echo esc_attr(strtolower($e_dept)); ?>"
-                                data-template="<?php echo esc_attr($ev['template']); ?>"
-                                data-grade="<?php echo esc_attr($ev['grade']); ?>"
-                            >
-                                <td style="text-align: right; padding: 12px 20px;">
-                                    <strong style="font-size: 14px; color: #1e293b; display: block;"><?php echo esc_html($e_user->display_name); ?></strong>
-                                    <div style="font-size: 11px; color: #64748b; margin-top: 5px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                                        <span><strong>القسم:</strong> <?php echo esc_html($e_dept); ?></span> |
-                                        <span><strong>النموذج:</strong> <?php echo esc_html($eval_templates[$ev['template']]['name'] ?? 'نموذج مخصص'); ?></span> |
-                                        <span><strong>الفترة:</strong> <?php echo esc_html($ev['period']); ?></span> |
-                                        <span><strong>التاريخ:</strong> <?php echo date_i18n('Y-m-d H:i', strtotime($ev['date'])); ?></span> |
-                                        <span><strong>بواسطة:</strong> <?php echo esc_html($ev['evaluator']); ?></span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span style="font-family: monospace; font-weight: bold; font-size:14px; color: var(--sm-primary-color);"><?php echo $ev['score']; ?>%</span>
-                                    <span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-right: 8px;">
-                                        <?php echo esc_html($ev['grade']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <?php if (($ev['status'] ?? 'approved') === 'approved'): ?>
-                                        <span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">معتمد رسمياً</span>
-                                    <?php else: ?>
-                                        <span style="background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 10px;">تحت المراجعة</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a href="<?php echo add_query_arg('eess_print_eval', $ev['id']); ?>" target="_blank" class="sm-btn" style="padding: 4px 10px; font-size: 11px; height: 26px; width: auto; background: #475569; text-decoration: none; color: white !important; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px;">
-                                        🖨️ طباعة PDF
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
 </div>
 
-<!-- Interactive Client-side Script for Templates & Scores Live Calculations -->
 <script>
-const eessTmpls = <?php echo json_encode($eval_templates); ?>;
+var eessActiveEvalStep = 1;
+var eessSelectedEmployee = null;
+var eessActiveTemplate = null;
+var eessEvalAnswers = {};
 
-function eessSwitchEvalTemplate(tmplKey) {
-    const tmpl = eessTmpls[tmplKey];
-    if (!tmpl) return;
-
-    let html = '<h4 style="margin: 0 0 15px 0; font-size: 13px; font-weight: bold; color: #334155; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px;">عناصر التقييم في النموذج المختار:</h4>';
-    let i = 1;
-    for (const key in tmpl.metrics) {
-        const m = tmpl.metrics[key];
-        html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; ${i > 1 ? 'border-top:1px solid #f1f5f9; padding-top:12px;' : ''}">
-                <div style="flex: 1; min-width: 250px;">
-                    <strong style="font-size: 13px; color: #1e293b; display: block;">${i}. ${m.label}</strong>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="number" name="m_score_${i}" id="m_score_${i}" min="0" max="${m.max}" required class="sm-input" style="width: 80px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-family: monospace;" value="${m.max}">
-                    <span style="font-size: 12px; color: #64748b; font-weight: bold;">/ ${m.max}</span>
-                </div>
-            </div>
-        `;
-        i++;
+function eessSwitchEvalTab(tabKey) {
+    document.getElementById('eval_tab_wizard').style.display = (tabKey === 'wizard') ? 'block' : 'none';
+    document.getElementById('eval_tab_archive').style.display = (tabKey === 'archive') ? 'block' : 'none';
+    if (document.getElementById('eval_tab_templates')) {
+        document.getElementById('eval_tab_templates').style.display = (tabKey === 'templates') ? 'block' : 'none';
     }
 
-    document.getElementById('eess-metrics-wrapper').innerHTML = html;
-    eessLiveCalculateScore();
+    document.getElementById('eval_tab_btn_wizard').className = (tabKey === 'wizard') ? 'sm-btn' : 'sm-btn sm-btn-outline';
+    document.getElementById('eval_tab_btn_wizard').style.background = (tabKey === 'wizard') ? '#0f172a' : '#ffffff';
+    document.getElementById('eval_tab_btn_wizard').style.color = (tabKey === 'wizard') ? '#ffffff' : '#475569';
+
+    document.getElementById('eval_tab_btn_archive').className = (tabKey === 'archive') ? 'sm-btn' : 'sm-btn sm-btn-outline';
+    document.getElementById('eval_tab_btn_archive').style.background = (tabKey === 'archive') ? '#0f172a' : '#ffffff';
+    document.getElementById('eval_tab_btn_archive').style.color = (tabKey === 'archive') ? '#ffffff' : '#475569';
+
+    if (tabKey === 'archive') {
+        eessLoadEvaluationsArchive();
+    }
 }
 
-function eessLiveCalculateScore() {
-    const tmplKey = document.getElementById('eval_template_sel').value;
-    const tmpl = eessTmpls[tmplKey];
-    if (!tmpl) return;
-
-    let total = 0;
-    let i = 1;
-    for (const key in tmpl.metrics) {
-        const inputEl = document.getElementById('m_score_' + i);
-        if (inputEl) {
-            total += parseInt(inputEl.value) || 0;
-        }
-        i++;
+function eessSearchEmployeeForEval(query) {
+    var grid = document.getElementById('ew_emp_results_grid');
+    if (!query || query.length < 1) {
+        grid.innerHTML = '<div style="color:#94a3b8; font-size:12px; grid-column: span 3;">ادخل حرفين على الأقل للبحث عن الموظف...</div>';
+        return;
     }
 
-    // Set Live Score Badge
-    const scoreBadge = document.getElementById('eess-live-score');
-    scoreBadge.innerText = total + " %";
+    var formData = new FormData();
+    formData.append('action', 'eess_search_employees_for_eval');
+    formData.append('query', query);
 
-    // Set Live Grade Badge
-    const gradeBadge = document.getElementById('eess-live-grade');
-    let gradeText = "";
-    let gradeColor = "";
-
-    if (total >= 90) {
-        gradeText = "ممتاز";
-        gradeColor = "#16a34a";
-    } else if (total >= 80) {
-        gradeText = "جيد جداً";
-        gradeColor = "#2563eb";
-    } else if (total >= 70) {
-        gradeText = "جيد";
-        gradeColor = "#ca8a04";
-    } else if (total >= 60) {
-        gradeText = "مقبول";
-        gradeColor = "#ea580c";
-    } else {
-        gradeText = "ضعيف";
-        gradeColor = "#dc2626";
-    }
-
-    gradeBadge.innerText = gradeText;
-    gradeBadge.style.backgroundColor = gradeColor;
-}
-
-// History table filter function
-function eessFilterHistory() {
-    const emp = document.getElementById('filter-employee').value.toLowerCase().trim();
-    const evaluator = document.getElementById('filter-evaluator').value.toLowerCase().trim();
-    const dept = document.getElementById('filter-dept').value.toLowerCase().trim();
-    const tmpl = document.getElementById('filter-template').value;
-    const grade = document.getElementById('filter-grade').value;
-
-    const rows = document.querySelectorAll('.eess-eval-row');
-    rows.forEach(row => {
-        const rEmp = row.getAttribute('data-employee') || '';
-        const rEval = row.getAttribute('data-evaluator') || '';
-        const rDept = row.getAttribute('data-dept') || '';
-        const rTmpl = row.getAttribute('data-template') || '';
-        const rGrade = row.getAttribute('data-grade') || '';
-
-        const mEmp = !emp || rEmp.includes(emp);
-        const mEval = !evaluator || rEval.includes(evaluator);
-        const mDept = !dept || rDept.includes(dept);
-        const mTmpl = !tmpl || rTmpl === tmpl;
-        const mGrade = !grade || rGrade === grade;
-
-        if (mEmp && mEval && mDept && mTmpl && mGrade) {
-            row.style.display = '';
+    fetch((typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php'), { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success && res.data && res.data.length > 0) {
+            var html = '';
+            res.data.forEach(function(emp) {
+                html += `
+                    <div onclick='eessSelectEmployeeForEval(${JSON.stringify(emp)})' style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:border-color 0.2s;" onmouseover="this.style.borderColor='#881337'" onmouseout="this.style.borderColor='#cbd5e1'">
+                        <img src="${emp.photo_url}" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:1px solid #881337;">
+                        <div>
+                            <strong style="color:#0f172a; font-size:13px; display:block;">${emp.name}</strong>
+                            <small style="color:#64748b; font-size:11px;">كود: ${emp.employee_number} | ${emp.department}</small>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
         } else {
-            row.style.display = 'none';
+            grid.innerHTML = '<div style="color:#94a3b8; font-size:12px; grid-column: span 3;">لم يتم العثور على موظفين مطابقتين.</div>';
         }
     });
 }
 
-// Initialize on page load
-eessSwitchEvalTemplate('academic');
+function eessSelectEmployeeForEval(emp) {
+    eessSelectedEmployee = emp;
+    document.getElementById('ew_s_photo').src = emp.photo_url || '';
+    document.getElementById('ew_s_name').innerText = emp.name;
+    document.getElementById('ew_s_emp_id').innerText = 'كود: ' + emp.employee_number;
+    document.getElementById('ew_s_school').innerText = emp.school_name;
+    document.getElementById('ew_s_dept').innerText = emp.department + ' / ' + emp.subject;
+    document.getElementById('ew_selected_emp_card').style.display = 'block';
+}
+
+function eessProceedToEvalStep2() {
+    if (!eessSelectedEmployee) return;
+
+    // Load Objective Performance Indicators
+    var formData = new FormData();
+    formData.append('action', 'eess_get_employee_system_performance_indicators');
+    formData.append('user_id', eessSelectedEmployee.id);
+
+    fetch((typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php'), { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success && res.data) {
+            var d = res.data;
+            document.getElementById('ew_sys_prep_pct').innerText = d.prep_compliance_pct + '%';
+            document.getElementById('ew_sys_prep_sub').innerText = d.prep_ontime + ' في الموعد من أصل ' + d.prep_total;
+            document.getElementById('ew_sys_plan_pct').innerText = d.plan_compliance_pct + '%';
+            document.getElementById('ew_sys_plan_sub').innerText = d.plan_approved + ' خطط معتمدة من أصل ' + d.plan_total;
+            document.getElementById('ew_sys_overall_score').innerText = d.overall_system_score + '%';
+        }
+    });
+
+    eessGoToEvalStep(2);
+}
+
+function eessSelectEvalCategory(categoryName) {
+    if (!eessSelectedEmployee) return;
+
+    var formData = new FormData();
+    formData.append('action', 'eess_get_eval_template_for_role');
+    formData.append('role_key', eessSelectedEmployee.role_key || 'sm_teacher');
+
+    fetch((typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php'), { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success && res.data) {
+            eessActiveTemplate = res.data;
+            eessActiveTemplate.category_name = categoryName;
+            document.getElementById('ew_category_title_display').innerText = categoryName + ' — الموظف: ' + eessSelectedEmployee.name;
+            eessRenderQuestionsContainer(eessActiveTemplate.questions);
+            eessGoToEvalStep(3);
+        }
+    });
+}
+
+function eessRenderQuestionsContainer(questions) {
+    var container = document.getElementById('ew_questions_container');
+    container.innerHTML = '';
+    eessEvalAnswers = {};
+
+    questions.forEach(function(q, idx) {
+        eessEvalAnswers[q.id] = { score: 10, question_text: q.text };
+
+        var qCard = document.createElement('div');
+        qCard.style.cssText = 'background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px;';
+
+        var buttonsHtml = '';
+        for (var i = 0; i <= 10; i++) {
+            var activeStyle = (i === 10) ? 'background:#881337; color:#ffffff; border-color:#881337;' : 'background:#ffffff; color:#334155; border-color:#cbd5e1;';
+            buttonsHtml += `<button type="button" onclick="eessSetQuestionScore(${q.id}, ${i}, this)" class="q-score-btn-${q.id}" style="width:32px; height:32px; border-radius:6px; border:1px solid #cbd5e1; font-weight:800; font-size:12px; cursor:pointer; transition:all 0.15s; ${activeStyle}">${i}</button>`;
+        }
+
+        qCard.innerHTML = `
+            <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">
+                ${idx + 1}. ${q.text}
+            </div>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                ${buttonsHtml}
+            </div>
+        `;
+        container.appendChild(qCard);
+    });
+
+    eessUpdateLiveScoreSum();
+}
+
+function eessSetQuestionScore(qId, score, btn) {
+    eessEvalAnswers[qId].score = score;
+    document.querySelectorAll('.q-score-btn-' + qId).forEach(b => {
+        b.style.background = '#ffffff';
+        b.style.color = '#334155';
+        b.style.borderColor = '#cbd5e1';
+    });
+    btn.style.background = '#881337';
+    btn.style.color = '#ffffff';
+    btn.style.borderColor = '#881337';
+
+    eessUpdateLiveScoreSum();
+}
+
+function eessUpdateLiveScoreSum() {
+    var total = 0, count = 0;
+    Object.keys(eessEvalAnswers).forEach(k => {
+        total += eessEvalAnswers[k].score;
+        count++;
+    });
+    var max = count * 10;
+    document.getElementById('ew_live_score_sum').innerText = total + ' / ' + max + ' (' + (max > 0 ? Math.round((total / max) * 100) : 0) + '%)';
+}
+
+function eessProceedToEvalStep4() {
+    var total = 0, count = 0;
+    var answersSummaryHtml = '';
+
+    Object.keys(eessEvalAnswers).forEach(k => {
+        var item = eessEvalAnswers[k];
+        total += item.score;
+        count++;
+        answersSummaryHtml += `
+            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:4px;">
+                <span>${item.question_text}</span>
+                <strong style="color:#881337;">${item.score} / 10</strong>
+            </div>
+        `;
+    });
+
+    var max = count * 10;
+    var pct = max > 0 ? Math.round((total / max) * 100) : 0;
+
+    document.getElementById('ew_rev_emp_name').innerText = eessSelectedEmployee.name;
+    document.getElementById('ew_rev_category').innerText = eessActiveTemplate.category_name;
+    document.getElementById('ew_rev_score_text').innerText = total + ' / ' + max + ' (' + pct + '%)';
+    document.getElementById('ew_rev_answers_summary').innerHTML = answersSummaryHtml;
+
+    eessGoToEvalStep(4);
+}
+
+function eessSubmitFinalEvaluation() {
+    var btn = document.getElementById('ew_final_submit_btn');
+    btn.disabled = true;
+    btn.innerText = 'جاري الاعتماد والحفظ...';
+
+    var formData = new FormData();
+    formData.append('action', 'eess_save_evaluation_submission');
+    formData.append('employee_id', eessSelectedEmployee.id);
+    formData.append('template_id', eessActiveTemplate.template_id || 0);
+    formData.append('category_name', eessActiveTemplate.category_name);
+    formData.append('comments', document.getElementById('ew_comments_input').value);
+
+    Object.keys(eessEvalAnswers).forEach(qId => {
+        formData.append(`answers[${qId}][score]`, eessEvalAnswers[qId].score);
+        formData.append(`answers[${qId}][question_text]`, eessEvalAnswers[qId].question_text);
+    });
+
+    fetch((typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php'), { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'تأكيد واعتماد التقييم رسمياً ✓';
+        if (res.success) {
+            if (typeof smShowNotification === 'function') smShowNotification('تم حفظ وتثبيت التقييم بالأرشيف بنجاح');
+            eessSwitchEvalTab('archive');
+        } else {
+            alert('خطأ: ' + (res.data || 'تعذر حفظ التقييم.'));
+        }
+    });
+}
+
+function eessGoToEvalStep(stepNum) {
+    eessActiveEvalStep = stepNum;
+    for (var i = 1; i <= 4; i++) {
+        document.getElementById('ew_step_' + i).style.display = (i === stepNum) ? 'block' : 'none';
+        var node = document.getElementById('ew_node_' + i);
+        if (node) {
+            var badge = node.querySelector('span');
+            if (i <= stepNum) {
+                node.style.color = '#881337';
+                node.style.fontWeight = '800';
+                badge.style.background = '#881337';
+                badge.style.color = '#ffffff';
+            } else {
+                node.style.color = '#94a3b8';
+                node.style.fontWeight = '700';
+                badge.style.background = '#e2e8f0';
+                badge.style.color = '#475569';
+            }
+        }
+    }
+}
+
+function eessLoadEvaluationsArchive() {
+    var tbody = document.getElementById('eval_archive_tbody');
+    var year = document.getElementById('eval_archive_year_filter').value;
+    var query = document.getElementById('eval_archive_search').value;
+
+    var formData = new FormData();
+    formData.append('action', 'eess_get_evaluations_archive');
+    formData.append('academic_year', year);
+    formData.append('query', query);
+
+    fetch((typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php'), { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success && res.data && res.data.length > 0) {
+            var html = '';
+            res.data.forEach(function(row) {
+                html += `
+                    <tr style="border-bottom:1px solid #f1f5f9;">
+                        <td style="padding:10px 14px;"><strong>${row.employee_name}</strong> <small style="color:#64748b;">(كود: ${row.employee_number})</small></td>
+                        <td style="padding:10px 14px;"><span style="color:#881337; font-weight:700;">${row.category_name}</span> (${row.academic_year})</td>
+                        <td style="padding:10px 14px;">${row.evaluator_name}</td>
+                        <td style="padding:10px 14px; text-align:center;"><strong style="color:#16a34a; font-size:14px;">${row.average_pct}%</strong> (${row.total_score} درجة)</td>
+                        <td style="padding:10px 14px; text-align:center; font-family:monospace; color:#64748b;">${row.date}</td>
+                        <td style="padding:10px 14px; text-align:center;">
+                            <button type="button" onclick="window.open('<?php echo admin_url('admin-ajax.php?action=sm_print&print_type=eval_report&eval_id='); ?>' + ${row.id}, '_blank')" class="sm-btn" style="background:#0f172a; color:#fff !important; height:30px; font-size:11px; padding:0 12px; border-radius:9999px;">🖨️ طباعة A4</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding:30px; text-align:center; color:#94a3b8;">لا توجد تقييمات محفوظة بالأرشيف حالياً.</td></tr>';
+        }
+    });
+}
+
+function eessAddTemplateQuestionRow() {
+    var builder = document.getElementById('tmpl_questions_builder');
+    var count = builder.querySelectorAll('input').length + 1;
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'sm-input tmpl-q-input';
+    input.placeholder = 'السؤال ' + count + ': ...';
+    input.style.cssText = 'height: 38px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 12px;';
+    builder.appendChild(input);
+}
+
+function eessSaveEvalTemplateSubmit(e) {
+    e.preventDefault();
+    var btn = document.getElementById('tmpl_save_btn');
+    btn.disabled = true;
+    btn.innerText = 'جاري الحفظ...';
+
+    var formData = new FormData();
+    formData.append('action', 'eess_save_eval_template');
+    formData.append('title', document.getElementById('tmpl_title').value);
+    formData.append('role_key', document.getElementById('tmpl_role_key').value);
+
+    document.querySelectorAll('.tmpl-q-input').forEach(function(inp) {
+        if (inp.value.trim()) {
+            formData.append('questions[]', inp.value.trim());
+        }
+    });
+
+    fetch((typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php'), { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        btn.disabled = false;
+        btn.innerText = 'حفظ واعتماد النموذج الجديد';
+        if (res.success) {
+            alert('تم حفظ نموذج التقييم الجديد بنجاح');
+            document.getElementById('eess_create_template_form').reset();
+        } else {
+            alert('خطأ: ' + (res.data || 'تعذر حفظ النموذج.'));
+        }
+    });
+}
 </script>

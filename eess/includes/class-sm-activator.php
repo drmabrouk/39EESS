@@ -584,11 +584,67 @@ class SM_Activator {
             KEY status (status)
         ) $charset_collate;";
 
+        // Evaluation Engine Tables
+        $sql_eval_templates = "CREATE TABLE {$wpdb->prefix}sm_eval_templates (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            title varchar(255) NOT NULL,
+            role_key varchar(50) NOT NULL,
+            department_id bigint(20) DEFAULT 0,
+            subject varchar(100) DEFAULT '',
+            total_questions int(11) DEFAULT 10,
+            category_name varchar(100) DEFAULT 'تقييم الأداء العام',
+            passing_threshold int(11) DEFAULT 60,
+            is_active tinyint(1) DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY role_key (role_key)
+        ) $charset_collate;";
+
+        $sql_eval_questions = "CREATE TABLE {$wpdb->prefix}sm_eval_questions (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            template_id bigint(20) NOT NULL,
+            question_text text NOT NULL,
+            category_name varchar(100) DEFAULT 'الانضباط والالتزام',
+            display_order int(11) DEFAULT 1,
+            max_score int(11) DEFAULT 10,
+            weight float DEFAULT 1.0,
+            is_required tinyint(1) DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY template_id (template_id)
+        ) $charset_collate;";
+
+        $sql_evaluations = "CREATE TABLE {$wpdb->prefix}sm_evaluations (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            employee_id bigint(20) NOT NULL,
+            evaluator_id bigint(20) NOT NULL,
+            template_id bigint(20) DEFAULT 0,
+            academic_year varchar(20) DEFAULT '2025/2026',
+            category_name varchar(100) DEFAULT 'تقييم شامل',
+            answers_json longtext DEFAULT NULL,
+            subjective_score float DEFAULT 0,
+            system_score float DEFAULT 0,
+            total_score float DEFAULT 0,
+            average_pct float DEFAULT 0,
+            comments text DEFAULT NULL,
+            status varchar(20) DEFAULT 'submitted',
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY  (id),
+            KEY employee_id (employee_id),
+            KEY evaluator_id (evaluator_id),
+            KEY academic_year (academic_year)
+        ) $charset_collate;";
+
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
         dbDelta($sql_announcements);
         dbDelta($sql_user_announcements);
         dbDelta($sql_support_requests);
+        dbDelta($sql_eval_templates);
+        dbDelta($sql_eval_questions);
+        dbDelta($sql_evaluations);
 
         self::add_custom_roles();
         self::seed_demo_data();

@@ -8292,6 +8292,125 @@ class SM_Public {
             </html>
             <?php
             exit;
+        } elseif ($print_type === 'eval_report') {
+            $eval_id = intval($_GET['eval_id'] ?? 0);
+            global $wpdb;
+
+            $eval = $wpdb->get_row($wpdb->prepare("
+                SELECT e.*, u_emp.display_name as emp_name, u_eval.display_name as evaluator_name
+                FROM {$wpdb->prefix}sm_evaluations e
+                JOIN {$wpdb->prefix}users u_emp ON e.employee_id = u_emp.ID
+                JOIN {$wpdb->prefix}users u_eval ON e.evaluator_id = u_eval.ID
+                WHERE e.id = %d
+            ", $eval_id));
+
+            if (!$eval) wp_die('وثيقة التقييم غير موجودة بالنظام.');
+
+            $emp_num = get_user_meta($eval->employee_id, 'eess_employee_number', true) ?: $eval->employee_id;
+            $school_name = get_user_meta($eval->employee_id, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+            $department = get_user_meta($eval->employee_id, 'eess_department', true) ?: (get_user_meta($eval->employee_id, 'department', true) ?: 'قسم التربية البدنية والصحية');
+            $subject = get_user_meta($eval->employee_id, 'sm_specialization', true) ?: 'عام';
+            $photo_url = get_avatar_url($eval->employee_id, array('size' => 100));
+
+            $school_info = SM_Settings::get_school_info();
+            $school_logo = !empty($school_info['logo_url']) ? $school_info['logo_url'] : '';
+
+            $answers = json_decode($eval->answers_json ?? '[]', true);
+
+            header('Content-Type: text/html; charset=utf-8');
+            ?>
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>تقرير تقييم الأداء الوظيفي — <?php echo esc_html($eval->emp_name); ?></title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+                <style>
+                    @page { size: A4 portrait; margin: 12mm 15mm; }
+                    body { font-family: 'Cairo', sans-serif; background: #fff; color: #0f172a; margin: 0; padding: 15px; direction: rtl; font-size: 11px; }
+                    .report-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 15px; }
+                    .brand-box { display: flex; align-items: center; gap: 12px; }
+                    .brand-logo { width: 52px; height: 52px; object-fit: contain; }
+                    .report-title { font-size: 15px; font-weight: 900; color: #881337; margin: 0 0 3px 0; }
+                    .card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px 15px; margin-bottom: 14px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
+                    th { background: #0f172a; color: #fff; padding: 6px 10px; font-weight: 800; text-align: right; border: 1px solid #0f172a; }
+                    td { padding: 6px 10px; border: 1px solid #cbd5e1; text-align: right; vertical-align: middle; }
+                    @media print { body { padding: 0; } .no-print { display: none; } }
+                </style>
+            </head>
+            <body>
+                <div class="no-print" style="margin-bottom: 15px; text-align: left;">
+                    <button onclick="window.print()" style="background: #0284c7; color: #fff; border: none; padding: 8px 20px; font-family: 'Cairo'; font-weight: 800; border-radius: 9999px; cursor: pointer; font-size: 12px;">🖨️ طباعة التقرير PDF</button>
+                </div>
+
+                <div class="report-header">
+                    <div class="brand-box">
+                        <?php if ($school_logo): ?>
+                            <img src="<?php echo esc_url($school_logo); ?>" class="brand-logo" alt="Logo">
+                        <?php endif; ?>
+                        <div>
+                            <div style="font-size: 14px; font-weight: 900; color: #0f172a;">مؤسسة الشعلة للتعليم والتطوير</div>
+                            <div style="font-size: 11.5px; color: #0284c7; font-weight: 800;"><?php echo esc_html($school_name); ?></div>
+                        </div>
+                    </div>
+                    <div style="text-align: left;">
+                        <h1 class="report-title">تقرير تقييم الأداء السنوي المعتمد</h1>
+                        <p style="margin:0; font-size:11px; color:#64748b;">العام الدراسي: <?php echo esc_html($eval->academic_year); ?></p>
+                    </div>
+                </div>
+
+                <div class="card" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <img src="<?php echo esc_url($photo_url); ?>" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid #881337;">
+                        <div>
+                            <h2 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 900; color: #0f172a;"><?php echo esc_html($eval->emp_name); ?></h2>
+                            <div style="font-size: 11px; color: #475569;">الكود الوظيفي: <strong><?php echo esc_html($emp_num); ?></strong> | القسم: <strong><?php echo esc_html($department); ?></strong></div>
+                        </div>
+                    </div>
+                    <div style="text-align: center; background: #ffffff; padding: 10px 18px; border-radius: 10px; border: 1px solid #cbd5e1;">
+                        <div style="font-size: 10px; color: #64748b; font-weight: bold;">النتيجة النهائية</div>
+                        <div style="font-size: 20px; font-weight: 900; color: #16a34a;"><?php echo intval($eval->average_pct); ?>%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 style="margin:0 0 8px 0; font-size: 12.5px; font-weight: 800; color: #881337; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">تفاصيل تقييم المعايير المعتمدة (0–10)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 30px; text-align:center;">#</th>
+                                <th>المعيار / سؤال التقييم</th>
+                                <th style="width: 100px; text-align:center;">الدرجة الممنوحة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($answers)): foreach ($answers as $i => $ans): ?>
+                                <tr>
+                                    <td style="text-align:center; font-weight:bold;"><?php echo ($i + 1); ?></td>
+                                    <td><?php echo esc_html($ans['question_text'] ?? '-'); ?></td>
+                                    <td style="text-align:center; font-weight:bold; color:#881337;"><?php echo floatval($ans['score'] ?? 0); ?> / 10</td>
+                                </tr>
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <?php if (!empty($eval->comments)): ?>
+                <div class="card">
+                    <h4 style="margin:0 0 6px 0; font-size: 12px; font-weight: 800; color: #0f172a;">ملاحظات وتوصيات المقيم:</h4>
+                    <p style="margin:0; font-size: 11.5px; color: #334155; white-space: pre-line;"><?php echo esc_html($eval->comments); ?></p>
+                </div>
+                <?php endif; ?>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 30px; padding-top: 15px; border-top: 1px solid #cbd5e1; font-size: 11px;">
+                    <div>المقيم المسجّل: <strong><?php echo esc_html($eval->evaluator_name); ?></strong></div>
+                    <div>تاريخ الاعتماد: <strong><?php echo date_i18n('Y-m-d H:i', strtotime($eval->created_at)); ?></strong></div>
+                </div>
+            </body>
+            </html>
+            <?php
+            exit;
         } elseif ($print_type === 'parent_summons') {
             $summons_id = intval($_GET['summons_id'] ?? 0);
             global $wpdb;
@@ -8593,6 +8712,320 @@ class SM_Public {
         }
 
         wp_send_json_success(array('exists' => false));
+    }
+
+    public function ajax_search_employees_for_eval() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        $query = sanitize_text_field($_POST['query'] ?? '');
+        $all_users = get_users(array(
+            'number' => 100,
+            'orderby' => 'display_name',
+            'order' => 'ASC'
+        ));
+
+        $results = array();
+        $q_lower = mb_strtolower($query);
+
+        foreach ($all_users as $u) {
+            $roles = (array) $u->roles;
+            if (in_array('sm_student', $roles) || in_array('sm_parent', $roles)) continue;
+
+            $emp_num = get_user_meta($u->ID, 'eess_employee_number', true) ?: (get_user_meta($u->ID, 'sm_employee_id', true) ?: $u->user_login);
+            $name = $u->display_name;
+
+            if ($query && mb_strpos(mb_strtolower($name), $q_lower) === false && mb_strpos(mb_strtolower($emp_num), $q_lower) === false) {
+                continue;
+            }
+
+            $role_primary = reset($roles) ?: 'sm_teacher';
+            $school_name = get_user_meta($u->ID, 'eess_school_name', true) ?: 'المدرسة الرئيسية';
+            $department = get_user_meta($u->ID, 'eess_department', true) ?: (get_user_meta($u->ID, 'department', true) ?: 'قسم التربية البدنية والصحية');
+            $subject = get_user_meta($u->ID, 'sm_specialization', true) ?: (get_user_meta($u->ID, 'specialization', true) ?: 'عام');
+
+            $assigned_grades_raw = get_user_meta($u->ID, 'sm_assigned_grades', true) ?: (get_user_meta($u->ID, 'eess_assigned_grades', true) ?: 'الصف العاشر');
+            if (is_array($assigned_grades_raw)) $assigned_grades_raw = implode(', ', $assigned_grades_raw);
+            $assigned_grades_clean = str_replace(array('[', ']', '"', "'", '\\'), '', (string)$assigned_grades_raw);
+
+            $results[] = array(
+                'id' => $u->ID,
+                'name' => $name,
+                'employee_number' => $emp_num,
+                'role_key' => $role_primary,
+                'school_name' => $school_name,
+                'department' => $department,
+                'subject' => $subject,
+                'assigned_grades' => $assigned_grades_clean,
+                'photo_url' => get_avatar_url($u->ID, array('size' => 80))
+            );
+        }
+
+        wp_send_json_success($results);
+    }
+
+    public function ajax_get_employee_system_performance_indicators() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        $user_id = intval($_POST['user_id'] ?? 0);
+        if ($user_id <= 0) wp_send_json_error('Invalid ID');
+
+        global $wpdb;
+
+        // Lesson Prep Stats
+        $prep_stats = $wpdb->get_row($wpdb->prepare("
+            SELECT
+                COUNT(*) as total_preps,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_preps,
+                SUM(CASE WHEN delay_seconds > 0 THEN 1 ELSE 0 END) as late_preps
+            FROM {$wpdb->prefix}sm_lesson_preps
+            WHERE teacher_id = %d
+        ", $user_id));
+
+        $total_preps = intval($prep_stats->total_preps ?? 0);
+        $late_preps = intval($prep_stats->late_preps ?? 0);
+        $ontime_preps = max(0, $total_preps - $late_preps);
+        $prep_compliance = $total_preps > 0 ? round(($ontime_preps / $total_preps) * 100) : 100;
+
+        // Term Plans Stats
+        $plan_stats = $wpdb->get_row($wpdb->prepare("
+            SELECT
+                COUNT(*) as total_plans,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved_plans
+            FROM {$wpdb->prefix}sm_term_plans
+            WHERE teacher_id = %d
+        ", $user_id));
+
+        $total_plans = intval($plan_stats->total_plans ?? 0);
+        $approved_plans = intval($plan_stats->approved_plans ?? 0);
+        $plan_compliance = $total_plans > 0 ? round(($approved_plans / $total_plans) * 100) : 100;
+
+        $overall_system_score = round(($prep_compliance + $plan_compliance) / 2, 1);
+
+        wp_send_json_success(array(
+            'prep_total' => $total_preps,
+            'prep_ontime' => $ontime_preps,
+            'prep_late' => $late_preps,
+            'prep_compliance_pct' => $prep_compliance,
+            'plan_total' => $total_plans,
+            'plan_approved' => $approved_plans,
+            'plan_compliance_pct' => $plan_compliance,
+            'overall_system_score' => $overall_system_score
+        ));
+    }
+
+    public function ajax_get_eval_template_for_role() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        $role_key = sanitize_text_field($_POST['role_key'] ?? 'sm_teacher');
+        global $wpdb;
+
+        // Fetch custom template from DB if exists
+        $tmpl = $wpdb->get_row($wpdb->prepare("
+            SELECT * FROM {$wpdb->prefix}sm_eval_templates WHERE role_key = %s AND is_active = 1 ORDER BY id DESC LIMIT 1
+        ", $role_key));
+
+        if ($tmpl) {
+            $questions = $wpdb->get_results($wpdb->prepare("
+                SELECT * FROM {$wpdb->prefix}sm_eval_questions WHERE template_id = %d ORDER BY display_order ASC
+            ", $tmpl->id));
+
+            if (!empty($questions)) {
+                $q_list = array();
+                foreach ($questions as $q) {
+                    $q_list[] = array(
+                        'id' => $q->id,
+                        'text' => $q->question_text,
+                        'category' => $q->category_name ?: 'تقييم كفاءة العمل',
+                        'max_score' => intval($q->max_score ?: 10)
+                    );
+                }
+
+                wp_send_json_success(array(
+                    'template_id' => $tmpl->id,
+                    'title' => $tmpl->title,
+                    'questions' => $q_list
+                ));
+                return;
+            }
+        }
+
+        // Default 10 Standard 0-10 Evaluation Questions
+        $default_questions = array(
+            array('id' => 1, 'text' => 'الالتزام بالحضور والانضباط بالمواعيد والجدول المدرسي الرسمي', 'category' => 'تقييم الانضباط والسلوك', 'max_score' => 10),
+            array('id' => 2, 'text' => 'الالتزام المناوب والإشراف اليومي في المواعيد والأماكن المحددة', 'category' => 'تقييم الانضباط والسلوك', 'max_score' => 10),
+            array('id' => 3, 'text' => 'الالتزام بتحضير الدروس وتطبيق استراتيجيات التدريس الحديثة والابتكار', 'category' => 'التقييم التربوي والمهني', 'max_score' => 10),
+            array('id' => 4, 'text' => 'الالتزام برصد النتائج والتقييم المستمر للطلاب بدقة وموضوعية', 'category' => 'التقييم التربوي والمهني', 'max_score' => 10),
+            array('id' => 5, 'text' => 'إدارة البيئة الصفية والمحافظة على الانضباط والسلوك الإيجابي', 'category' => 'التقييم التربوي والمهني', 'max_score' => 10),
+            array('id' => 6, 'text' => 'التواصل الفعال والمثمر مع أولياء الأمور وإدارة المدرسة والحافظ على بيئة العمل', 'category' => 'التواصل والتفاعل المؤسسي', 'max_score' => 10),
+            array('id' => 7, 'text' => 'المشاركة والمبادرة في الأنشطة المدرسية والفعاليات والبرامج اللانهائية', 'category' => 'التواصل والتفاعل المؤسسي', 'max_score' => 10),
+            array('id' => 8, 'text' => 'الالتزام باللوائح والتعاميم السياسية الصادرة من وزارة التربية والتعليم', 'category' => 'الالتزام والتنفيذ', 'max_score' => 10),
+            array('id' => 9, 'text' => 'إنجاز التكاليف والمهام الموكلة وإعداد التقرير المدرسية بدقة', 'category' => 'الالتزام والتنفيذ', 'max_score' => 10),
+            array('id' => 10, 'text' => 'التطوير المهني الذاتي والمساهمة في تبادل الخبرات الأكاديمية مع الزملاء', 'category' => 'الالتزام والتنفيذ', 'max_score' => 10)
+        );
+
+        wp_send_json_success(array(
+            'template_id' => 0,
+            'title' => 'النموذج القياسي المعتمد لتقييم الأداء الوظيفي',
+            'questions' => $default_questions
+        ));
+    }
+
+    public function ajax_save_evaluation_submission() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        $evaluator_id = get_current_user_id();
+        $employee_id = intval($_POST['employee_id'] ?? 0);
+        $template_id = intval($_POST['template_id'] ?? 0);
+        $academic_year = sanitize_text_field($_POST['academic_year'] ?? '2025/2026');
+        $category_name = sanitize_text_field($_POST['category_name'] ?? 'تقييم الانضباط والسلوك');
+        $comments = sanitize_textarea_field($_POST['comments'] ?? '');
+        $answers_raw = $_POST['answers'] ?? array();
+
+        if ($employee_id <= 0 || empty($answers_raw)) {
+            wp_send_json_error('يرجى اختيار الموظف والإجابة على أسئلة التقييم.');
+        }
+
+        $total_score = 0;
+        $max_total = 0;
+        $clean_answers = array();
+
+        foreach ($answers_raw as $q_id => $a_val) {
+            $score = floatval($a_val['score'] ?? 0);
+            $q_text = sanitize_text_field($a_val['question_text'] ?? '');
+            $total_score += $score;
+            $max_total += 10;
+            $clean_answers[] = array(
+                'question_id' => $q_id,
+                'question_text' => $q_text,
+                'score' => $score,
+                'max' => 10
+            );
+        }
+
+        $average_pct = $max_total > 0 ? round(($total_score / $max_total) * 100, 1) : 0;
+
+        global $wpdb;
+        $wpdb->insert(
+            "{$wpdb->prefix}sm_evaluations",
+            array(
+                'employee_id' => $employee_id,
+                'evaluator_id' => $evaluator_id,
+                'template_id' => $template_id,
+                'academic_year' => $academic_year,
+                'category_name' => $category_name,
+                'answers_json' => wp_json_encode($clean_answers),
+                'subjective_score' => $total_score,
+                'system_score' => 0,
+                'total_score' => $total_score,
+                'average_pct' => $average_pct,
+                'comments' => $comments,
+                'status' => 'submitted',
+                'created_at' => current_time('mysql'),
+                'updated_at' => current_time('mysql')
+            )
+        );
+
+        SM_Logger::log('save_evaluation', "قام المعيّن بتسجيل تقييم أداء جديد للموظف رقم #{$employee_id} بنسبة {$average_pct}%");
+
+        wp_send_json_success(array('eval_id' => $wpdb->insert_id, 'average_pct' => $average_pct));
+    }
+
+    public function ajax_get_evaluations_archive() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+
+        global $wpdb;
+        $acad_year = sanitize_text_field($_POST['academic_year'] ?? '');
+        $query_text = sanitize_text_field($_POST['query'] ?? '');
+
+        $sql = "SELECT e.*, u_emp.display_name as emp_name, u_eval.display_name as evaluator_name
+                FROM {$wpdb->prefix}sm_evaluations e
+                JOIN {$wpdb->prefix}users u_emp ON e.employee_id = u_emp.ID
+                JOIN {$wpdb->prefix}users u_eval ON e.evaluator_id = u_eval.ID
+                WHERE 1=1";
+        $params = array();
+
+        if ($acad_year) {
+            $sql .= " AND e.academic_year = %s";
+            $params[] = $acad_year;
+        }
+
+        if ($query_text) {
+            $sql .= " AND (u_emp.display_name LIKE %s OR u_eval.display_name LIKE %s)";
+            $params[] = '%' . $wpdb->esc_like($query_text) . '%';
+            $params[] = '%' . $wpdb->esc_like($query_text) . '%';
+        }
+
+        $sql .= " ORDER BY e.id DESC LIMIT 100";
+
+        $rows = !empty($params) ? $wpdb->get_results($wpdb->prepare($sql, $params)) : $wpdb->get_results($sql);
+        $results = array();
+
+        foreach ($rows as $r) {
+            $emp_num = get_user_meta($r->employee_id, 'eess_employee_number', true) ?: $r->employee_id;
+            $results[] = array(
+                'id' => $r->id,
+                'employee_name' => $r->emp_name,
+                'employee_number' => $emp_num,
+                'evaluator_name' => $r->evaluator_name,
+                'academic_year' => $r->academic_year,
+                'category_name' => $r->category_name,
+                'total_score' => $r->total_score,
+                'average_pct' => $r->average_pct,
+                'status' => $r->status,
+                'comments' => $r->comments,
+                'date' => date_i18n('Y-m-d H:i', strtotime($r->created_at))
+            );
+        }
+
+        wp_send_json_success($results);
+    }
+
+    public function ajax_save_eval_template() {
+        if (!current_user_can('manage_options') && !current_user_can('manage_hr')) {
+            wp_send_json_error('غير مصرح لك بإدارة نماذج التقييم.');
+        }
+
+        $title = sanitize_text_field($_POST['title'] ?? '');
+        $role_key = sanitize_text_field($_POST['role_key'] ?? 'sm_teacher');
+        $questions_raw = $_POST['questions'] ?? array();
+
+        if (empty($title) || empty($questions_raw)) {
+            wp_send_json_error('يرجى كتابة عنوان النموذج وإضافة سؤال واحد على الأقل.');
+        }
+
+        global $wpdb;
+        $wpdb->insert(
+            "{$wpdb->prefix}sm_eval_templates",
+            array(
+                'title' => $title,
+                'role_key' => $role_key,
+                'total_questions' => count($questions_raw),
+                'is_active' => 1,
+                'created_at' => current_time('mysql'),
+                'updated_at' => current_time('mysql')
+            )
+        );
+
+        $tmpl_id = $wpdb->insert_id;
+
+        foreach ($questions_raw as $idx => $q_text) {
+            $q_clean = sanitize_text_field($q_text);
+            if (!empty($q_clean)) {
+                $wpdb->insert(
+                    "{$wpdb->prefix}sm_eval_questions",
+                    array(
+                        'template_id' => $tmpl_id,
+                        'question_text' => $q_clean,
+                        'category_name' => 'معايير الأداء المعتمدة',
+                        'display_order' => ($idx + 1),
+                        'max_score' => 10,
+                        'created_at' => current_time('mysql')
+                    )
+                );
+            }
+        }
+
+        wp_send_json_success(array('tmpl_id' => $tmpl_id, 'message' => 'تم حفظ نموذج التقييم الجديد بنجاح'));
     }
 
     public function ajax_get_teacher_profile_summary() {
