@@ -288,7 +288,9 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     </div>
                                     <div style="min-width: 0; flex: 1;">
                                         <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;" title="<?php echo esc_attr($u->display_name); ?>">
-                                            <?php echo esc_html($u->display_name); ?>
+                                            <a href="javascript:void(0)" onclick="window.eessOpenTeacherProfile(<?php echo $u->ID; ?>)" style="color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7';" onmouseout="this.style.color='#0f172a';">
+                                                <?php echo esc_html($u->display_name); ?>
+                                            </a>
                                         </div>
                                         <?php
                                         $u_nat = get_user_meta($u->ID, 'nationality', true) ?: (get_user_meta($u->ID, 'sm_nationality', true) ?: 'عام');
@@ -450,6 +452,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 </div>
 
 <?php include_once SM_PLUGIN_DIR . 'templates/partials/unified-user-modal.php'; ?>
+<?php include_once SM_PLUGIN_DIR . 'templates/partials/teacher-profile-readonly-modal.php'; ?>
 <!-- UNIFIED MODAL REPLACES ALL LEGACY USER MODALS -->
 
 <script>

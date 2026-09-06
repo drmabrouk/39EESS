@@ -7,6 +7,20 @@ var eessCurrentStep = 1;
 var eessIsEditMode = false;
 var eessAjaxUrl = (typeof ajaxurl !== 'undefined') ? ajaxurl : '/wp-admin/admin-ajax.php';
 
+window.eessOpenTeacherProfile = function(userId) {
+    if (!userId) return;
+    var canEdit = (typeof eessCanEditUsers !== 'undefined' && eessCanEditUsers) || (typeof eessIsAdmin !== 'undefined' && eessIsAdmin);
+    if (canEdit) {
+        window.eessOpenUnifiedUserModal('edit_user', userId);
+    } else {
+        if (typeof window.eessOpenTeacherReadOnlyProfileModal === 'function') {
+            window.eessOpenTeacherReadOnlyProfileModal(userId);
+        } else {
+            alert('غير مسموح بالتعديل. جارِ فتح الملف الوظيفي للقراءة فقط.');
+        }
+    }
+};
+
 window.eessOpenUnifiedUserModal = function(mode, userId) {
     mode = mode || 'add_user';
     userId = userId || 0;

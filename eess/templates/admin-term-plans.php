@@ -453,7 +453,7 @@ function eessTogglePlansTableSort() {
 
                                     <!-- Teacher Name & Employee ID Pastel Capsule (No "رقم الموظف" text) -->
                                     <td style="padding: 12px 16px;">
-                                        <a href="javascript:void(0)" onclick="window.eessOpenUnifiedUserModal('edit_user', <?php echo $sp->teacher_id; ?>)" style="font-weight: 800; font-size: 13.5px; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
+                                        <a href="javascript:void(0)" onclick="window.eessOpenTeacherProfile(<?php echo $sp->teacher_id; ?>)" style="font-weight: 800; font-size: 13.5px; color: #0f172a; text-decoration: none;" onmouseover="this.style.color='#0284c7'; this.style.textDecoration='underline';" onmouseout="this.style.color='#0f172a'; this.style.textDecoration='none';">
                                             <?php echo esc_html($sp->teacher_name ?: 'مدرس غير محدد'); ?>
                                         </a>
                                         <div style="margin-top: 4px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
@@ -1021,6 +1021,7 @@ function eessGenerateSchoolPlanReport() {
 </script>
 
 <?php include_once SM_PLUGIN_DIR . 'templates/partials/unified-user-modal.php'; ?>
+<?php include_once SM_PLUGIN_DIR . 'templates/partials/teacher-profile-readonly-modal.php'; ?>
 
 <!-- Assign Term Plan Modal (System Administrator Only) -->
 <div id="eess-assign-plan-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
