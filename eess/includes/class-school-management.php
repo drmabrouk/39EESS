@@ -165,6 +165,14 @@ class School_Management {
         $this->loader->add_action('wp_ajax_eess_check_user_uniqueness', $plugin_public, 'ajax_check_user_uniqueness');
         $this->loader->add_action('wp_ajax_eess_get_user_unified', $plugin_public, 'ajax_get_user_unified');
         $this->loader->add_action('wp_ajax_eess_get_teacher_profile_summary', $plugin_public, 'ajax_get_teacher_profile_summary');
+
+        // Employee Evaluation Engine AJAX Endpoints
+        $this->loader->add_action('wp_ajax_eess_search_employees_for_eval', $plugin_public, 'ajax_search_employees_for_eval');
+        $this->loader->add_action('wp_ajax_eess_get_employee_system_performance_indicators', $plugin_public, 'ajax_get_employee_system_performance_indicators');
+        $this->loader->add_action('wp_ajax_eess_get_eval_template_for_role', $plugin_public, 'ajax_get_eval_template_for_role');
+        $this->loader->add_action('wp_ajax_eess_save_evaluation_submission', $plugin_public, 'ajax_save_evaluation_submission');
+        $this->loader->add_action('wp_ajax_eess_get_evaluations_archive', $plugin_public, 'ajax_get_evaluations_archive');
+        $this->loader->add_action('wp_ajax_eess_save_eval_template', $plugin_public, 'ajax_save_eval_template');
         $this->loader->add_action('wp_ajax_eess_save_user_unified', $plugin_public, 'ajax_save_user_unified');
 
         // Lesson Prep Quick Actions & Bulk Operations
