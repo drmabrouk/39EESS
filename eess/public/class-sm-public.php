@@ -8126,6 +8126,9 @@ class SM_Public {
 
             $phone = get_user_meta($t_id, 'phone_number', true) ?: (get_user_meta($t_id, 'sm_phone', true) ?: '---');
             $civil_id = get_user_meta($t_id, 'eess_civil_id', true) ?: (get_user_meta($t_id, 'civil_id', true) ?: '---');
+            $nationality = get_user_meta($t_id, 'nationality', true) ?: (get_user_meta($t_id, 'sm_nationality', true) ?: 'الإمارات العربية المتحدة');
+            $gender = get_user_meta($t_id, 'gender', true) ?: (get_user_meta($t_id, 'eess_gender', true) ?: 'ذكر');
+            $dob = get_user_meta($t_id, 'dob', true) ?: (get_user_meta($t_id, 'sm_dob', true) ?: '---');
             $emirate = get_user_meta($t_id, 'eess_emirate', true) ?: 'دبي';
             $appoint_year = get_user_meta($t_id, 'eess_appointment_year', true) ?: (get_user_meta($t_id, 'appointment_year', true) ?: '2022');
             $photo_url = get_avatar_url($t_id, array('size' => 120));
@@ -8200,13 +8203,15 @@ class SM_Public {
 
                 <!-- Personal & Academic Assignment Card -->
                 <div class="card">
-                    <h4 style="margin:0 0 8px 0; font-size: 12.5px; font-weight: 800; color: #881337; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">البيانات الشخصية والتكليفات التعليمية</h4>
+                    <h4 style="margin:0 0 8px 0; font-size: 12.5px; font-weight: 800; color: #881337; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">البيانات الشخصية والمهنية والتكليفات التعليمية</h4>
                     <div class="grid-2">
                         <div><strong>القسم / المادة:</strong> <?php echo esc_html($department . ' | ' . $subject); ?></div>
                         <div><strong>الصفوف المسندة:</strong> <?php echo esc_html($assigned_grades_clean ?: 'الكل'); ?></div>
                         <div><strong>الشعب الدراسية:</strong> <?php echo esc_html($assigned_sections_raw ?: 'الكل'); ?></div>
                         <div><strong>الهاتف والبريد:</strong> <?php echo esc_html($phone . ' | ' . $user->user_email); ?></div>
                         <div><strong>سنة التعيين والإمارة:</strong> <?php echo esc_html($appoint_year . ' — ' . $emirate); ?></div>
+                        <div><strong>الجنسية والجنس:</strong> <?php echo esc_html($nationality . ' — ' . $gender); ?></div>
+                        <div><strong>تاريخ الميلاد:</strong> <?php echo esc_html($dob); ?></div>
                         <div><strong>الهوية الوطنية:</strong> <?php echo esc_html($civil_id); ?></div>
                     </div>
                 </div>
@@ -8600,6 +8605,7 @@ class SM_Public {
             wp_send_json_error('معرف الموظف غير صحيح.');
         }
 
+        clean_user_cache($user_id);
         $user = get_userdata($user_id);
         if (!$user) {
             wp_send_json_error('الموظف غير موجود بالنظام.');
@@ -8640,6 +8646,9 @@ class SM_Public {
 
         $phone = get_user_meta($user_id, 'phone_number', true) ?: (get_user_meta($user_id, 'sm_phone', true) ?: '---');
         $civil_id = get_user_meta($user_id, 'eess_civil_id', true) ?: (get_user_meta($user_id, 'civil_id', true) ?: '---');
+        $nationality = get_user_meta($user_id, 'nationality', true) ?: (get_user_meta($user_id, 'sm_nationality', true) ?: 'الإمارات العربية المتحدة');
+        $gender = get_user_meta($user_id, 'gender', true) ?: (get_user_meta($user_id, 'eess_gender', true) ?: 'ذكر');
+        $dob = get_user_meta($user_id, 'dob', true) ?: (get_user_meta($user_id, 'sm_dob', true) ?: '---');
         $emirate = get_user_meta($user_id, 'eess_emirate', true) ?: 'دبي';
         $appoint_year = get_user_meta($user_id, 'eess_appointment_year', true) ?: (get_user_meta($user_id, 'appointment_year', true) ?: '2022');
         $photo_url = get_avatar_url($user_id, array('size' => 120));
@@ -8693,12 +8702,19 @@ class SM_Public {
             $cw = ($p_ts >= $acad_anchor_ts) ? (intval(floor(($p_ts - $acad_anchor_ts) / (7 * 86400))) + 1) : 1;
             $weeks_set[$cw] = true;
 
+            // Calculate lateness indicator (Friday 00:00 -> Monday 09:30 submission window)
+            $is_late = false;
+            if (!empty($lp->delay_seconds) && $lp->delay_seconds > 0) {
+                $is_late = true;
+            }
+
             $lesson_preps_summary[] = array(
                 'id' => $lp->id,
                 'title' => $lp->title ?: 'تحضير درس',
                 'subject' => $lp->subject,
                 'grade' => $lp->grade_level,
                 'status' => $lp->status,
+                'is_late' => $is_late,
                 'week' => $cw,
                 'date' => date_i18n('Y-m-d H:i', strtotime($dt)),
                 'file_url' => $lp->file_url ?: ''
@@ -8718,6 +8734,9 @@ class SM_Public {
             'assigned_sections' => $assigned_sections_raw ?: 'الكل',
             'phone' => $phone,
             'civil_id' => $civil_id,
+            'nationality' => $nationality,
+            'gender' => $gender,
+            'dob' => $dob,
             'emirate' => $emirate,
             'appointment_year' => $appoint_year,
             'photo_url' => $photo_url,
