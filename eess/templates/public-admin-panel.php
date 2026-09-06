@@ -778,9 +778,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                             </div>
                         </div>
 
-                        <!-- Bulk Download Circular Icon Button -->
-                        <button type="button" onclick="document.getElementById(\'eess-prep-bulk-download-modal\').style.display=\'flex\'" title="Bulk Download / تحميل أرشيف التحضيرات بالجملة" style="width: 38px; height: 38px; border-radius: 50% !important; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" onmouseover="this.style.transform=\'scale(1.08)\'" onmouseout="this.style.transform=\'scale(1)\'">
-                            <span class="dashicons dashicons-download" style="font-size: 18px; width: 18px; height: 18px; margin: 0;"></span>
+                        <!-- Modern Compact Pastel Wine-Red Bulk Download Button -->
+                        <button type="button" onclick="document.getElementById(\'eess-prep-bulk-download-modal\').style.display=\'flex\'" title="تحميل أرشيف التحضيرات بالجملة" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; height: 38px; border-radius: 8px; padding: 0 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: background 0.2s; flex-shrink: 0;">
+                            <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #881337;"></span>
+                            <span>تحميل الأرشيف بالجملة</span>
                         </button>
 
                         <!-- Settings Gear Icon Button -->
