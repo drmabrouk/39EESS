@@ -1,13 +1,13 @@
 <?php if (!defined('ABSPATH')) exit; ?>
 <!-- REUSABLE UNIFIED 30-FIELD 4-STEP STUDENT PROFILE EDIT MODAL -->
 <div id="edit-student-modal" class="sm-modal-overlay" style="display: none; z-index: 999999;">
-    <div class="sm-modal-content" style="max-width: 860px; width: 95%; border-radius: 20px; padding: 30px; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); font-family: 'Cairo', sans-serif;">
-        <div class="sm-modal-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-admin-users" style="color: #881337; font-size: 22px; width: 22px; height: 22px;"></span>
-                إدارة وسجل الطالب الكامل (30 حقل معتمد)
+    <div class="sm-modal-content" style="max-width: 960px; width: 95vw; border-radius: 20px; padding: 24px; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); font-family: 'Cairo', sans-serif;">
+        <div class="sm-modal-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #ffffff;">
+            <h3 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                <span class="dashicons dashicons-admin-users" style="color: #0f172a; font-size: 22px; width: 22px; height: 22px;"></span>
+                إدارة وسجل الطالب الكامل
             </h3>
-            <button type="button" class="sm-modal-close" onclick="closeUnifiedEditStudentModal()" style="background: none; border: none; font-size: 26px; color: #94a3b8; cursor: pointer;">&times;</button>
+            <button type="button" class="sm-modal-close" onclick="closeUnifiedEditStudentModal()" style="background: none; border: none; font-size: 26px; color: #0f172a; cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
         <!-- Wizard Step Progress Indicator (4 Steps) -->
@@ -274,9 +274,17 @@ function handleStudentPhotoSelected(input) {
     .then(r => r.json())
     .then(res => {
         if (res.success && res.data.photo_url) {
-            previewImg.src = res.data.photo_url;
+            const cacheBustedUrl = res.data.photo_url + '?v=' + new Date().getTime();
+            previewImg.src = cacheBustedUrl;
             previewImg.style.display = 'block';
             if (defaultIcon) defaultIcon.style.display = 'none';
+
+            // Update row photo in main table immediately
+            const rowPhoto = document.querySelector('#student-row-' + studentId + ' img.student-avatar');
+            if (rowPhoto) {
+                rowPhoto.src = cacheBustedUrl;
+            }
+
             if (typeof smShowNotification === 'function') smShowNotification('تم تحديث صورة الطالب بنجاح');
         } else {
             alert('فشل رفع الصورة: ' + (res.data || 'خطأ غير معروف'));

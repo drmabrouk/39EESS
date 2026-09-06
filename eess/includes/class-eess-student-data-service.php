@@ -168,7 +168,7 @@ class EESS_Student_Data_Service {
             'section'               => $section,
             'gender'                => sanitize_text_field($data['gender'] ?? 'ذكر'),
             'dob'                   => !empty($data['dob']) ? sanitize_text_field($data['dob']) : null,
-            'nationality'           => sanitize_text_field($data['nationality'] ?? 'سعودي'),
+            'nationality'           => sanitize_text_field($data['nationality'] ?? ''),
             'national_id'           => $national_id,
             'school_id'             => $school_id ?: null,
             'guardian_name'         => sanitize_text_field($data['guardian_name'] ?? ($data['parent_name'] ?? '')),

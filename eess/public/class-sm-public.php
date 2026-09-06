@@ -6099,7 +6099,31 @@ class SM_Public {
         }
 
         global $wpdb;
-        $records = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_students ORDER BY name ASC");
+        $user_id = get_current_user_id();
+        $user_scope = EESS_Org_Helper::get_user_scope($user_id);
+
+        $where_clauses = array();
+        $params = array();
+
+        if (!$user_scope['unrestricted']) {
+            if (!empty($user_scope['schools'])) {
+                $placeholders = implode(',', array_fill(0, count($user_scope['schools']), '%d'));
+                $where_clauses[] = "(school_id IN ($placeholders) OR institution_id IN ($placeholders))";
+                foreach ($user_scope['schools'] as $sch_id) {
+                    $params[] = $sch_id;
+                }
+            } else {
+                $where_clauses[] = "1=0";
+            }
+        }
+
+        $sql = "SELECT * FROM {$wpdb->prefix}sm_students";
+        if (!empty($where_clauses)) {
+            $sql .= " WHERE " . implode(" AND ", $where_clauses);
+        }
+        $sql .= " ORDER BY name ASC";
+
+        $records = !empty($params) ? $wpdb->get_results($wpdb->prepare($sql, $params)) : $wpdb->get_results($sql);
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=student_affairs_export_'.date('Y-m-d').'.csv');

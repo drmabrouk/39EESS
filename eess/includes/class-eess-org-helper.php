@@ -343,12 +343,9 @@ class EESS_Org_Helper {
         $is_supervisor = in_array('sm_supervisor', $roles);
         $is_hr = in_array('sm_hr', $roles);
 
-        if ($is_principal || $is_supervisor || $is_hr) {
-            return " {$prefix}school_id IN ($school_ids) ";
-        }
-
-        // Teachers can only access their assigned classes/sections
-        return " {$prefix}class_id IN ($class_ids) ";
+        // For school managers, supervisors, discipline officers, HR, coordinators, teachers, and school-bound staff:
+        // Filter strictly by assigned school ID or institution ID
+        return " ({$prefix}school_id IN ($school_ids) OR {$prefix}institution_id IN ($school_ids)) ";
     }
 
     public static function resolve_student_org_ids($student_id, $class_name, $section, $school_name = '') {
