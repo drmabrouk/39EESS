@@ -7957,14 +7957,13 @@ class SM_Public {
                             <img src="<?php echo esc_url($school_logo); ?>" class="brand-logo" alt="Logo">
                         <?php endif; ?>
                         <div>
-                            <div style="font-size: 14px; font-weight: 900; color: #0f172a;">مؤسسة الشعلة للتعليم والتطوير</div>
-                            <div style="font-size: 11.5px; color: #0284c7; font-weight: 800;"><?php echo esc_html($target_school); ?></div>
-                            <div style="font-size: 10px; color: #64748b; font-weight: 700;">وزارة التربية والتعليم — دولة الإمارات العربية المتحدة</div>
+                            <div style="font-size: 15px; font-weight: 900; color: #0f172a;">مؤسسة الشعلة للتعليم والتطوير</div>
+                            <div style="font-size: 12px; color: #0284c7; font-weight: 800; margin-top: 2px;"><?php echo esc_html($target_school); ?></div>
                         </div>
                     </div>
                     <div style="text-align: left;">
                         <h1 class="report-title"><?php echo esc_html($report_title); ?></h1>
-                        <p class="report-subtitle">العام الأكاديمي: <?php echo esc_html($acad_year); ?> | تاريخ التقرير: <?php echo current_time('Y-m-d H:i'); ?></p>
+                        <p class="report-subtitle">العام الأكاديمي: <?php echo esc_html($acad_year); ?> | تاريخ التصدير: <?php echo date_i18n('Y-m-d H:i'); ?></p>
                     </div>
                 </div>
 
@@ -8199,9 +8198,8 @@ class SM_Public {
                             <img src="<?php echo esc_url($school_logo); ?>" class="brand-logo" alt="Logo">
                         <?php endif; ?>
                         <div>
-                            <div style="font-size: 14px; font-weight: 900; color: #0f172a;">مؤسسة الشعلة للتعليم والتطوير</div>
-                            <div style="font-size: 11.5px; color: #0284c7; font-weight: 800;"><?php echo esc_html($school_name); ?></div>
-                            <div style="font-size: 10px; color: #64748b; font-weight: 700;">وزارة التربية والتعليم — دولة الإمارات العربية المتحدة</div>
+                            <div style="font-size: 15px; font-weight: 900; color: #0f172a;">مؤسسة الشعلة للتعليم والتطوير</div>
+                            <div style="font-size: 12px; color: #0284c7; font-weight: 800; margin-top: 2px;"><?php echo esc_html($school_name); ?></div>
                         </div>
                     </div>
                     <div style="text-align: left;">
@@ -10857,6 +10855,64 @@ class SM_Public {
             );
             wp_send_json_success(array('id' => $wpdb->insert_id, 'usage_count' => 1));
         }
+    }
+
+    public function ajax_get_school_prep_weeks() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized access');
+        if (!wp_verify_nonce($_REQUEST['nonce'] ?? '', 'sm_admin_action') && !wp_verify_nonce($_REQUEST['nonce'] ?? '', 'eess_admin_action')) {
+            wp_send_json_error('Security check failed');
+        }
+
+        global $wpdb;
+        $school_id = intval($_REQUEST['school_id'] ?? 0);
+        if ($school_id <= 0) {
+            wp_send_json_error('Invalid school ID');
+        }
+
+        $user_id = get_current_user_id();
+        $user_scope = EESS_Org_Helper::get_user_scope($user_id);
+        if (!$user_scope['unrestricted']) {
+            if (!empty($user_scope['schools']) && !in_array($school_id, $user_scope['schools'])) {
+                wp_send_json_error('غير مصرح بالوصول لبيانات هذه المدرسة.');
+            }
+        }
+
+        $query = "SELECT DISTINCT p.created_at, p.updated_at
+                  FROM {$wpdb->prefix}sm_lesson_preps p
+                  JOIN {$wpdb->prefix}eess_user_assignments ua ON p.teacher_id = ua.user_id
+                  WHERE ua.school_id = %d AND p.status IN ('submitted', 'approved', 'returned', 'resubmitted', 'rejected')";
+
+        $rows = $wpdb->get_results($wpdb->prepare($query, $school_id));
+
+        $arabic_weeks = array(
+            1 => 'الأسبوع الأول', 2 => 'الأسبوع الثاني', 3 => 'الأسبوع الثالث', 4 => 'الأسبوع الرابع',
+            5 => 'الأسبوع الخامس', 6 => 'الأسبوع السادس', 7 => 'الأسبوع السابع', 8 => 'الأسبوع الثامن',
+            9 => 'الأسبوع التاسع', 10 => 'الأسبوع العاشر', 11 => 'الأسبوع الحادي عشر', 12 => 'الأسبوع الثاني عشر',
+            13 => 'الأسبوع الثالث عشر', 14 => 'الأسبوع الرابع عشر', 15 => 'الأسبوع الخامس عشر', 16 => 'الأسبوع السادس عشر'
+        );
+
+        $existing_weeks = array();
+        $acad_anchor_ts = strtotime('2026-08-28 00:00:00');
+
+        foreach ($rows as $r) {
+            $ts = strtotime($r->updated_at ?: $r->created_at);
+            $w = ($ts >= $acad_anchor_ts) ? (intval(floor(($ts - $acad_anchor_ts) / (7 * 86400))) + 1) : 1;
+            if ($w > 0 && !in_array($w, $existing_weeks, true)) {
+                $existing_weeks[] = $w;
+            }
+        }
+
+        sort($existing_weeks, SORT_NUMERIC);
+
+        $formatted = array();
+        foreach ($existing_weeks as $w_num) {
+            $formatted[] = array(
+                'week_num' => $w_num,
+                'week_name' => ($arabic_weeks[$w_num] ?? ('الأسبوع ' . $w_num)) . ' (Week ' . $w_num . ')'
+            );
+        }
+
+        wp_send_json_success(array('weeks' => $formatted));
     }
 
     public function ajax_bulk_download_lesson_preps() {

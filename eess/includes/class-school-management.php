@@ -192,6 +192,7 @@ class School_Management {
         $this->loader->add_action('wp_ajax_sm_send_message_ajax', $plugin_public, 'ajax_send_message');
         $this->loader->add_action('wp_ajax_sm_create_parent_summons', $plugin_public, 'ajax_create_parent_summons');
         $this->loader->add_action('wp_ajax_sm_convert_summons_visit', $plugin_public, 'ajax_convert_summons_visit');
+        $this->loader->add_action('wp_ajax_sm_get_school_prep_weeks', $plugin_public, 'ajax_get_school_prep_weeks');
         $this->loader->add_action('wp_ajax_sm_bulk_download_lesson_preps', $plugin_public, 'ajax_bulk_download_lesson_preps');
         $this->loader->add_action('wp_ajax_sm_bulk_download_term_plans', $plugin_public, 'ajax_bulk_download_term_plans');
         $this->loader->add_action('wp_ajax_sm_update_summons_status', $plugin_public, 'ajax_update_summons_status');

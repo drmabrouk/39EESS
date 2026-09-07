@@ -325,6 +325,12 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         </div>
 
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- Modern Compact Pastel Wine-Red Bulk Download Button -->
+            <button type="button" onclick="document.getElementById('eess-prep-bulk-download-modal').style.display='flex'" title="تحميل كافة التحضيرات المرفوعة بالجملة" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; height: 38px; border-radius: 8px; padding: 0 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #881337;"></span>
+                <span>تحميل كافة التحضيرات</span>
+            </button>
+
             <?php if ($is_teacher): ?>
             <button type="button" onclick="document.getElementById('prep-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>
@@ -341,7 +347,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                     <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; color: #fff;"></span>
                 </button>
                 <div id="eess-print-report-dropdown" style="display: none; position: absolute; right: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 230px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
-                    <a href="javascript:void(0)" onclick="document.getElementById('eess-print-report-dropdown').style.display='none'; document.getElementById('eess-school-prep-report-modal').style.display='flex';" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">
+                    <a href="javascript:void(0)" onclick="document.getElementById('eess-print-report-dropdown').style.display='none'; eessOpenSchoolPrepReportModal();" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #334155; font-size: 12px; font-weight: 700; text-decoration: none; border-bottom: 1px solid #f1f5f9;">
                         <span class="dashicons dashicons-building" style="font-size: 16px; width: 16px; height: 16px;"></span>
                         <span>طباعة تقرير مدرسة محددة</span>
                     </a>
@@ -352,26 +358,6 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                 </div>
             </div>
 
-            <!-- Reports Dropdown Container -->
-            <div style="position: relative; display: inline-block;">
-                <button type="button" onclick="eessTogglePrepReportsDropdown(event)" class="sm-btn sm-btn-outline" style="height: 38px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9999px !important; cursor: pointer; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; font-weight: 800; font-size: 12.5px; padding: 0 16px;">
-                    <span class="dashicons dashicons-analytics" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #475569;"></span>
-                    <span>تقارير التحضير</span>
-                    <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; margin: 0;"></span>
-                </button>
-                <div id="eess-prep-reports-dropdown" style="display: none; position: absolute; left: 0; top: 115%; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; width: 250px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 99999; padding: 6px 0; text-align: right;">
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('submitted')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">📝 تقرير التحضيرات المقدمة</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('not_submitted')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">❌ تقرير التحضيرات المتأخرة/غير المقدمة</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('by_institution')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">🏫 الإحصائيات حسب المؤسسة</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('by_department')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">📂 الإحصائيات حسب الأقسام</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('by_subject')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">📚 الإحصائيات حسب المواد</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('periodical')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">📅 تقرير دوري (يومي/أسبوعي/شهري)</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('ranking')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">🏆 تصنيف المدارس والمعلمين</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('compliance')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">📊 متوسطات الامتثال لنسب التقديم</a>
-                    <a href="javascript:void(0)" onclick="eessShowPrepReport('late_stats')" style="display: block; padding: 10px 16px; color: #334155; font-size: 12px; text-decoration: none; border-bottom: 1px solid #f1f5f9; font-weight: 700;">⏱️ إحصائيات التأخر والمهل الزمنية</a>
-                    <a href="javascript:void(0)" onclick="eessExportPrepReport()" style="display: block; padding: 10px 16px; color: #0d9488; font-size: 12px; font-weight: 800; text-decoration: none;">📥 تصدير التقرير الموحد (Excel/CSV)</a>
-                </div>
-            </div>
 
             <?php if ($is_admin): ?>
             <!-- Assign Ready-Made Lesson Prep Button (System Admin Only) -->
@@ -428,27 +414,27 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
-            <div onclick="eessShowComplianceStatDetails('required')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #334155; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #334155; text-align: center;">
                 <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;">إجمالي عدد المعلمين</div>
                 <div style="font-size: 18px; font-weight: 900; color: #0f172a;"><?php echo $total_prep_teachers; ?></div>
             </div>
-            <div onclick="eessShowComplianceStatDetails('submitted')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #0284c7; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #0284c7; text-align: center;">
                 <div style="font-size: 11px; color: #0369a1; font-weight: 700; margin-bottom: 4px;">التحضيرات المقدمة</div>
                 <div style="font-size: 18px; font-weight: 900; color: #0284c7;"><?php echo $stats_submitted; ?></div>
             </div>
-            <div onclick="eessShowComplianceStatDetails('approved')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #16a34a; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #16a34a; text-align: center;">
                 <div style="font-size: 11px; color: #166534; font-weight: 700; margin-bottom: 4px;">معتمدة رسمياً</div>
                 <div style="font-size: 18px; font-weight: 900; color: #16a34a;"><?php echo $stats_approved; ?></div>
             </div>
-            <div onclick="eessShowComplianceStatDetails('revision_required')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #d97706; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #d97706; text-align: center;">
                 <div style="font-size: 11px; color: #b45309; font-weight: 700; margin-bottom: 4px;">طلب تعديل</div>
                 <div style="font-size: 18px; font-weight: 900; color: #d97706;"><?php echo $stats_revision; ?></div>
             </div>
-            <div onclick="eessShowComplianceStatDetails('rejected')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #b91c1c; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #b91c1c; text-align: center;">
                 <div style="font-size: 11px; color: #991b1b; font-weight: 700; margin-bottom: 4px;">التحضيرات المرفوضة</div>
                 <div style="font-size: 18px; font-weight: 900; color: #b91c1c;"><?php echo $stats_rejected; ?></div>
             </div>
-            <div onclick="eessShowComplianceStatDetails('missing')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #dc2626; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            <div style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #dc2626; text-align: center;">
                 <div style="font-size: 11px; color: #991b1b; font-weight: 700; margin-bottom: 4px;">غير تسليم / متأخر</div>
                 <div style="font-size: 18px; font-weight: 900; color: #dc2626;"><?php echo $stats_missing; ?></div>
             </div>
@@ -1652,6 +1638,12 @@ function eessExecutePrepBulkDownloadInModal(e) {
 
     fetch(fetchUrl)
     .then(response => {
+        var contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            return response.json().then(data => {
+                throw new Error(data.data || 'حدث خطأ غير متوقع.');
+            });
+        }
         if (!response.ok) throw new Error('فشل توليد الأرشيف');
         return response.blob();
     })
@@ -1675,7 +1667,7 @@ function eessExecutePrepBulkDownloadInModal(e) {
     .catch(err => {
         btn.disabled = false;
         loadingBox.style.display = 'none';
-        alert('حدث خطأ أثناء تنزيل الملف المضغوط.');
+        alert(err.message || 'حدث خطأ أثناء تنزيل الملف المضغوط.');
     });
 }
 </script>
@@ -1691,18 +1683,22 @@ function eessUpdatePrepScopeFields(scope) {
 
 <!-- School-Specific Lesson Prep Report Modal -->
 <div id="eess-school-prep-report-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
-    <div style="background: #ffffff; border-radius: 20px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden;">
-        <div style="background: #0284c7; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-building" style="font-size: 22px; width: 22px; height: 22px; color: #ffffff;"></span>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;">تقرير مدرسة محددة — تحضير الدروس</h3>
+    <div style="background: #ffffff; border-radius: 20px; max-width: 520px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; display: flex; flex-direction: column;">
+        <!-- Clean Minimal White Header -->
+        <div style="background: #ffffff; color: #0f172a; padding: 20px 24px 14px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start;">
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <span class="dashicons dashicons-building" style="font-size: 22px; width: 22px; height: 22px; color: #0f172a; margin-top: 2px;"></span>
+                <div>
+                    <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">تقرير مدرسة محددة — تحضير الدروس</h3>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b; font-weight: 500;">توليد وطباعة التقرير التجميعي الرسمي للتحضيرات حسب المدرسة والأسبوع الأكاديمي.</p>
+                </div>
             </div>
-            <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='none'" style="background: none; border: none; color: #0f172a; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
         </div>
         <div style="padding: 24px;">
             <div style="margin-bottom: 14px;">
                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">اختر المدرسة / المؤسسة التعليمية المستهدفة <span style="color:#ef4444;">*</span></label>
-                <select id="eess_target_school_prep" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                <select id="eess_target_school_prep" onchange="eessFetchSchoolPrepWeeks()" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
                     <?php
                     $all_schools_list = class_exists('EESS_Org_Helper') ? EESS_Org_Helper::get_all_schools() : array();
                     if (!empty($all_schools_list)):
@@ -1715,36 +1711,62 @@ function eessUpdatePrepScopeFields(scope) {
                 </select>
             </div>
             <div style="margin-bottom: 18px;">
-                <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الأسبوع الأكاديمي المستهدف</label>
+                <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الأسبوع الأكاديمي المستهدف (الأسابيع المتاحة بالفعل)</label>
                 <select id="eess_target_week_prep" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
-                    <option value="0">جميع الأسابيع (تقرير شامل)</option>
-                    <option value="1">الأسبوع الأول (Week 1)</option>
-                    <option value="2">الأسبوع الثاني (Week 2)</option>
-                    <option value="3">الأسبوع الثالث (Week 3)</option>
-                    <option value="4">الأسبوع الرابع (Week 4)</option>
-                    <option value="5">الأسبوع الخامس (Week 5)</option>
-                    <option value="6">الأسبوع السادس (Week 6)</option>
-                    <option value="7">الأسبوع السابع (Week 7)</option>
-                    <option value="8">الأسبوع الثامن (Week 8)</option>
-                    <option value="9">الأسبوع التاسع (Week 9)</option>
-                    <option value="10">الأسبوع العاشر (Week 10)</option>
-                    <option value="11">الأسبوع الحادي عشر (Week 11)</option>
-                    <option value="12">الأسبوع الثاني عشر (Week 12)</option>
-                    <option value="13">الأسبوع الثالث عشر (Week 13)</option>
-                    <option value="14">الأسبوع الرابع عشر (Week 14)</option>
-                    <option value="15">الأسبوع الخامس عشر (Week 15)</option>
-                    <option value="16">الأسبوع السادس عشر (Week 16)</option>
+                    <option value="0">جميع الأسابيع (تقرير شامل كافة التقديمات)</option>
                 </select>
             </div>
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                <button type="button" onclick="eessGenerateSchoolPrepReport()" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 40px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">🖨️ طباعة التقرير الرسمي A4</button>
-                <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 40px; padding: 0 18px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;">إلغاء</button>
+                <button type="button" onclick="document.getElementById('eess-school-prep-report-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 38px; padding: 0 18px; border-radius: 8px; border: 1px solid #cbd5e1; color: #475569; cursor: pointer; font-weight: 700;">إلغاء</button>
+                <button type="button" onclick="eessGenerateSchoolPrepReport()" class="sm-btn" style="background: #0f172a; color: #ffffff !important; height: 38px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-printer" style="font-size: 16px; width: 16px; height: 16px; margin: 0;"></span>
+                    <span>طباعة التقرير الرسمي A4</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+function eessOpenSchoolPrepReportModal() {
+    document.getElementById('eess-school-prep-report-modal').style.display = 'flex';
+    eessFetchSchoolPrepWeeks();
+}
+
+function eessFetchSchoolPrepWeeks() {
+    var schoolSelect = document.getElementById('eess_target_school_prep');
+    var weekSelect = document.getElementById('eess_target_week_prep');
+    if (!schoolSelect || !weekSelect) return;
+
+    var schoolId = schoolSelect.value;
+    if (!schoolId) return;
+
+    weekSelect.disabled = true;
+    weekSelect.innerHTML = '<option value="0">جاري تحميل الأسابيع المتاحة...</option>';
+
+    var nonce = '<?php echo wp_create_nonce("eess_admin_action"); ?>';
+    var url = '<?php echo admin_url("admin-ajax.php"); ?>?action=sm_get_school_prep_weeks&school_id=' + encodeURIComponent(schoolId) + '&nonce=' + encodeURIComponent(nonce);
+
+    fetch(url)
+    .then(r => r.json())
+    .then(res => {
+        weekSelect.disabled = false;
+        weekSelect.innerHTML = '<option value="0">جميع الأسابيع (تقرير شامل كافة التقديمات)</option>';
+        if (res.success && res.data && res.data.weeks && res.data.weeks.length > 0) {
+            res.data.weeks.forEach(function(w) {
+                var opt = document.createElement('option');
+                opt.value = w.week_num;
+                opt.textContent = w.week_name;
+                weekSelect.appendChild(opt);
+            });
+        }
+    })
+    .catch(err => {
+        weekSelect.disabled = false;
+        weekSelect.innerHTML = '<option value="0">جميع الأسابيع (تقرير شامل كافة التقديمات)</option>';
+    });
+}
+
 function eessGenerateSchoolPrepReport() {
     var schId = document.getElementById('eess_target_school_prep').value;
     var wkNum = document.getElementById('eess_target_week_prep') ? document.getElementById('eess_target_week_prep').value : '0';
@@ -2280,84 +2302,6 @@ function smOpenReviewModal(id, title) {
     document.getElementById('prep-review-modal').style.display = 'flex';
 }
 
-// Reports Dropdown and Viewer Logic
-function eessTogglePrepReportsDropdown(event) {
-    event.stopPropagation();
-    const dropdown = document.getElementById('eess-prep-reports-dropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-}
-
-// Close dropdown when clicking outside
-window.addEventListener('click', function() {
-    const dropdown = document.getElementById('eess-prep-reports-dropdown');
-    if (dropdown) {
-        dropdown.style.display = 'none';
-    }
-});
-
-    window.eessShowComplianceStatDetails = function(statKey) {
-        let typeMapping = {
-            'required': 'submitted',
-            'submitted': 'submitted',
-            'pending': 'submitted',
-            'approved': 'ranking',
-            'revision_required': 'not_submitted',
-            'late': 'late_stats'
-        };
-        const mappedType = typeMapping[statKey] || 'submitted';
-        eessShowPrepReport(mappedType);
-    };
-
-function eessShowPrepReport(type) {
-    // Hide all report sections inside modal
-    document.querySelectorAll('.eess-report-section').forEach(el => el.style.display = 'none');
-
-    // Show active report section
-    const targetSection = document.getElementById('rep-' + type);
-    if (targetSection) {
-        targetSection.style.display = 'block';
-    }
-
-    // Open the report viewer modal
-    document.getElementById('eess-prep-report-modal').style.display = 'flex';
-}
-
-function eessExportPrepReport() {
-    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    const activeSection = document.querySelector('.eess-report-section[style*="display: block"]');
-    if (!activeSection) {
-        alert("يرجى عرض تقرير أولاً قبل الضغط على التصدير.");
-        return;
-    }
-    const table = activeSection.querySelector('table');
-    if (!table) {
-        alert("هذا التقرير لا يحتوي على جدول بيانات لتصديره.");
-        return;
-    }
-
-    const rows = table.querySelectorAll('tr');
-    rows.forEach(function(row) {
-        const cols = row.querySelectorAll('th, td');
-        const rowData = [];
-        cols.forEach(function(col) {
-            rowData.push('"' + col.innerText.replace(/"/g, '""') + '"');
-        });
-        csvContent += rowData.join(",") + "\r\n";
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "report_" + typeOfActiveReport() + "_" + new Date().toISOString().slice(0,10) + ".csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-function typeOfActiveReport() {
-    const activeSection = document.querySelector('.eess-report-section[style*="display: block"]');
-    return activeSection ? activeSection.id : 'lesson_prep';
-}
 
 function eessOpenRejectPrepModal(prepId, title) {
     document.getElementById('reject_prep_id').value = prepId;
