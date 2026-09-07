@@ -384,13 +384,13 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
 <div class="sm-admin-dashboard" dir="rtl" style="font-family: 'Cairo', 'Noto Kufi Arabic', sans-serif; background: #fff; border: 1px solid var(--sm-border-color); border-radius: 12px; overflow: hidden;">
     <!-- OFFICIAL SYSTEM HEADER -->
-    <div class="sm-main-header" style="height: 52px; padding: 4px 16px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 12px;">
+    <div class="sm-main-header" style="height: 46px; padding: 3px 14px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
             <?php if (!empty($school['school_logo'])): ?>
-                <img src="<?php echo esc_url($school['school_logo']); ?>" style="height: 32px; width: auto; border-radius: 6px; object-fit: contain; display: block;">
+                <img src="<?php echo esc_url($school['school_logo']); ?>" style="height: 28px; width: auto; border-radius: 6px; object-fit: contain; display: block;">
             <?php else: ?>
-                <div style="background: #f1f5f9; border-radius: 6px; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-                    <span class="dashicons dashicons-building" style="font-size: 16px; width: 16px; height: 16px;"></span>
+                <div style="background: #f1f5f9; border-radius: 6px; height: 28px; width: 28px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                    <span class="dashicons dashicons-building" style="font-size: 15px; width: 15px; height: 15px;"></span>
                 </div>
             <?php endif; ?>
             <div>
@@ -544,7 +544,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 
     <div class="sm-admin-layout" style="display: flex; min-height: 800px;">
         <!-- SIDEBAR -->
-        <div class="sm-sidebar" style="width: 220px; flex-shrink: 0; background: var(--sm-bg-light); border-left: 1px solid var(--sm-border-color); padding: 20px 0; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="sm-sidebar" style="width: 195px; flex-shrink: 0; background: var(--sm-bg-light); border-left: 1px solid var(--sm-border-color); padding: 12px 0; display: flex; flex-direction: column; justify-content: space-between;">
             <ul style="list-style: none; padding: 0; margin: 0;">
                 <?php foreach (SM_Settings::get_system_modules() as $key => $module):
                     // 1. Check if the module is visible for the role (or is super admin)
@@ -574,7 +574,7 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         </div>
 
         <!-- CONTENT AREA -->
-        <div class="sm-main-panel" style="flex: 1; min-width: 0; padding: 40px; background: #fff;">
+        <div class="sm-main-panel" style="flex: 1; min-width: 0; padding: 18px 22px; background: #fff;">
             
             <?php if (isset($_GET['sm_admin_msg'])):
                 $msg_type = sanitize_text_field($_GET['sm_admin_msg']);
@@ -1796,9 +1796,10 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
 <style>
 .sm-sidebar-item { border-bottom: 1px solid #e2e8f0; transition: 0.2s; }
 .sm-sidebar-link { 
-    padding: 6px 15px;
+    padding: 5px 12px !important;
+    font-size: 11.5px !important;
     cursor: pointer; font-weight: 600; color: #4a5568 !important;
-    display: flex; align-items: center; gap: 10px;
+    display: flex; align-items: center; gap: 8px;
     text-decoration: none !important;
     width: 100%;
 }

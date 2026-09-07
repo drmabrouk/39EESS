@@ -95,26 +95,26 @@ $to_num = min($offset + $limit, $total_students_count);
     <?php endif; ?>
 
     <!-- 1. Header Banner Card (Wine Red / Red Pastel Theme) -->
-    <div style="background: #ffffff; padding: 22px 28px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <div style="width: 52px; height: 52px; background: #fef2f2; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
-                <span class="dashicons dashicons-groups" style="font-size: 26px; width: 26px; height: 26px; line-height: 1;"></span>
+    <div style="background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 14px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.02); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-groups" style="font-size: 22px; width: 22px; height: 22px; line-height: 1;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">
+                <h2 style="margin: 0 0 2px 0; font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">
                     إدارة شؤون الطلاب
                 </h2>
-                <p style="margin: 0; font-size: 13px; color: #64748b; font-weight: 500;">
+                <p style="margin: 0; font-size: 11.5px; color: #64748b; font-weight: 500;">
                     المركز الرئيسي لإدارة بيانات الطلاب، الملفات الأكاديمية والشخصية، السجلات المدرسية، واستيراد وتصدير ملفات البيانات المعتمدة
                 </p>
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <!-- Single Unified Import / Export Dropdown Button -->
             <div style="position: relative; display: inline-block;">
-                <button type="button" onclick="const d = document.getElementById('eess-students-import-export-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="eess-hdr-btn" style="background: #f8fafc !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                    <span class="dashicons dashicons-database" style="font-size: 18px; width: 18px; height: 18px; color: #881337;"></span>
+                <button type="button" onclick="const d = document.getElementById('eess-students-import-export-dropdown'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; event.stopPropagation();" class="eess-hdr-btn" style="background: #f8fafc !important; color: #1e293b !important; border: 1px solid #cbd5e1 !important; border-radius: 8px; padding: 0 12px; height: 34px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                    <span class="dashicons dashicons-database" style="font-size: 16px; width: 16px; height: 16px; color: #881337;"></span>
                     <span>استيراد / تصدير</span>
                     <span class="dashicons dashicons-arrow-down-alt2" style="font-size: 10px; width: 10px; height: 10px; color: #475569;"></span>
                 </button>
@@ -145,15 +145,15 @@ $to_num = min($offset + $limit, $total_students_count);
             <?php
             $exit_req_count = (int)$wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm_exit_card_requests WHERE status = 'submitted'");
             ?>
-            <button type="button" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='flex'" class="eess-hdr-btn" style="background: #f8fafc !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
-                <span class="dashicons dashicons-id" style="font-size: 18px; width: 18px; height: 18px; color: #0284c7;"></span>
+            <button type="button" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='flex'" class="eess-hdr-btn" style="background: #f8fafc !important; color: #0284c7 !important; border: 1px solid #bae6fd !important; border-radius: 8px; padding: 0 12px; height: 34px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                <span class="dashicons dashicons-id" style="font-size: 16px; width: 16px; height: 16px; color: #0284c7;"></span>
                 <span style="color: #0284c7 !important;">طلبات بطاقات الخروج (<?php echo $exit_req_count; ?>)</span>
             </button>
 
             <!-- Primary Action: Add Student (Wine Red) -->
             <?php if ($is_admin): ?>
-            <button type="button" onclick="openAddStudentWizard()" class="sm-btn sm-btn-custom" style="background: #881337; color: #ffffff; border: none; border-radius: 12px; padding: 0 20px; height: 42px; font-weight: 800; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(136, 19, 55, 0.25); transition: all 0.2s;" onmouseover="this.style.background='#700c2a'" onmouseout="this.style.background='#881337'">
-                <span class="dashicons dashicons-plus-alt2" style="font-size: 18px; width: 18px; height: 18px; color: #ffffff;"></span>
+            <button type="button" onclick="openAddStudentWizard()" class="sm-btn sm-btn-custom" style="background: #881337; color: #ffffff; border: none; border-radius: 8px; padding: 0 16px; height: 34px; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(136, 19, 55, 0.2); transition: all 0.2s;" onmouseover="this.style.background='#700c2a'" onmouseout="this.style.background='#881337'">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; width: 16px; height: 16px; color: #ffffff;"></span>
                 <span>إضافة طالب جديد</span>
             </button>
             <?php endif; ?>
