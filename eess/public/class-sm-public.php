@@ -8562,20 +8562,36 @@ class SM_Public {
                         width: 100%;
                         background: linear-gradient(135deg, #881337 0%, #4c0519 100%);
                         color: #ffffff;
-                        padding: 5px 10px;
+                        padding: 4px 10px;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
                         border-bottom: 2px solid #e11d48;
                     }
                     .card-header-right { display: flex; align-items: center; gap: 8px; }
-                    .card-sys-logo { height: 24px; max-width: 48px; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
-                    .card-header-titles { line-height: 1.1; }
+
+                    /* Compact Rounded Square Logo Box */
+                    .card-logo-box {
+                        width: 26px;
+                        height: 26px;
+                        border-radius: 6px;
+                        background: #ffffff;
+                        padding: 2px;
+                        border: 1px solid rgba(255, 255, 255, 0.4);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+                    }
+                    .card-sys-logo { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+
+                    .card-header-titles { line-height: 1.15; }
                     .card-title-main { font-size: 12px; font-weight: 900; color: #ffffff; letter-spacing: -0.2px; }
                     .card-school-name { font-size: 8.5px; font-weight: 700; color: #fecdd3; }
-                    .card-acad-year-text { font-size: 11px; color: #ffffff; font-weight: 900; text-align: left; letter-spacing: 0.5px; }
+                    .card-acad-year-text { font-size: 10.5px; color: #ffffff; font-weight: 900; text-align: left; letter-spacing: 0.5px; }
 
-                    .card-body { display: flex; gap: 10px; align-items: center; padding: 6px 10px; flex: 1; }
+                    .card-body { display: flex; gap: 8px; align-items: center; padding: 4px 8px; flex: 1; }
 
                     /* Student Photo Centered Vertically */
                     .card-photo {
@@ -8589,11 +8605,11 @@ class SM_Public {
                         flex-shrink: 0;
                     }
 
-                    /* Student Info Layout — Clean Typography with Prominent Spacing */
+                    /* Student Info Layout — Tight, Balanced & Professional Typography */
                     .card-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; padding-right: 2px; }
-                    .card-stu-name { font-size: 12.5px; font-weight: 900; color: #0f172a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
-                    .card-field { font-size: 9px; color: #334155; font-weight: 700; margin-bottom: 2.5px; display: flex; align-items: center; }
-                    .card-field-label { color: #64748b; font-weight: 700; width: 75px; min-width: 75px; flex-shrink: 0; }
+                    .card-stu-name { font-size: 12px; font-weight: 900; color: #0f172a; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+                    .card-field { font-size: 8.5px; color: #334155; font-weight: 700; margin-bottom: 1.5px; display: flex; align-items: center; gap: 4px; }
+                    .card-field-label { color: #64748b; font-weight: 700; width: 55px; min-width: 55px; flex-shrink: 0; }
                     .card-field-val { color: #0f172a; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
                     /* Barcode / Serial Stack Vertically Centered */
@@ -8611,11 +8627,11 @@ class SM_Public {
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        font-size: 6px;
+                        font-size: 6.5px;
                         color: #64748b;
                         font-weight: 700;
                     }
-                    .card-footer-auth { color: #166534; font-weight: 900; display: inline-flex; align-items: center; gap: 2px; }
+                    .card-footer-auth { color: #166534; font-weight: 900; }
 
                     @media print {
                         @page { size: A4; margin: 10mm; }
@@ -8636,14 +8652,20 @@ class SM_Public {
                         if (!$st) continue;
                         $sch_obj = $st->school_id ? EESS_Org_Helper::get_school_by_id($st->school_id) : null;
                         $s_name = $sch_obj ? $sch_obj->name : ($school_info['school_name'] ?? 'مدرسة EESS التعليمية');
-                        $serial = $st->student_code;
+                        $serial = $st->student_code ?: ('STU-' . $st->id);
                         $qr_svg = $this->eess_generate_qr_code_svg($serial);
                         $photo = !empty($st->photo_url) ? esc_url($st->photo_url) : 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="58" viewBox="0 0 24 24" fill="%23cbd5e1"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>';
+
+                        // Clean non-duplicated values (Strip duplicated 'الصف' or 'شعبة' labels)
+                        $clean_class = trim(preg_replace('/^(الصف|صف|Grade|grade)\s*:?\s*/u', '', $st->class_name ?: ''));
+                        $clean_section = trim(preg_replace('/^(الشعبة|شعبة|Section|section)\s*:?\s*/u', '', $st->section ?: 'أ'));
                     ?>
                     <div class="id-card">
                         <div class="card-header">
                             <div class="card-header-right">
-                                <img src="<?php echo esc_url($system_logo); ?>" class="card-sys-logo" alt="System Logo" onerror="this.style.display='none'">
+                                <div class="card-logo-box">
+                                    <img src="<?php echo esc_url($system_logo); ?>" class="card-sys-logo" alt="Logo" onerror="this.style.display='none'">
+                                </div>
                                 <div class="card-header-titles">
                                     <div class="card-title-main">بطاقة خروج طالب</div>
                                     <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
@@ -8660,11 +8682,11 @@ class SM_Public {
                                 <div class="card-stu-name" title="<?php echo esc_attr($st->name); ?>"><?php echo esc_html($st->name); ?></div>
                                 <div class="card-field">
                                     <span class="card-field-label">الصف:</span>
-                                    <span class="card-field-val"><?php echo esc_html($st->class_name); ?></span>
+                                    <span class="card-field-val"><?php echo esc_html($clean_class ?: 'الأول'); ?></span>
                                 </div>
                                 <div class="card-field">
                                     <span class="card-field-label">الشعبة:</span>
-                                    <span class="card-field-val"><?php echo esc_html($st->section ?: 'أ'); ?></span>
+                                    <span class="card-field-val"><?php echo esc_html($clean_section ?: 'أ'); ?></span>
                                 </div>
                                 <div class="card-field">
                                     <span class="card-field-label">رقم الطالب:</span>
@@ -8678,7 +8700,7 @@ class SM_Public {
                         </div>
 
                         <div class="card-footer">
-                            <span class="card-footer-auth">✓ تصريح خروج رسمي معتمد</span>
+                            <span class="card-footer-auth">تصريح خروج معتمد</span>
                             <span>EESS — eess.online</span>
                         </div>
                     </div>
