@@ -59,7 +59,7 @@ $edu_inputs = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_educational_in
     </div>
 
     <!-- Announcement Creation Form Card -->
-    <div style="background: #ffffff; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 30px;">
+    <div style="background: #ffffff; border-radius: 14px; padding: 16px 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 16px;">
         <h3 style="margin: 0 0 20px 0; font-size: 16px; font-weight: 800; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
             <span class="dashicons dashicons-plus-alt" style="color: #2563eb;"></span>
             إضافة إعلان أو تعميم إداري جديد
@@ -71,11 +71,11 @@ $edu_inputs = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_educational_in
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">عنوان الإشعار / التعميم <span style="color:#ef4444;">*</span></label>
-                    <input type="text" name="title" required placeholder="مثال: تنبيه هام بشأن مواعيد الاختبارات النصفية" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 13px; box-sizing: border-box;">
+                    <input type="text" name="title" required placeholder="مثال: تنبيه هام بشأن مواعيد الاختبارات النصفية" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 12px; box-sizing: border-box;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">نوع الإشعار / الأيقونة</label>
-                    <select name="type" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 13px; box-sizing: border-box;">
+                    <select name="type" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 12px; box-sizing: border-box;">
                         <option value="info">ℹ️ إداري عام (Info)</option>
                         <option value="warning">⚠️ تنبيه هام (Warning)</option>
                         <option value="urgent">🚨 عاجل جداً (Urgent)</option>
@@ -107,11 +107,11 @@ $edu_inputs = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_educational_in
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">مدة العرض التلقائي (بالثواني)</label>
-                    <input type="number" name="display_duration" value="10" min="3" max="60" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 13px; box-sizing: border-box;">
+                    <input type="number" name="display_duration" value="10" min="3" max="60" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 12px; box-sizing: border-box;">
                 </div>
                 <div>
                     <label style="display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 6px;">عدد مرات الظهور التلقائي لكل مستخدم</label>
-                    <input type="number" name="display_frequency" value="1" min="1" max="10" style="width: 100%; height: 42px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 12px; font-size: 13px; box-sizing: border-box;">
+                    <input type="number" name="display_frequency" value="1" min="1" max="10" style="width: 100%; height: 34px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0 10px; font-size: 12px; box-sizing: border-box;">
                 </div>
             </div>
 
@@ -131,16 +131,16 @@ $edu_inputs = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}sm_educational_in
         </h3>
 
         <div style="overflow-x: auto;">
-            <table class="sm-table" style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <table class="sm-table" style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
                 <thead>
                     <tr style="background: #f8fafc; text-align: right; border-bottom: 2px solid #e2e8f0;">
-                        <th style="padding: 12px;">العنوان</th>
-                        <th style="padding: 12px;">الرتب المستهدفة</th>
-                        <th style="padding: 12px;">تاريخ النشر</th>
-                        <th style="padding: 12px; text-align: center;">المشاهدين</th>
-                        <th style="padding: 12px; text-align: center;">المغلقين</th>
-                        <th style="padding: 12px; text-align: center;">الحالة</th>
-                        <th style="padding: 12px; text-align: center;">إجراءات (Actions)</th>
+                        <th style="padding: 6px 10px;">العنوان</th>
+                        <th style="padding: 6px 10px;">الرتب المستهدفة</th>
+                        <th style="padding: 6px 10px;">تاريخ النشر</th>
+                        <th style="padding: 6px 10px; text-align: center;">المشاهدين</th>
+                        <th style="padding: 6px 10px; text-align: center;">المغلقين</th>
+                        <th style="padding: 6px 10px; text-align: center;">الحالة</th>
+                        <th style="padding: 6px 10px; text-align: center;">إجراءات (Actions)</th>
                     </tr>
                 </thead>
                 <tbody>

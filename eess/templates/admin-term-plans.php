@@ -688,7 +688,7 @@ function eessTogglePlansTableSort() {
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">الفصل الدراسي المحدد (التقويم المعتمد: 3 فصول) *</label>
-                        <select id="wiz_term_number" class="sm-select" disabled style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 13px; text-align: right; direction: rtl; box-sizing: border-box; background: #f8fafc; font-weight: 800; color: #0f172a;">
+                        <select id="wiz_term_number" class="sm-select" disabled style="height: 34px; border-radius: 8px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px; text-align: right; direction: rtl; box-sizing: border-box; background: #f8fafc; font-weight: 800; color: #0f172a;">
                             <option value="1">الفصل الدراسي الأول (Term 1)</option>
                             <option value="2">الفصل الدراسي الثاني (Term 2)</option>
                             <option value="3">الفصل الدراسي الثالث (Term 3)</option>
@@ -697,14 +697,14 @@ function eessTogglePlansTableSort() {
                     </div>
                     <div>
                         <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ بداية الفصل *</label>
-                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
+                        <input type="date" id="wiz_start_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 34px; border-radius: 8px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px; text-align: right; box-sizing: border-box;">
                     </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div>
                         <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 5px; display: block;">تاريخ نهاية الفصل *</label>
-                        <input type="date" id="wiz_end_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 42px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 16px; font-size: 12.5px; text-align: right; box-sizing: border-box;">
+                        <input type="date" id="wiz_end_date" onchange="wizCalculateWeeksAuto()" class="sm-input" required style="height: 34px; border-radius: 8px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 12px; text-align: right; box-sizing: border-box;">
                     </div>
                     <div style="display: flex; align-items: flex-end;">
                         <div style="width: 100%; background: #f0f9ff; border: 1px solid #bae6fd; padding: 10px 16px; border-radius: 9999px; font-size: 12.5px; color: #0369a1; font-weight: 700; text-align: center;">
@@ -982,7 +982,7 @@ function eessExecuteTermPlanBulkDownloadInModal(e) {
         <div style="padding: 24px;">
             <div style="margin-bottom: 14px;">
                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">اختر المدرسة / المؤسسة التعليمية المستهدفة <span style="color:#ef4444;">*</span></label>
-                <select id="eess_target_school_plan" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                <select id="eess_target_school_plan" class="sm-input" style="height: 34px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px; font-weight: 700;">
                     <?php
                     $all_schools_list = class_exists('EESS_Org_Helper') ? EESS_Org_Helper::get_all_schools() : array();
                     if (!empty($all_schools_list)):
@@ -996,7 +996,7 @@ function eessExecuteTermPlanBulkDownloadInModal(e) {
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الفصل الدراسي المستهدف</label>
-                <select id="eess_target_term_plan" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                <select id="eess_target_term_plan" class="sm-input" style="height: 34px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px; font-weight: 700;">
                     <option value="1">الفصل الدراسي الأول (Term 1)</option>
                     <option value="2">الفصل الدراسي الثاني (Term 2)</option>
                     <option value="3">الفصل الدراسي الثالث (Term 3)</option>
