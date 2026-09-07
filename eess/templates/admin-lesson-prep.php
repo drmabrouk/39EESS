@@ -313,14 +313,14 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 <div class="sm-container" style="padding: 10px 0; font-family: 'Cairo', sans-serif !important; direction: rtl;">
 
     <!-- Single Main Banner Header (Matching Teacher Term & Annual Plans) -->
-    <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 18px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
-                <span class="dashicons dashicons-welcome-write-blog" style="font-size: 24px; width: 24px; height: 24px;"></span>
+    <div style="background: #ffffff; padding: 14px 18px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-welcome-write-blog" style="font-size: 22px; width: 22px; height: 22px;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">تحضير الدروس</h2>
-                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">متابعة وإعداد واعتماد التحضيرات والخطط الأكاديمية والتعليمية للكادر التدريسي والأكاديمي</p>
+                <h2 style="margin: 0 0 2px 0; font-size: 18px; font-weight: 800; color: #0f172a;">تحضير الدروس</h2>
+                <p style="margin: 0; font-size: 11.5px; color: #64748b; font-weight: 500;">متابعة وإعداد واعتماد التحضيرات والخطط الأكاديمية والتعليمية للكادر التدريسي والأكاديمي</p>
             </div>
         </div>
 
