@@ -99,7 +99,7 @@
     </div>
 
     <!-- 2. Search & Filtering Card -->
-    <div style="background: #ffffff; padding: 20px 24px; border: 1px solid #e2e8f0; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+    <div style="background: #ffffff; padding: 14px 18px; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
         <form id="violation-filter-form" method="get">
             <input type="hidden" name="page" value="sm-dashboard">
             <input type="hidden" name="sm_tab" value="stats">
@@ -116,7 +116,7 @@
                         البحث عن طالب
                     </label>
                     <div style="position: relative;">
-                        <input type="text" id="filter_student_search" name="student_search" value="<?php echo esc_attr($_GET['student_search'] ?? ''); ?>" placeholder="اسم الطالب / رقم الهوية / الكود..." style="width: 100%; height: 42px; padding: 0 38px 0 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                        <input type="text" id="filter_student_search" name="student_search" value="<?php echo esc_attr($_GET['student_search'] ?? ''); ?>" placeholder="اسم الطالب / رقم الهوية / الكود..." style="width: 100%; height: 34px; padding: 0 32px 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; outline: none; background: #f8fafc; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
                         <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; display: flex; align-items: center;">
                             <svg width="16" height="16" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
@@ -129,7 +129,7 @@
                         الصف الدراسي
                     </label>
                     <div style="position: relative;">
-                        <select id="filter_class" name="class_filter" style="width: 100%; height: 42px; padding: 0 38px 0 26px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                        <select id="filter_class" name="class_filter" style="width: 100%; height: 34px; padding: 0 32px 0 20px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
                             <option value="">جميع الصفوف</option>
                             <?php
                             global $wpdb;
@@ -151,7 +151,7 @@
                         الشعبة
                     </label>
                     <div style="position: relative;">
-                        <select id="filter_section" name="section_filter" style="width: 100%; height: 42px; padding: 0 38px 0 26px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                        <select id="filter_section" name="section_filter" style="width: 100%; height: 34px; padding: 0 32px 0 20px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
                             <option value="">جميع الشعب</option>
                             <?php
                             $sections = $wpdb->get_col("SELECT DISTINCT section FROM {$wpdb->prefix}sm_students WHERE section != '' ORDER BY section ASC");
@@ -173,7 +173,7 @@
                         نوع المخالفة
                     </label>
                     <div style="position: relative;">
-                        <select id="filter_type" name="type_filter" style="width: 100%; height: 42px; padding: 0 38px 0 26px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
+                        <select id="filter_type" name="type_filter" style="width: 100%; height: 34px; padding: 0 32px 0 20px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; outline: none; background: #f8fafc; appearance: none; -webkit-appearance: none; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#dc2626'; this.style.background='#fff';" onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">
                             <option value="">جميع الأنواع</option>
                             <?php foreach (SM_Settings::get_violation_types() as $k => $v): ?>
                                 <option value="<?php echo esc_attr($k); ?>" <?php selected(isset($_GET['type_filter']) && $_GET['type_filter'] == $k); ?>><?php echo esc_html($v); ?></option>
@@ -188,7 +188,7 @@
 
                 <!-- Apply Filters Button -->
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button type="submit" class="sm-btn" style="background: #dc2626; color: #ffffff; border: none; border-radius: 12px; height: 42px; padding: 0 22px; font-weight: 800; font-size: 13.5px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2); transition: all 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+                    <button type="submit" class="sm-btn" style="background: #dc2626; color: #ffffff; border: none; border-radius: 8px; height: 34px; padding: 0 16px; font-weight: 800; font-size: 12px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2); transition: all 0.2s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                         <span>تطبيق الفلترة</span>
                     </button>

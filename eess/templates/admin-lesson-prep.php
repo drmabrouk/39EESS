@@ -553,12 +553,12 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     <div>
                                         <label for="eess_upload_lesson_title" style="display: block; font-size: 12.5px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">عنوان وثيقة التحضير <span style="color:#ef4444;">*</span></label>
                                         <span style="display: block; font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 6px;">أدخل اسم الوثيقة الشامل المكتوب بملف التحضير المرفوع</span>
-                                        <input type="text" id="eess_upload_lesson_title" name="upload_lesson_title" value="<?php echo esc_attr($edit_prep->title ?? ''); ?>" class="sm-input" placeholder="عنوان وثيقة التحضير الكامل..." style="height: 42px; font-size: 13px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; width: 100%; box-sizing: border-box;">
+                                        <input type="text" id="eess_upload_lesson_title" name="upload_lesson_title" value="<?php echo esc_attr($edit_prep->title ?? ''); ?>" class="sm-input" placeholder="عنوان وثيقة التحضير الكامل..." style="height: 34px; font-size: 12px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; width: 100%; box-sizing: border-box;">
                                     </div>
                                     <div>
                                         <label for="eess_upload_lesson_date" style="display: block; font-size: 12.5px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">تاريخ الدرس <span style="color:#ef4444;">*</span></label>
                                         <span style="display: block; font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 6px;">تاريخ تنفيذ وتوثيق الدرس بالأجندة</span>
-                                        <input type="date" id="eess_upload_lesson_date" name="upload_lesson_date" value="<?php echo esc_attr($edit_prep->lesson_date ?? current_time('Y-m-d')); ?>" class="sm-input" style="height: 42px; font-size: 12.5px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; width: 100%; box-sizing: border-box;">
+                                        <input type="date" id="eess_upload_lesson_date" name="upload_lesson_date" value="<?php echo esc_attr($edit_prep->lesson_date ?? current_time('Y-m-d')); ?>" class="sm-input" style="height: 34px; font-size: 12px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; width: 100%; box-sizing: border-box;">
                                     </div>
                                 </div>
                             </div>
@@ -592,12 +592,12 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                     <div>
                                         <label for="eess_lesson_title" style="display: block; font-size: 12.5px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">عنوان الدرس الرئيسي <span style="color:#ef4444;">*</span></label>
                                         <span style="display: block; font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 6px;">عنوان المهارة أو الوحدة الدراسية المقررة بالمنهج</span>
-                                        <input type="text" id="eess_lesson_title" name="lesson_title" value="<?php echo esc_attr($edit_prep->title ?? ''); ?>" class="sm-input" placeholder="عنوان الدرس..." style="height: 42px; font-size: 13px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; width: 100%; box-sizing: border-box;">
+                                        <input type="text" id="eess_lesson_title" name="lesson_title" value="<?php echo esc_attr($edit_prep->title ?? ''); ?>" class="sm-input" placeholder="عنوان الدرس..." style="height: 34px; font-size: 12px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; width: 100%; box-sizing: border-box;">
                                     </div>
                                     <div>
                                         <label for="eess_lesson_date" style="display: block; font-size: 12.5px; font-weight: 800; color: #0f172a; margin-bottom: 2px;">تاريخ تنفيذ الدرس <span style="color:#ef4444;">*</span></label>
                                         <span style="display: block; font-size: 11px; color: #64748b; font-weight: 500; margin-bottom: 6px;">تاريخ حصة الدرس بالجدول</span>
-                                        <input type="date" id="eess_lesson_date" name="lesson_date" value="<?php echo esc_attr($edit_prep->lesson_date ?? current_time('Y-m-d')); ?>" class="sm-input" style="height: 42px; font-size: 12.5px; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; width: 100%; box-sizing: border-box;">
+                                        <input type="date" id="eess_lesson_date" name="lesson_date" value="<?php echo esc_attr($edit_prep->lesson_date ?? current_time('Y-m-d')); ?>" class="sm-input" style="height: 34px; font-size: 12px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; width: 100%; box-sizing: border-box;">
                                     </div>
                                 </div>
 
@@ -1698,7 +1698,7 @@ function eessUpdatePrepScopeFields(scope) {
         <div style="padding: 24px;">
             <div style="margin-bottom: 14px;">
                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">اختر المدرسة / المؤسسة التعليمية المستهدفة <span style="color:#ef4444;">*</span></label>
-                <select id="eess_target_school_prep" onchange="eessFetchSchoolPrepWeeks()" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                <select id="eess_target_school_prep" onchange="eessFetchSchoolPrepWeeks()" class="sm-input" style="height: 34px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px; font-weight: 700;">
                     <?php
                     $all_schools_list = class_exists('EESS_Org_Helper') ? EESS_Org_Helper::get_all_schools() : array();
                     if (!empty($all_schools_list)):
@@ -1712,7 +1712,7 @@ function eessUpdatePrepScopeFields(scope) {
             </div>
             <div style="margin-bottom: 18px;">
                 <label style="font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">الأسبوع الأكاديمي المستهدف (الأسابيع المتاحة بالفعل)</label>
-                <select id="eess_target_week_prep" class="sm-input" style="height: 42px; width: 100%; border-radius: 10px; border: 1px solid #cbd5e1; padding: 0 12px; font-size: 13px; font-weight: 700;">
+                <select id="eess_target_week_prep" class="sm-input" style="height: 34px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px; font-weight: 700;">
                     <option value="0">جميع الأسابيع (تقرير شامل كافة التقديمات)</option>
                 </select>
             </div>
