@@ -7,12 +7,15 @@
 (function(window) {
     const SM_UI = {
         showNotification: function(message, isError = false) {
+            // Remove existing toasts to prevent stacking
+            document.querySelectorAll('.sm-toast').forEach(el => el.remove());
+
             const toast = document.createElement('div');
             toast.className = 'sm-toast';
-            toast.style.cssText = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:white; padding:15px 30px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:10001; display:flex; align-items:center; gap:10px; border-right:5px solid " + (isError ? '#e53e3e' : '#38a169');
-            toast.innerHTML = `<strong>${isError ? '✖' : '✓'}</strong> <span>${message}</span>`;
+            toast.style.cssText = "position:fixed; top:24px; left:50%; transform:translateX(-50%); background:#ffffff; padding:12px 24px; border-radius:12px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.18), 0 8px 10px -6px rgba(0,0,0,0.1); z-index:9999999; display:flex; align-items:center; gap:10px; border:1px solid " + (isError ? '#fecdd3' : '#bbf7d0') + "; background-color:" + (isError ? '#fff5f5' : '#f0fdf4') + "; direction:rtl; font-family:'Cairo', sans-serif;";
+            toast.innerHTML = `<span style="width:24px; height:24px; border-radius:50%; background:${isError ? '#dc2626' : '#16a34a'}; color:#ffffff; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; flex-shrink:0;">${isError ? '✕' : '✓'}</span> <span style="font-weight:700; font-size:12.5px; color:${isError ? '#991b1b' : '#166534'};">${message}</span>`;
             document.body.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.5s'; setTimeout(() => toast.remove(), 500); }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.4s ease'; setTimeout(() => toast.remove(), 400); }, 3000);
         },
 
         openInternalTab: function(tabId, element) {

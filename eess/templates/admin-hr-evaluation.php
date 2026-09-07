@@ -56,7 +56,7 @@ $active_academic_year = $acad_struct['academic_year'] ?? '2025/2026';
             <span class="dashicons dashicons-archive" style="font-size: 16px; width: 16px; height: 16px;"></span>
             <span>أرشيف التقييمات التاريخية</span>
         </button>
-        <?php if ($is_admin || $is_sys_admin || $is_hr): ?>
+        <?php if ($is_admin || $is_sys_admin || $is_hr || $is_principal || $is_hod || $is_discipline_sup): ?>
             <button type="button" onclick="eessSwitchEvalTab('templates')" id="eval_tab_btn_templates" class="sm-btn sm-btn-outline" style="height: 38px; border-radius: 8px; font-weight: 700; font-size: 12.5px; border: 1px solid #cbd5e1; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-admin-generic" style="font-size: 16px; width: 16px; height: 16px;"></span>
                 <span>إدارة نماذج وأسئلة التقييم</span>
@@ -270,8 +270,8 @@ $active_academic_year = $acad_struct['academic_year'] ?? '2025/2026';
         </div>
     </div>
 
-    <!-- TAB 3: TEMPLATE & QUESTION MANAGEMENT (Admin/HR Only) -->
-    <?php if ($is_admin || $is_sys_admin || $is_hr): ?>
+    <!-- TAB 3: TEMPLATE & QUESTION MANAGEMENT -->
+    <?php if ($is_admin || $is_sys_admin || $is_hr || $is_principal || $is_hod || $is_discipline_sup): ?>
     <div id="eval_tab_templates" style="display: none;">
         <div style="background: #ffffff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
             <h3 style="margin: 0 0 14px 0; font-size: 16px; font-weight: 800; color: #0f172a;">إنشاء وتخصيص نماذج وأسئلة التقييم (0–10)</h3>
