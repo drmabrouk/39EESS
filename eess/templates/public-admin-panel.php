@@ -160,8 +160,6 @@
     document.addEventListener('click', function() {
         const userDropdown = document.getElementById('eess-user-options-dropdown');
         if (userDropdown) userDropdown.style.display = 'none';
-        const prepDropdown = document.getElementById('eess-prep-reports-dropdown');
-        if (prepDropdown) prepDropdown.style.display = 'none';
         const absenceDropdown = document.getElementById('eess-absence-dropdown');
         if (absenceDropdown) absenceDropdown.style.display = 'none';
     });
