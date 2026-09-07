@@ -441,11 +441,13 @@ if (isset($_POST['eess_photo_approval_action']) && ($is_admin || $is_sys_admin |
     }
 }
 
-// Fetch list of employees (all users except students/parents)
+// Fetch list of employees (all users except students/parents and System Administrators)
 $employees = get_users();
 $employees = array_filter($employees, function($u) {
-    $role = !empty($u->roles) ? $u->roles[0] : '';
-    return $role !== 'sm_student' && $role !== 'sm_parent';
+    $user_roles = (array) $u->roles;
+    $primary_role = !empty($user_roles) ? $user_roles[0] : '';
+    $is_sys_admin_account = in_array('administrator', $user_roles) || in_array('sm_system_admin', $user_roles);
+    return !$is_sys_admin_account && $primary_role !== 'sm_student' && $primary_role !== 'sm_parent';
 });
 
 // Deciding active edited employee details if requested

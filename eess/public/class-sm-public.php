@@ -9025,7 +9025,9 @@ class SM_Public {
     }
 
     public function ajax_save_eval_template() {
-        if (!current_user_can('manage_options') && !current_user_can('manage_hr')) {
+        $user_roles = (array) wp_get_current_user()->roles;
+        $is_auth = current_user_can('manage_options') || current_user_can('manage_hr') || in_array('administrator', $user_roles) || in_array('sm_system_admin', $user_roles) || in_array('sm_principal', $user_roles) || in_array('sm_hod', $user_roles) || in_array('sm_discipline_supervisor', $user_roles);
+        if (!$is_auth) {
             wp_send_json_error('غير مصرح لك بإدارة نماذج التقييم.');
         }
 
@@ -9469,9 +9471,13 @@ class SM_Public {
             ));
         }
 
-        // Set Role
+        // Set Role (Role field modification strictly restricted to System Administrators)
+        $current_user_roles = (array) wp_get_current_user()->roles;
+        $is_sys_admin_editor = in_array('administrator', $current_user_roles) || in_array('sm_system_admin', $current_user_roles) || current_user_can('manage_options');
         $u = new WP_User($user_id);
-        $u->set_role($user_role);
+        if ($is_new_user || $is_sys_admin_editor) {
+            $u->set_role($user_role);
+        }
 
         // Derive school name from institution lookup for system-wide synchronization
         $school_name = 'المدرسة الرئيسية';

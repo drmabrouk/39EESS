@@ -164,24 +164,33 @@ $history = $wpdb->get_results("
 
 <!-- Referral Modal -->
 <div id="referral-modal" class="sm-modal-overlay">
-    <div class="sm-modal-content" style="max-width: 500px;">
-        <div class="sm-modal-header">
-            <h3>تحويل طالب للعيادة</h3>
-            <button class="sm-modal-close" onclick="document.getElementById('referral-modal').style.display='none'">&times;</button>
+    <div class="sm-modal-content" style="max-width: 680px; width: 95vw; border-radius: 16px; overflow: hidden; background: #ffffff;">
+        <!-- Clean White Header -->
+        <div style="background: #ffffff; padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                <span class="dashicons dashicons-heart" style="color: #0f172a; font-size: 18px; width: 18px; height: 18px;"></span>
+                <span>تحويل طالب للعيادة المدرسية</span>
+            </h3>
+            <button type="button" onclick="document.getElementById('referral-modal').style.display='none'" style="background: none; border: none; font-size: 22px; color: #0f172a; cursor: pointer; line-height: 1;">&times;</button>
         </div>
-        <div class="sm-form-group">
-            <label class="sm-label">البحث عن الطالب:</label>
-            <input type="text" id="clinic-student-search" class="sm-input" placeholder="اكتب اسم الطالب أو كوده..." onkeyup="clinicSearchStudents(this.value)">
-            <div id="clinic-search-results" style="background: #fff; border: 1px solid #ddd; border-top: none; max-height: 200px; overflow-y: auto; display: none;"></div>
-        </div>
-        <div id="selected-student-box" style="display: none; background: #f0fdf4; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 20px;">
-            <div style="font-weight: 800;" id="selected-student-name"></div>
-            <div style="font-size: 12px; color: #166534;" id="selected-student-info"></div>
-            <input type="hidden" id="selected-student-id">
-        </div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-            <button onclick="submitClinicReferral()" class="sm-btn" style="background: var(--sm-primary-color);">إرسال للعيادة</button>
-            <button onclick="document.getElementById('referral-modal').style.display='none'" class="sm-btn sm-btn-outline">إلغاء</button>
+        <div style="padding: 20px;">
+            <div class="sm-form-group" style="margin-bottom: 14px;">
+                <label class="sm-label" style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 6px; display: block;">البحث عن الطالب وشؤون الطلاب: <span style="color:#ef4444;">*</span></label>
+                <input type="text" id="clinic-student-search" class="sm-input" placeholder="اكتب اسم الطالب، كوده، أو صفه للبحث المباشر..." onkeyup="clinicSearchStudents(this.value)" style="height: 36px; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px; width: 100%; box-sizing: border-box;">
+                <div id="clinic-search-results" style="background: #ffffff; border: 1px solid #cbd5e1; border-top: none; max-height: 180px; overflow-y: auto; display: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;"></div>
+            </div>
+            <div id="selected-student-box" style="display: none; background: #f0fdf4; padding: 12px 16px; border-radius: 10px; border: 1px solid #bbf7d0; margin-bottom: 16px;">
+                <div style="font-weight: 800; font-size: 13px; color: #166534;" id="selected-student-name"></div>
+                <div style="font-size: 11.5px; color: #15803d; margin-top: 2px;" id="selected-student-info"></div>
+                <input type="hidden" id="selected-student-id">
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" onclick="document.getElementById('referral-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 34px; padding: 0 16px; border-radius: 8px; font-weight: 700; font-size: 12px; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;">إلغاء</button>
+                <button type="button" onclick="submitClinicReferral()" class="sm-btn" style="background: #dc2626; color: #ffffff !important; height: 34px; padding: 0 18px; border-radius: 8px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-send" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                    <span>إرسال للعيادة</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
