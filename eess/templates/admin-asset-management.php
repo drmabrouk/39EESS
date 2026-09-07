@@ -107,25 +107,25 @@ $pending_requests_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm
 <div class="sm-main-container" style="direction: rtl; font-family: 'Cairo', sans-serif; padding: 20px; background: #f8fafc;">
 
     <!-- TOP BANNER (White Standard Card Background) -->
-    <div style="background: #ffffff; color: #0f172a; border-radius: 20px; border: 1px solid #e2e8f0; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-        <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 48px; height: 48px; background: #fef2f2; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
-                <span class="dashicons dashicons-store" style="font-size: 24px; width: 24px; height: 24px;"></span>
+    <div style="background: #ffffff; color: #0f172a; border-radius: 14px; border: 1px solid #e2e8f0; padding: 14px 18px; margin-bottom: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 42px; height: 42px; background: #fef2f2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #881337; border: 1px solid #fecdd3; flex-shrink: 0;">
+                <span class="dashicons dashicons-store" style="font-size: 22px; width: 22px; height: 22px;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; color: #0f172a;">نظام إدارة العهد والمعدات والأصول المؤسسية</h2>
-                <p style="margin: 0; font-size: 12.5px; color: #64748b; font-weight: 500;">حصر، متابعة، طلب، واعتماد العهد الرياضية والأدوات والأجهزة المدرسية - <?php echo esc_html($emp_school); ?></p>
+                <h2 style="margin: 0 0 2px 0; font-size: 18px; font-weight: 800; color: #0f172a;">نظام إدارة العهد والمعدات والأصول المؤسسية</h2>
+                <p style="margin: 0; font-size: 11.5px; color: #64748b; font-weight: 500;">حصر، متابعة، طلب، واعتماد العهد الرياضية والأدوات والأجهزة المدرسية - <?php echo esc_html($emp_school); ?></p>
             </div>
         </div>
 
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-            <button type="button" onclick="document.getElementById('asset-inventory-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(136,19,55,0.3);">
-                <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; width: 16px; height: 16px;"></span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <button type="button" onclick="document.getElementById('asset-inventory-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 34px; border-radius: 9999px !important; padding: 0 16px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(136,19,55,0.2);">
+                <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px;"></span>
                 <span>تحديث / تقديم جرد عهدة جديدة</span>
             </button>
 
-            <button type="button" onclick="document.getElementById('asset-request-modal').style.display='flex'" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(2,132,199,0.3);">
-                <span class="dashicons dashicons-cart" style="font-size: 16px; width: 16px; height: 16px;"></span>
+            <button type="button" onclick="document.getElementById('asset-request-modal').style.display='flex'" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 34px; border-radius: 9999px !important; padding: 0 16px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(2,132,199,0.2);">
+                <span class="dashicons dashicons-cart" style="font-size: 15px; width: 15px; height: 15px;"></span>
                 <span>طلب معدات وعهد جديدة</span>
             </button>
         </div>
