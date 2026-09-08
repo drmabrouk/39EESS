@@ -3283,7 +3283,9 @@ class SM_Public {
 
 
     public function ajax_add_student() {
-        if (!current_user_can('إدارة_الطلاب')) wp_send_json_error('Unauthorized');
+        $user_roles = (array) wp_get_current_user()->roles;
+        $can_manage_students = current_user_can('إدارة_الطلاب') || current_user_can('manage_options') || current_user_can('manage_students') || in_array('sm_principal', $user_roles) || in_array('sm_discipline_supervisor', $user_roles);
+        if (!$can_manage_students) wp_send_json_error('Unauthorized');
         $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
         if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
@@ -3296,7 +3298,9 @@ class SM_Public {
     }
 
     public function ajax_update_student() {
-        if (!current_user_can('إدارة_الطلاب')) wp_send_json_error('Unauthorized');
+        $user_roles = (array) wp_get_current_user()->roles;
+        $can_manage_students = current_user_can('إدارة_الطلاب') || current_user_can('manage_options') || current_user_can('manage_students') || in_array('sm_principal', $user_roles) || in_array('sm_discipline_supervisor', $user_roles);
+        if (!$can_manage_students) wp_send_json_error('Unauthorized');
         $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
         if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_photo_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
@@ -3309,7 +3313,9 @@ class SM_Public {
     }
 
     public function ajax_delete_student() {
-        if (!current_user_can('إدارة_الطلاب')) wp_send_json_error('Unauthorized');
+        $user_roles = (array) wp_get_current_user()->roles;
+        $can_manage_students = current_user_can('إدارة_الطلاب') || current_user_can('manage_options') || current_user_can('manage_students') || in_array('sm_principal', $user_roles) || in_array('sm_discipline_supervisor', $user_roles);
+        if (!$can_manage_students) wp_send_json_error('Unauthorized');
         if (!wp_verify_nonce($_POST['nonce'], 'sm_delete_student')) wp_send_json_error('Security check failed');
 
         $student_id = intval($_POST['student_id']);
@@ -7160,21 +7166,37 @@ class SM_Public {
 
         if ($inserted) {
             $req_id = $wpdb->insert_id;
-            $item_info = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_asset_catalog WHERE id = %d", $catalog_id));
-            $item_name = $item_info ? $item_info->item_name : 'معدة جديدة';
+            $request_items = $_POST['items'] ?? array();
 
-            $wpdb->insert("{$wpdb->prefix}sm_asset_request_items", array(
-                'request_id'    => $req_id,
-                'catalog_id'    => $catalog_id,
-                'item_name'     => $item_name,
-                'qty_usable'    => 0,
-                'qty_damaged'   => 0,
-                'qty_missing'   => 0,
-                'qty_requested' => $qty_requested,
-                'created_at'    => current_time('mysql')
-            ));
+            if (empty($request_items) && $catalog_id > 0) {
+                $request_items = array(array('catalog_id' => $catalog_id, 'qty_requested' => $qty_requested));
+            }
 
-            SM_Logger::log('طلب توريد معدات', "تم تقديم طلب توريد ($item_name - الكمية: $qty_requested) لـ $school_name بواسطة المستخدم ID: $user_id");
+            $added_names = array();
+
+            foreach ($request_items as $item_entry) {
+                $cat_id = intval($item_entry['catalog_id'] ?? 0);
+                $qty_req = max(1, intval($item_entry['qty_requested'] ?? 1));
+                if ($cat_id <= 0) continue;
+
+                $item_info = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_asset_catalog WHERE id = %d", $cat_id));
+                $item_name = $item_info ? $item_info->item_name : 'معدة جديدة';
+                $added_names[] = "{$item_name} ({$qty_req})";
+
+                $wpdb->insert("{$wpdb->prefix}sm_asset_request_items", array(
+                    'request_id'    => $req_id,
+                    'catalog_id'    => $cat_id,
+                    'item_name'     => $item_name,
+                    'qty_usable'    => 0,
+                    'qty_damaged'   => 0,
+                    'qty_missing'   => 0,
+                    'qty_requested' => $qty_req,
+                    'created_at'    => current_time('mysql')
+                ));
+            }
+
+            $items_summary = implode(', ', $added_names);
+            SM_Logger::log('طلب توريد معدات', "تم تقديم طلب توريد متعدد الأصناف [$items_summary] لـ $school_name بواسطة المستخدم ID: $user_id");
             wp_send_json_success(array('message' => 'تم إرسال طلب التوريد بنجاح للمراجعة والاعتماد.'));
         } else {
             wp_send_json_error('فشل حفظ طلب التوريد.');
@@ -8667,8 +8689,8 @@ class SM_Public {
                                     <img src="<?php echo esc_url($system_logo); ?>" class="card-sys-logo" alt="Logo" onerror="this.style.display='none'">
                                 </div>
                                 <div class="card-header-titles">
-                                    <div class="card-title-main">بطاقة خروج طالب</div>
-                                    <div class="card-school-name"><?php echo esc_html($s_name); ?></div>
+                                    <div class="card-title-main"><?php echo esc_html($s_name); ?></div>
+                                    <div class="card-school-name">بطاقة خروج طالب نهاية الدوام</div>
                                 </div>
                             </div>
                             <div class="card-acad-year-text">
@@ -8701,7 +8723,7 @@ class SM_Public {
 
                         <div class="card-footer">
                             <span class="card-footer-auth">تصريح خروج معتمد</span>
-                            <span>EESS — eess.online</span>
+                            <span style="font-size: 5.5px; opacity: 0.85; font-family: monospace, sans-serif;">Powered by Educational Systems Solutions (EESS) - eess.online</span>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -9332,6 +9354,41 @@ class SM_Public {
         ));
     }
 
+    public function ajax_get_departments_by_school() {
+        if (!is_user_logged_in()) wp_send_json_error('Unauthorized');
+        $institution_id = intval($_POST['institution_id'] ?? 0);
+        if ($institution_id <= 0) {
+            $school_id = intval($_POST['school_id'] ?? 0);
+            if ($school_id > 0) {
+                $institution_id = $school_id;
+            }
+        }
+
+        $departments = array();
+        if ($institution_id > 0 && class_exists('EESS_Org_Helper')) {
+            $dept_objs = EESS_Org_Helper::get_departments_by_institution($institution_id);
+            if (!empty($dept_objs)) {
+                foreach ($dept_objs as $d) {
+                    if (!empty($d->name)) {
+                        $departments[] = array(
+                            'id' => $d->id,
+                            'name' => $d->name
+                        );
+                    }
+                }
+            }
+        }
+
+        if (empty($departments) && class_exists('SM_Settings')) {
+            $fallback = SM_Settings::get_departments();
+            foreach ($fallback as $fk => $fv) {
+                $departments[] = array('id' => $fk, 'name' => $fv);
+            }
+        }
+
+        wp_send_json_success($departments);
+    }
+
     public function ajax_save_user_unified() {
         check_ajax_referer('sm_user_action', 'sm_nonce');
 
@@ -9519,6 +9576,7 @@ class SM_Public {
         update_user_meta($user_id, 'sm_school_id', $school_id);
         update_user_meta($user_id, 'eess_school_name', $school_name);
         update_user_meta($user_id, 'sm_school_name', $school_name);
+        update_user_meta($user_id, 'eess_department', $department);
         update_user_meta($user_id, 'department', $department);
         update_user_meta($user_id, 'sm_department', $department);
         update_user_meta($user_id, 'eess_admin_section', $admin_section);
@@ -10973,7 +11031,8 @@ class SM_Public {
         if (!$user_scope['unrestricted']) {
             if (!empty($user_scope['schools'])) {
                 $placeholders = implode(',', array_fill(0, count($user_scope['schools']), '%d'));
-                $query .= " AND p.teacher_id IN (SELECT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE school_id IN ($placeholders))";
+                $query .= " AND (p.teacher_id IN (SELECT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE school_id IN ($placeholders)) OR p.teacher_id IN (SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key IN ('eess_school_id', 'sm_school_id') AND meta_value IN ($placeholders)))";
+                foreach ($user_scope['schools'] as $sch_id) $params[] = $sch_id;
                 foreach ($user_scope['schools'] as $sch_id) $params[] = $sch_id;
             } else {
                 $query .= " AND p.teacher_id = %d";
@@ -11131,7 +11190,8 @@ class SM_Public {
         if (!$user_scope['unrestricted']) {
             if (!empty($user_scope['schools'])) {
                 $placeholders = implode(',', array_fill(0, count($user_scope['schools']), '%d'));
-                $query .= " AND tp.teacher_id IN (SELECT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE school_id IN ($placeholders))";
+                $query .= " AND (tp.teacher_id IN (SELECT user_id FROM {$wpdb->prefix}eess_user_assignments WHERE school_id IN ($placeholders)) OR tp.teacher_id IN (SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key IN ('eess_school_id', 'sm_school_id') AND meta_value IN ($placeholders)))";
+                foreach ($user_scope['schools'] as $sch_id) $params[] = $sch_id;
                 foreach ($user_scope['schools'] as $sch_id) $params[] = $sch_id;
             } else {
                 $query .= " AND tp.teacher_id = %d";

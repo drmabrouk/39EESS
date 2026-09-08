@@ -463,18 +463,16 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
         </div>
 
         <div style="display: flex; align-items: center; gap: 10px;">
-            <?php if ($active_tab !== 'attendance'): ?>
-                <?php if ($is_teacher || in_array('sm_activities_supervisor', $roles) || in_array('sm_hod', $roles)): ?>
-                    <button type="button" onclick="eessOpenTeacherReferralModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                        <span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
-                        <span>تقديم حالة سلوكية</span>
-                    </button>
-                <?php elseif ($is_admin || current_user_can('تسجيل_مخالفة')): ?>
-                    <button type="button" onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                        <span class="dashicons dashicons-plus-alt" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
-                        <span>تسجيل مخالفة</span>
-                    </button>
-                <?php endif; ?>
+            <?php if ($is_teacher || in_array('sm_activities_supervisor', $roles) || in_array('sm_hod', $roles)): ?>
+                <button type="button" onclick="eessOpenTeacherReferralModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
+                    <span>تقديم حالة سلوكية</span>
+                </button>
+            <?php elseif ($is_admin || current_user_can('تسجيل_مخالفة')): ?>
+                <button type="button" onclick="smOpenViolationModal()" class="sm-btn" style="background: var(--sm-primary-color); height: 32px; padding: 0 14px; font-size: 11.5px; font-weight: 700; color: white !important; border-radius: 9999px !important; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-plus-alt" style="font-size: 14px; width: 14px; height: 14px; color: white;"></span>
+                    <span>تسجيل مخالفة</span>
+                </button>
             <?php endif; ?>
 
             <button type="button" onclick="eessOpenSupportHelpCapsule()" class="sm-btn" style="background-color: #ffffff !important; color: #dc2626 !important; border: 1.5px solid #ef4444 !important; height: 32px !important; border-radius: 9999px !important; padding: 0 14px !important; font-weight: 800 !important; font-size: 11.5px !important; cursor: pointer !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; box-shadow: 0 2px 6px rgba(239,68,68,0.06) !important; transition: all 0.2s ease !important;">
@@ -795,8 +793,8 @@ $greeting = ($hour >= 5 && $hour < 12) ? 'صباح الخير' : 'مساء ال�
                 $btn_html .= '</div>';
                 $header_map['lesson-plans']['button'] = $btn_html;
             }
-            if ($active_tab === 'assignments' && $is_teacher) {
-                $header_map['assignments']['button'] = '<button onclick="document.getElementById(\'add-assignment-modal\').style.display=\'flex\'" class="sm-btn" style="background:#000; border:1px solid #000; color:#fff; border-radius:8px; font-weight:700; height:38px; display:inline-flex; align-items:center; gap:8px; cursor:pointer;"><span class="dashicons dashicons-plus-alt"></span> إضافة واجب جديد</button>';
+            if ($active_tab === 'assignments' && ($is_teacher || $is_principal || $is_admin || $is_sys_admin)) {
+                $header_map['assignments']['button'] = '<button onclick="document.getElementById(\'add-assignment-modal\').style.display=\'flex\'" class="sm-btn" style="background:#881337; border:none; color:#ffffff !important; border-radius:9999px !important; font-weight:800; height:38px; padding:0 20px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><span class="dashicons dashicons-plus-alt2" style="font-size:15px; width:15px; height:15px;"></span> إضافة واجب جديد</button>';
             }
             if ($active_tab === 'documents') {
                 $header_map['documents']['button'] = '<button onclick="document.getElementById(\'add-doc-modal\').style.display=\'flex\'" class="sm-btn" style="background:#881337; border:none; color:#ffffff !important; border-radius:9999px !important; font-weight:800; height:38px; padding:0 20px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px; cursor:pointer;"><span class="dashicons dashicons-plus-alt2" style="font-size:15px; width:15px; height:15px;"></span> إضافة مستند جديد</button>';

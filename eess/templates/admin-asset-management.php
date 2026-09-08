@@ -231,12 +231,12 @@ $pending_requests_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm
 <!-- CREATE INVENTORY MODAL -->
 <div id="asset-inventory-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
     <div style="background: #ffffff; border-radius: 20px; max-width: 780px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; max-height: 90vh; display: flex; flex-direction: column;">
-        <div style="background: #0f172a; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="background: #ffffff; color: #0f172a; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-store" style="font-size: 22px; color: #38bdf8;"></span>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;">تقديم حصر العهدة والمعدات المؤسسية</h3>
+                <span class="dashicons dashicons-store" style="font-size: 20px; color: #0f172a;"></span>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a;">تقديم حصر العهدة والمعدات المؤسسية</h3>
             </div>
-            <button type="button" onclick="document.getElementById('asset-inventory-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            <button type="button" onclick="document.getElementById('asset-inventory-modal').style.display='none'" style="background: none; border: none; color: #0f172a; font-size: 22px; cursor: pointer; font-weight: bold;">&times;</button>
         </div>
 
         <form onsubmit="eessSaveAssetInventorySubmit(event)" style="padding: 24px; overflow-y: auto; flex: 1;">
@@ -294,43 +294,56 @@ $pending_requests_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}sm
 
 <!-- CREATE ASSET REQUEST MODAL -->
 <div id="asset-request-modal" class="sm-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); z-index: 999999; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; font-family: 'Cairo', sans-serif;" dir="rtl">
-    <div style="background: #ffffff; border-radius: 20px; max-width: 680px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden;">
-        <div style="background: #0284c7; color: #ffffff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 720px; width: 100%; border: 1px solid #cbd5e1; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3); overflow: hidden; max-height: 90vh; display: flex; flex-direction: column;">
+        <div style="background: #ffffff; color: #0f172a; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="dashicons dashicons-cart" style="font-size: 22px; color: #ffffff;"></span>
-                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #ffffff;">تقديم طلب معدات وأصول جديدة</h3>
+                <span class="dashicons dashicons-cart" style="font-size: 20px; color: #0f172a;"></span>
+                <h3 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a;">تقديم طلب معدات وأصول جديدة (متعدد الأصناف)</h3>
             </div>
-            <button type="button" onclick="document.getElementById('asset-request-modal').style.display='none'" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer;">&times;</button>
+            <button type="button" onclick="document.getElementById('asset-request-modal').style.display='none'" style="background: none; border: none; color: #0f172a; font-size: 22px; cursor: pointer; font-weight: bold;">&times;</button>
         </div>
 
-        <form onsubmit="eessSaveAssetRequestSubmit(event)" style="padding: 24px;">
-            <div style="margin-bottom: 14px;">
-                <label style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; display: block;">المعدة المطلوبة من الكتالوج *</label>
-                <select id="req_catalog_id" class="sm-input" style="height: 38px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px;" required>
-                    <?php foreach ($catalog_items as $c): ?>
-                        <option value="<?php echo $c->id; ?>"><?php echo esc_html($c->item_name); ?></option>
-                    <?php endforeach; ?>
+        <form id="eess-asset-request-form" onsubmit="eessSaveAssetRequestSubmit(event)" style="padding: 24px; overflow-y: auto; flex: 1;">
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">سبب وغرض طلب التوريد *</label>
+                <select id="req_reason" class="sm-input" style="height: 38px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px;">
+                    <option value="استبدال معدات تالفة">استبدال معدات تالفة</option>
+                    <option value="تغطية زيادة أعداد الطلاب">زيادة أعداد الطلاب والمجموعات</option>
+                    <option value="نشاط رياضي جديد">استحداث نشاط أو بطولة جديدة</option>
+                    <option value="تجهيز صالة بدنية جديدة">تجهيز صالة أو مرفق بدني جديد</option>
                 </select>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-                <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">الكمية المطلوبة *</label>
-                    <input type="number" min="1" id="req_qty_requested" value="5" class="sm-input" style="height: 38px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px;" required>
+            <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="font-size: 12.5px; font-weight: 800; color: #334155; margin: 0;">المعدات والأصناف المطلوبة <span style="color:#ef4444;">*</span></label>
+                    <button type="button" onclick="eessAddAssetRequestRow()" style="background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; height: 28px; padding: 0 12px; border-radius: 6px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <span class="dashicons dashicons-plus-alt2" style="font-size: 14px; width: 14px; height: 14px;"></span>
+                        <span>إضافة معدة أخرى +</span>
+                    </button>
                 </div>
-                <div>
-                    <label style="font-size: 11.5px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">سبب الطلب *</label>
-                    <select id="req_reason" class="sm-input" style="height: 38px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0 10px; font-size: 12px;">
-                        <option value="استبدال معدات تالفة">استبدال معدات تالفة</option>
-                        <option value="تغطية زيادة أعداد الطلاب">زيادة أعداد الطلاب والمجموعات</option>
-                        <option value="نشاط رياضي جديد">استحداث نشاط أو بطولة جديدة</option>
-                        <option value="تجهيز صالة بدنية جديدة">تجهيز صالة أو مرفق بدني جديد</option>
-                    </select>
+
+                <div id="eess-asset-req-items-container">
+                    <div class="eess-asset-req-row" style="display: grid; grid-template-columns: 2fr 1fr 32px; gap: 10px; align-items: center; margin-bottom: 8px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        <div>
+                            <select name="catalog_id[]" class="sm-input eess-req-catalog-id" style="height: 36px; width: 100%; border-radius: 6px; border: 1px solid #cbd5e1; padding: 0 8px; font-size: 12px;" required>
+                                <?php foreach ($catalog_items as $c): ?>
+                                    <option value="<?php echo $c->id; ?>"><?php echo esc_html($c->item_name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="number" name="qty_requested[]" min="1" value="1" placeholder="الكمية" class="sm-input eess-req-qty" style="height: 36px; width: 100%; border-radius: 6px; border: 1px solid #cbd5e1; padding: 0 8px; font-size: 12px; font-weight: 700;" required>
+                        </div>
+                        <div>
+                            <button type="button" onclick="eessRemoveAssetRequestRow(this)" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecdd3; height: 32px; width: 32px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="حذف">&times;</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
-                <button type="submit" id="req_submit_btn" class="sm-btn" style="background: #0284c7; color: #ffffff !important; height: 38px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">إرسال طلب التوريد للمراجعة</button>
+                <button type="submit" id="req_submit_btn" class="sm-btn" style="background: #0f172a; color: #ffffff !important; height: 38px; padding: 0 22px; font-weight: 800; border-radius: 9999px !important; border: none; cursor: pointer;">إرسال طلب التوريد الموحد</button>
                 <button type="button" onclick="document.getElementById('asset-request-modal').style.display='none'" class="sm-btn sm-btn-outline" style="height: 38px; padding: 0 18px; border-radius: 9999px !important; border: 1px solid #cbd5e1; color: #475569; cursor: pointer;">إلغاء</button>
             </div>
         </form>
@@ -381,6 +394,27 @@ function eessSaveAssetInventorySubmit(e) {
     });
 }
 
+function eessAddAssetRequestRow() {
+    var container = document.getElementById('eess-asset-req-items-container');
+    if (!container) return;
+    var firstRow = container.querySelector('.eess-asset-req-row');
+    if (!firstRow) return;
+    var newRow = firstRow.cloneNode(true);
+    var qtyInput = newRow.querySelector('.eess-req-qty');
+    if (qtyInput) qtyInput.value = 1;
+    container.appendChild(newRow);
+}
+
+function eessRemoveAssetRequestRow(btn) {
+    var container = document.getElementById('eess-asset-req-items-container');
+    var rows = container.querySelectorAll('.eess-asset-req-row');
+    if (rows.length > 1) {
+        btn.closest('.eess-asset-req-row').remove();
+    } else {
+        alert('يجب إضافة معدة واحدة على الأقل في طلب التوريد.');
+    }
+}
+
 function eessSaveAssetRequestSubmit(e) {
     e.preventDefault();
     var btn = document.getElementById('req_submit_btn');
@@ -389,20 +423,26 @@ function eessSaveAssetRequestSubmit(e) {
 
     var formData = new FormData();
     formData.append('action', 'sm_save_asset_request');
-    formData.append('catalog_id', document.getElementById('req_catalog_id').value);
-    formData.append('qty_requested', document.getElementById('req_qty_requested').value);
     formData.append('request_reason', document.getElementById('req_reason').value);
     formData.append('nonce', '<?php echo wp_create_nonce("eess_admin_action"); ?>');
+
+    var rows = document.querySelectorAll('#eess-asset-req-items-container .eess-asset-req-row');
+    rows.forEach(function(row, idx) {
+        var catId = row.querySelector('.eess-req-catalog-id').value;
+        var qty = row.querySelector('.eess-req-qty').value;
+        formData.append('items[' + idx + '][catalog_id]', catId);
+        formData.append('items[' + idx + '][qty_requested]', qty);
+    });
 
     fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
     .then(r => r.json())
     .then(res => {
         btn.disabled = false;
-        btn.innerText = 'إرسال طلب التوريد للمراجعة';
+        btn.innerText = 'إرسال طلب التوريد الموحد';
         if (res.success) {
             document.getElementById('asset-request-modal').style.display = 'none';
             if (typeof smShowNotification === 'function') {
-                smShowNotification('✓ تم إرسال طلب التوريد بنجاح للمراجعة والاعتماد.');
+                smShowNotification('✓ تم إرسال طلب التوريد الموحد بنجاح.');
             }
             setTimeout(function() { location.reload(); }, 600);
         } else {

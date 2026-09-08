@@ -3,7 +3,8 @@
 $current_user = wp_get_current_user();
 $roles = (array) $current_user->roles;
 $is_discipline_sup = in_array('sm_discipline_supervisor', $roles);
-$is_admin = current_user_can('شؤون_الطلاب') || current_user_can('manage_options') || current_user_can('manage_students') || $is_discipline_sup;
+$is_principal = in_array('sm_principal', $roles);
+$is_admin = current_user_can('شؤون_الطلاب') || current_user_can('manage_options') || current_user_can('manage_students') || $is_discipline_sup || $is_principal;
 $import_results = get_transient('sm_import_results_' . get_current_user_id());
 if ($import_results) {
     delete_transient('sm_import_results_' . get_current_user_id());
@@ -530,9 +531,12 @@ $to_num = min($offset + $limit, $total_students_count);
     <!-- EXIT CARD REQUESTS REVIEW MODAL -->
     <div id="eess-exit-card-requests-modal" class="sm-modal-overlay" style="display: none;">
         <div class="sm-modal-content" style="max-width: 900px; background: white;">
-            <div class="sm-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:20px;">
-                <h3 style="margin:0; font-weight:800; font-size: 16px; color: #0284c7;">إدارة ومراجعة طلبات بطاقات تصريح الخروج (Student Exit Cards)</h3>
-                <button class="sm-modal-close" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='none'" style="width:28px; height:28px; display:flex; align-items:center; justify-content:center;">&times;</button>
+            <div class="sm-modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding: 14px 18px; background: #ffffff; border-radius: 12px 12px 0 0; margin-bottom: 12px;">
+                <h3 style="margin:0; font-weight:800; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                    <span class="dashicons dashicons-id" style="font-size: 18px; width: 18px; height: 18px; color: #0f172a; margin: 0;"></span>
+                    <span>إدارة ومراجعة طلبات بطاقات تصريح الخروج (Student Exit Cards)</span>
+                </h3>
+                <button class="sm-modal-close" onclick="document.getElementById('eess-exit-card-requests-modal').style.display='none'" style="width:28px; height:28px; display:flex; align-items:center; justify-content:center; color: #0f172a; font-weight: bold; font-size: 18px; border: none; background: transparent; cursor: pointer;">&times;</button>
             </div>
             <div class="sm-modal-body" style="max-height: 70vh; overflow-y: auto;">
                 <?php
