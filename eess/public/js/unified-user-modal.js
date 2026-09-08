@@ -418,7 +418,44 @@ window.eessOnRoleChanged = function() {
 };
 
 window.eessOnInstitutionChanged = function() {
-    // Institution selection is directly linked to the centralized master data
+    var instId = document.getElementById('u_institution_id') ? document.getElementById('u_institution_id').value : '';
+    window.eessLoadDepartmentsForInstitution(instId);
+};
+
+window.eessLoadDepartmentsForInstitution = function(instId, selectedDept) {
+    var deptSelect = document.getElementById('u_department');
+    if (!deptSelect) return;
+
+    var currentVal = selectedDept !== undefined ? selectedDept : deptSelect.value;
+
+    var formData = new FormData();
+    formData.append('action', 'eess_get_departments_by_school');
+    formData.append('institution_id', instId || 0);
+
+    fetch(eessAjaxUrl, { method: 'POST', body: formData })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (res.success && Array.isArray(res.data)) {
+            deptSelect.innerHTML = '<option value="">-- اختر القسم --</option>';
+            res.data.forEach(function(d) {
+                var opt = document.createElement('option');
+                opt.value = d.name;
+                opt.textContent = d.name;
+                if (currentVal && currentVal.trim() === d.name.trim()) {
+                    opt.selected = true;
+                }
+                deptSelect.appendChild(opt);
+            });
+            if (currentVal && !deptSelect.value) {
+                var opt = document.createElement('option');
+                opt.value = currentVal;
+                opt.textContent = currentVal;
+                opt.selected = true;
+                deptSelect.appendChild(opt);
+            }
+        }
+    })
+    .catch(function(err) { console.error('Error loading departments:', err); });
 };
 
 window.eessLoadUserData = function(userId) {
@@ -477,7 +514,7 @@ window.eessLoadUserData = function(userId) {
                 }
             }
             document.getElementById('u_institution_id').value = u.institution_id || '';
-            document.getElementById('u_department').value = u.department || '';
+            window.eessLoadDepartmentsForInstitution(u.institution_id || u.school_id, u.department || '');
             if (document.getElementById('u_admin_section') && u.admin_section) document.getElementById('u_admin_section').value = u.admin_section;
             document.getElementById('u_specialization').value = u.specialization || '';
             if (document.getElementById('u_assigned_sections') && u.assigned_sections) {

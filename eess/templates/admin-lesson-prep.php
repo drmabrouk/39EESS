@@ -326,8 +326,8 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
 
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <!-- Modern Compact Pastel Wine-Red Bulk Download Button -->
-            <button type="button" onclick="document.getElementById('eess-prep-bulk-download-modal').style.display='flex'" title="تحميل كافة التحضيرات المرفوعة بالجملة" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; height: 38px; border-radius: 8px; padding: 0 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #881337;"></span>
+            <button type="button" onclick="document.getElementById('eess-prep-bulk-download-modal').style.display='flex'" title="تحميل كافة التحضيرات المرفوعة بالجملة" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; height: 34px; border-radius: 10px; padding: 0 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                <span class="dashicons dashicons-download" style="font-size: 15px; width: 15px; height: 15px; margin: 0; color: #881337;"></span>
                 <span>تحميل كافة التحضيرات</span>
             </button>
 

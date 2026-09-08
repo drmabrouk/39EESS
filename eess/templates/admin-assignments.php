@@ -13,7 +13,11 @@
             </div>
         </div>
 
-        <?php if ($is_teacher): ?>
+        <?php
+        $curr_roles = (array) wp_get_current_user()->roles;
+        $can_create_hw = $is_teacher || in_array('sm_principal', $curr_roles) || in_array('administrator', $curr_roles) || in_array('sm_system_admin', $curr_roles);
+        if ($can_create_hw):
+        ?>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <button type="button" onclick="document.getElementById('add-assignment-modal').style.display='flex'" class="sm-btn" style="background: #881337; color: #ffffff !important; height: 38px; border-radius: 9999px !important; padding: 0 20px; font-weight: 800; font-size: 12.5px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                 <span class="dashicons dashicons-plus-alt2" style="font-size: 15px; width: 15px; height: 15px; color: #fff;"></span>

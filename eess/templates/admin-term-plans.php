@@ -80,8 +80,8 @@ $arabic_term_names = array(
         <!-- Primary Header Actions (Reordered: Settings Gear on far-left, Print/Export, Red Report button, Assign) -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <!-- Modern Compact Pastel Wine-Red Bulk Download Button -->
-            <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='flex'" title="تحميل أرشيف الخطط الفصلية والسنوية بالجملة" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; height: 38px; border-radius: 8px; padding: 0 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
-                <span class="dashicons dashicons-download" style="font-size: 16px; width: 16px; height: 16px; margin: 0; color: #881337;"></span>
+            <button type="button" onclick="document.getElementById('eess-plan-bulk-download-modal').style.display='flex'" title="تحميل أرشيف الخطط الفصلية والسنوية بالجملة" style="background: #fef2f2; color: #881337; border: 1px solid #fecdd3; height: 34px; border-radius: 10px; padding: 0 14px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); transition: background 0.2s; flex-shrink: 0;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">
+                <span class="dashicons dashicons-download" style="font-size: 15px; width: 15px; height: 15px; margin: 0; color: #881337;"></span>
                 <span>تحميل الأرشيف بالجملة</span>
             </button>
 
@@ -941,6 +941,12 @@ function eessExecuteTermPlanBulkDownloadInModal(e) {
 
     fetch(fetchUrl)
     .then(response => {
+        var contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            return response.json().then(data => {
+                throw new Error(data.data || 'حدث خطأ أثناء إعداد الأرشيف.');
+            });
+        }
         if (!response.ok) throw new Error('فشل توليد الأرشيف');
         return response.blob();
     })
