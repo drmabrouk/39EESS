@@ -889,19 +889,18 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                 }
             </style>
             <!-- Table of Submissions -->
-            <div class="sm-table-container" style="overflow-x: auto;">
+            <div class="sm-table-container" style="overflow-x: auto; border: none !important; box-shadow: none !important; background: transparent !important;">
                 <table class="sm-table" style="min-width: 850px; direction: rtl;">
                     <thead style="background: #000000 !important; color: #ffffff !important;">
                         <tr style="background: #000000 !important; color: #ffffff !important;">
-                            <th style="width: 30px; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;"><input type="checkbox" onclick="eessToggleAllPrepCheckboxes(this)" title="تحديد الكل"></th>
-                            <th style="width: 45px; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">#</th>
-                            <th style="text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المعلم ورقم الموظف</th>
-                            <th style="text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المدرسة والصفوف المسندة</th>
-                            <th style="text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">عنوان الدرس</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الأسبوع الدراسي</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة التسليم</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة الاعتماد</th>
-                            <th style="text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الإجراءات</th>
+                            <th style="width: 40px; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">#</th>
+                            <th style="width: 18%; text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المعلم ورقم الموظف</th>
+                            <th style="width: 22%; text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">المدرسة والصفوف المسندة</th>
+                            <th style="width: 18%; text-align: right; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">عنوان الدرس</th>
+                            <th style="width: 10%; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الأسبوع الدراسي</th>
+                            <th style="width: 10%; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة التسليم</th>
+                            <th style="width: 10%; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">حالة الاعتماد</th>
+                            <th style="width: 12%; text-align: center; vertical-align: middle; color: #ffffff !important; background: #000000 !important;">الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -969,7 +968,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                         if (empty($submissions)):
                         ?>
                         <tr>
-                            <td colspan="9" style="text-align: center; color: #94a3b8; padding: 25px; font-size: 13px;">لا توجد خطط تحضير مسجلة حالياً تطابق شروط التصفية.</td>
+                            <td colspan="8" style="text-align: center; color: #94a3b8; padding: 25px; font-size: 13px;">لا توجد خطط تحضير مسجلة حالياً تطابق شروط التصفية.</td>
                         </tr>
                         <?php
                         else:
@@ -1046,12 +1045,7 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
                                 }
                         ?>
                         <tr style="font-size: 12px; vertical-align: middle;" id="prep-row-<?php echo $sub->id; ?>">
-                            <!-- Column 1: Checkbox -->
-                            <td style="text-align: center; vertical-align: middle;">
-                                <input type="checkbox" class="eess-prep-cb" value="<?php echo $sub->id; ?>">
-                            </td>
-
-                            <!-- Column 2: # Sequential Chronological Record Number (Oldest = 1 -> Newest = Highest) -->
+                            <!-- Column 1: # Sequential Chronological Record Number (Oldest = 1 -> Newest = Highest) -->
                             <td style="text-align: center; vertical-align: middle; color: #64748b; font-weight: 700; font-size: 11px; font-family: monospace;">
                                 <?php echo $chrono_num; ?>
                             </td>
@@ -2444,70 +2438,6 @@ window.eessExecuteConfirmDeletePrep = function() {
             alert('خطأ: ' + (res.data || 'فشل حذف التحضير.'));
         }
     });
-};
-
-window.eessToggleAllPrepCheckboxes = function(master) {
-    var checkboxes = document.querySelectorAll('.eess-prep-cb');
-    checkboxes.forEach(function(cb) {
-        cb.checked = master.checked;
-    });
-};
-
-window.eessExecutePrepBulkAction = function() {
-    var actionSelect = document.getElementById('eess-prep-bulk-action');
-    var action = actionSelect ? actionSelect.value : '';
-    if (!action) {
-        alert('يرجى اختيار الإجراء الجماعي المطلوب.');
-        return;
-    }
-
-    var selectedCbs = document.querySelectorAll('.eess-prep-cb:checked');
-    if (selectedCbs.length === 0) {
-        alert('يرجى تحديد تحضير واحد على الأقل من الجدول.');
-        return;
-    }
-
-    var executeBulk = function() {
-        var formData = new FormData();
-        formData.append('action', 'eess_bulk_lesson_action');
-        formData.append('bulk_action', action);
-        formData.append('sm_nonce', '<?php echo wp_create_nonce("eess_lesson_prep_action"); ?>');
-
-        selectedCbs.forEach(function(cb) {
-            formData.append('prep_ids[]', cb.value);
-        });
-
-        fetch('<?php echo admin_url('admin-ajax.php'); ?>', { method: 'POST', body: formData })
-        .then(function(r) { return r.json(); })
-        .then(function(res) {
-            if (res.success) {
-                if (typeof smShowNotification === 'function') {
-                    smShowNotification('تم تنفيذ الإجراء الجماعي بنجاح');
-                }
-                setTimeout(function() { location.reload(); }, 500);
-            } else {
-                alert('خطأ: ' + (res.data || 'حدث خطأ أثناء تنفيذ الإجراء الجماعي.'));
-            }
-        });
-    };
-
-    if (action === 'delete') {
-        if (typeof window.smConfirmAction === 'function') {
-            window.smConfirmAction({
-                title: 'حذف التحضيرات المحددة',
-                message: 'هل أنت متأكد من رغبتك في حذف جميع التحضيرات المحددة (' + selectedCbs.length + ') نهائياً؟',
-                type: 'danger',
-                confirmText: 'حذف نهائي'
-            }).then(function(confirmed) {
-                if (confirmed) executeBulk();
-            });
-            return;
-        } else if (!confirm('هل أنت متأكد من رغبتك في حذف جميع التحضيرات المحددة نهائياً؟')) {
-            return;
-        }
-    }
-
-    executeBulk();
 };
 </script>
 
