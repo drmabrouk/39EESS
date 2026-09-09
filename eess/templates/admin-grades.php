@@ -45,9 +45,6 @@ $students = SM_DB::get_students();
         <div class="sm-tabs-wrapper" style="display: flex; gap: 10px; border-bottom: 2px solid #eee; padding-bottom: 10px; flex: 1;">
             <button class="sm-tab-btn sm-active" onclick="smOpenInternalTab('individual-grading', this)">رصد فردي</button>
             <button class="sm-tab-btn" onclick="smOpenInternalTab('class-grading', this)">رصد جماعي (حسب الصف)</button>
-            <?php if (current_user_can('إدارة_النظام')): ?>
-                <button class="sm-tab-btn" onclick="smOpenInternalTab('subject-mgmt', this)">إدارة المواد</button>
-            <?php endif; ?>
         </div>
     </div>
 
@@ -157,33 +154,6 @@ $students = SM_DB::get_students();
         <div id="batch-students-container"></div>
     </div>
 
-    <?php if (current_user_can('إدارة_النظام')): ?>
-    <div id="subject-mgmt" class="sm-internal-tab" style="display:none;">
-        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 30px;">
-            <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <h4 style="margin-top:0;">إضافة مادة جديدة</h4>
-                <div class="sm-form-group">
-                    <label class="sm-label">اسم المادة:</label>
-                    <input type="text" id="new-subject-name" class="sm-input">
-                </div>
-                <div class="sm-form-group">
-                    <label class="sm-label">تطبيق على الصفوف (متعدد):</label>
-                    <div style="background: #fff; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; max-height: 200px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <?php for($i=1; $i<=12; $i++): ?>
-                            <label style="font-size: 12px; display: flex; align-items: center; gap: 5px; cursor: pointer;">
-                                <input type="checkbox" class="new-subject-grade-check" value="<?php echo $i; ?>"> صف <?php echo $i; ?>
-                            </label>
-                        <?php endfor; ?>
-                    </div>
-                </div>
-                <button onclick="addSubject()" class="sm-btn" style="width:100%;">إضافة المادة</button>
-            </div>
-            <div id="subjects-list-container">
-                <!-- Loaded via JS -->
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
 </div>
 
 <script>
