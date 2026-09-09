@@ -243,6 +243,33 @@ class EESS_Student_Data_Service {
                     'created_at'   => current_time('mysql')
                 ));
             }
+
+            // Technical WP Account & Role Synchronization for Student
+            $student_rec = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}sm_students WHERE id = %d", $final_id));
+            if ($student_rec && !empty($student_rec->student_code)) {
+                $st_code = $student_rec->student_code;
+                $user_id = username_exists($st_code);
+
+                if (!$user_id) {
+                    $default_pass = $st_code . $st_code;
+                    $st_email = !empty($student_rec->parent_email) ? $student_rec->parent_email : ($st_code . '@eess.local');
+                    $user_id = wp_create_user($st_code, $default_pass, $st_email);
+                }
+
+                if ($user_id && !is_wp_error($user_id)) {
+                    $u = new WP_User($user_id);
+                    $u->set_role('sm_student');
+                    wp_update_user(array(
+                        'ID'           => $user_id,
+                        'display_name' => $student_rec->name
+                    ));
+
+                    update_user_meta($user_id, 'eess_student_id', $final_id);
+                    update_user_meta($user_id, 'eess_student_code', $st_code);
+                    update_user_meta($user_id, 'eess_school_id', $student_rec->school_id);
+                    update_user_meta($user_id, 'eess_user_type', 'student');
+                }
+            }
         }
 
         return $final_id;

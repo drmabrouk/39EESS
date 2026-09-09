@@ -28,6 +28,11 @@ $unique_subjects = !empty($all_subjects) ? array_unique(array_map(function($s){ 
 // Fetch all users without pagination limits to ensure all teachers and staff are retrieved
 $all_users = get_users(array('number' => -1, 'orderby' => 'display_name', 'order' => 'ASC'));
 
+// Filter out Student accounts so students are managed exclusively via Student Affairs
+$all_users = array_filter($all_users, function($u) {
+    return !in_array('sm_student', (array) $u->roles);
+});
+
 $current_user_scope = EESS_Org_Helper::get_user_scope();
 if (!$current_user_scope['unrestricted']) {
     $all_users = array_filter($all_users, function($u) use ($current_user_scope) {
