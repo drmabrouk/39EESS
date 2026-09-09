@@ -3304,6 +3304,18 @@ class SM_Public {
         $nonce = $_POST['sm_nonce'] ?? ($_POST['nonce'] ?? '');
         if (!wp_verify_nonce($nonce, 'sm_add_student') && !wp_verify_nonce($nonce, 'sm_photo_action') && !wp_verify_nonce($nonce, 'sm_admin_action') && !wp_verify_nonce($nonce, 'eess_admin_action')) wp_send_json_error('Security check failed');
 
+        $student_id = intval($_POST['student_id'] ?? ($_POST['id'] ?? 0));
+        if ($student_id > 0) {
+            $user_scope = EESS_Org_Helper::get_user_scope();
+            if (!$user_scope['unrestricted']) {
+                global $wpdb;
+                $st_sch = $wpdb->get_var($wpdb->prepare("SELECT school_id FROM {$wpdb->prefix}sm_students WHERE id = %d", $student_id));
+                if ($st_sch && !in_array(intval($st_sch), $user_scope['schools'], true)) {
+                    wp_send_json_error('عفواً، لا تملك صلاحية تعديل بيانات طلاب من مدرسة أخرى.');
+                }
+            }
+        }
+
         $saved_id = EESS_Student_Data_Service::process_and_save_student($_POST);
         if (is_wp_error($saved_id)) {
             wp_send_json_error($saved_id->get_error_message());
