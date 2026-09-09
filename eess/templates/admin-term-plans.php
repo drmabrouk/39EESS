@@ -72,7 +72,7 @@ $arabic_term_names = array(
                 <span class="dashicons dashicons-calendar-alt" style="font-size: 22px; width: 22px; height: 22px;"></span>
             </div>
             <div>
-                <h2 style="margin: 0 0 2px 0; font-size: 18px; font-weight: 800; color: #0f172a;">الخطط الفصلية والسنوية للمدرس</h2>
+                <h2 style="margin: 0 0 2px 0; font-size: 18px; font-weight: 800; color: #0f172a;">الخطط الفصلية والسنوية</h2>
                 <p style="margin: 0; font-size: 11.5px; color: #64748b; font-weight: 500;">إعداد وإدارة الخطط التعليمية والتوزيع الأسبوعي للمناهج الدراسية والاعتماد المباشر</p>
             </div>
         </div>
@@ -158,19 +158,8 @@ $arabic_term_names = array(
             $plan_stats_missing   = max(0, $plan_stats_total_req - $plan_stats_submitted);
             $plan_compliance_rate = $plan_stats_total_req > 0 ? round(($plan_stats_submitted / $plan_stats_total_req) * 100) : 0;
         ?>
-        <!-- Administrative Compliance & Follow-up Statistics for Term Plans -->
-        <div style="background: #ffffff; padding: 20px 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02); margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
-                <div>
-                    <h3 style="margin: 0 0 2px 0; font-size: 15px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 8px;">
-                        <span class="dashicons dashicons-chart-bar" style="color: #000000; font-size: 18px; width: 18px; height: 18px;"></span>
-                        <span>إحصائيات الامتثال ومتابعة الخطط الفصلية</span>
-                    </h3>
-                    <p style="margin: 0; font-size: 12px; color: #64748b; font-weight: 600;">متابعة نسب تسليم واعتماد الخطط الفصلية والسنوية لمنتسبي الكادر التدريسي</p>
-                </div>
-                <span style="font-size: 12px; font-weight: 800; color: #0284c7; background: #e0f2fe; padding: 3px 12px; border-radius: 9999px; border: 1px solid #bae6fd;">نسبة الالتزام الإجمالية: <?php echo $plan_compliance_rate; ?>%</span>
-            </div>
-
+        <!-- Statistics Grid for Term Plans -->
+        <div style="background: #ffffff; padding: 18px 20px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.02); margin-bottom: 20px;">
             <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;">
                 <div onclick="eessShowTermPlanStatDetails('required')" style="background: #f8fafc; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; border-top: 3px solid #334155; text-align: center; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     <div style="font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 4px;">إجمالي عدد المعلمين</div>

@@ -141,69 +141,56 @@ $unique_subjects = array_unique(array_map(function($s){ return $s->name; }, $all
             </form>
         </div>
 
-        <!-- Search and Advanced Filtering Panel -->
-        <div style="background: #f8fafc; padding: 18px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                <!-- Full Text Search -->
-                <div>
-                    <label class="sm-label" style="font-weight: 700; font-size: 12px;">البحث الفوري</label>
-                    <input type="text" id="user-engine-search" onkeyup="filterSystemUsers()" placeholder="ابحث بالاسم، المسمى، البريد، الرقم الوظيفي..." class="sm-input" style="height: 38px; font-size: 12px;">
+        <!-- Search and Advanced Filtering Panel (Compact Single-Row Design) -->
+        <div style="background: #ffffff; padding: 12px 18px; border-radius: 14px; border: 1px solid #cbd5e1; margin-bottom: 20px; font-family: 'Cairo', sans-serif;">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: space-between; direction: rtl;">
+                <!-- Search Input -->
+                <div style="position: relative; width: 220px; min-width: 160px;">
+                    <input type="text" id="user-engine-search" onkeyup="filterSystemUsers()" placeholder="بحث بالاسم، البريد، الرقم الوظيفي..." class="sm-input" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 32px 0 12px; width: 100%; box-sizing: border-box;">
+                    <span class="dashicons dashicons-search" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; width: 15px; height: 15px; color: #94a3b8; pointer-events: none;"></span>
                 </div>
-                <!-- Role Filter -->
-                <div>
-                    <label class="sm-label" style="font-weight: 700; font-size: 12px;">تصفية حسب المسمى الوظيفي</label>
-                    <select id="user-engine-role" onchange="filterSystemUsers()" class="sm-select" style="height: 38px; font-size: 12px;">
-                        <option value="">الكل</option>
-                        <?php foreach($role_map as $val => $lbl): ?>
-                            <option value="<?php echo esc_attr($val); ?>"><?php echo esc_html($lbl); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <!-- Subject Filter -->
-                <div>
-                    <label class="sm-label" style="font-weight: 700; font-size: 12px;">تصفية حسب التخصص</label>
-                    <select id="user-engine-subject" onchange="filterSystemUsers()" class="sm-select" style="height: 38px; font-size: 12px;">
-                        <option value="">الكل</option>
-                        <?php foreach($unique_subjects as $subj): ?>
-                            <option value="<?php echo esc_attr($subj); ?>"><?php echo esc_html($subj); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <!-- Status Filter -->
-                <div>
-                    <label class="sm-label" style="font-weight: 700; font-size: 12px;">حالة الحساب</label>
-                    <select id="user-engine-status" onchange="filterSystemUsers()" class="sm-select" style="height: 38px; font-size: 12px;">
-                        <option value="">الكل</option>
-                        <option value="active">نشط / مفعل</option>
-                        <option value="restricted">مقيد / محظور</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- Sorting & Bulk Action Row -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 15px; flex-wrap: wrap; gap: 15px;">
-                <!-- Bulk Actions -->
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 12px; font-weight: 800; color: #4a5568;">العمليات الجماعية:</span>
-                    <select id="user-bulk-action" class="sm-select" style="width: 140px; height: 32px; padding: 0 8px; font-size: 11px;">
-                        <option value="">اختر الإجراء...</option>
+                <!-- Role Filter -->
+                <select id="user-engine-role" onchange="filterSystemUsers()" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-weight: 700; color: #334155; background-color: #ffffff;">
+                    <option value="">جميع المسميات الوظيفية</option>
+                    <?php foreach($role_map as $val => $lbl): ?>
+                        <option value="<?php echo esc_attr($val); ?>"><?php echo esc_html($lbl); ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <!-- Subject Filter -->
+                <select id="user-engine-subject" onchange="filterSystemUsers()" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-weight: 700; color: #334155; background-color: #ffffff;">
+                    <option value="">جميع التخصصات</option>
+                    <?php foreach($unique_subjects as $subj): ?>
+                        <option value="<?php echo esc_attr($subj); ?>"><?php echo esc_html($subj); ?></option>
+                    <?php endforeach; ?>
+                </select>
+
+                <!-- Status Filter -->
+                <select id="user-engine-status" onchange="filterSystemUsers()" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-weight: 700; color: #334155; background-color: #ffffff;">
+                    <option value="">جميع الحالات</option>
+                    <option value="active">نشط / مفعل</option>
+                    <option value="restricted">مقيد / محظور</option>
+                </select>
+
+                <!-- Sorting Dropdown -->
+                <select id="user-engine-sort" onchange="filterSystemUsers()" class="sm-select" style="height: 36px; font-size: 12px; border-radius: 9999px !important; border: 1px solid #cbd5e1; padding: 0 12px; font-weight: 700; color: #334155; background-color: #ffffff;">
+                    <option value="name_asc">الاسم (أ - ي)</option>
+                    <option value="name_desc">الاسم (ي - أ)</option>
+                    <option value="date_desc">الأحدث تسجيلاً</option>
+                    <option value="date_asc">الأقدم تسجيلاً</option>
+                    <option value="role">المسمى الوظيفي</option>
+                </select>
+
+                <!-- Bulk Actions Group -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <select id="user-bulk-action" class="sm-select" style="height: 36px; padding: 0 12px; font-size: 11.5px; border-radius: 9999px !important; border: 1px solid #cbd5e1; font-weight: 700;">
+                        <option value="">إجراء جماعي...</option>
                         <option value="activate">تنشيط الحسابات</option>
                         <option value="restrict">حظر / تقييد</option>
                         <option value="delete">حذف نهائي</option>
                     </select>
-                    <button onclick="executeUserBulkAction()" class="sm-btn" style="height: 32px; padding: 0 12px; font-size: 11px; background: #475569;">تطبيق</button>
-                </div>
-
-                <!-- Sorting Dropdown -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 12px; font-weight: 800; color: #4a5568;">ترتيب حسب:</span>
-                    <select id="user-engine-sort" onchange="filterSystemUsers()" class="sm-select" style="width: 160px; height: 32px; padding: 0 8px; font-size: 11px;">
-                        <option value="name_asc">الاسم (أ - ي)</option>
-                        <option value="name_desc">الاسم (ي - أ)</option>
-                        <option value="date_desc">الأحدث تسجيلاً</option>
-                        <option value="date_asc">الأقدم تسجيلاً</option>
-                        <option value="role">المسمى الوظيفي</option>
-                    </select>
+                    <button type="button" onclick="executeUserBulkAction()" class="sm-btn" style="height: 36px; padding: 0 14px; font-size: 12px; background: #881337; color: #ffffff !important; border-radius: 9999px !important; border: none; font-weight: 800; cursor: pointer;">تطبيق</button>
                 </div>
             </div>
         </div>

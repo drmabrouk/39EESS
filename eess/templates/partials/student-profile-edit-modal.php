@@ -337,6 +337,9 @@ function handleStudentPhotoSelected(input) {
     if (editForm) {
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = 'جاري الحفظ والتحديث...'; }
+
             const formData = new FormData(this);
             formData.append('action', 'sm_update_student_ajax');
 
@@ -344,12 +347,17 @@ function handleStudentPhotoSelected(input) {
             .then(r => r.json())
             .then(res => {
                 if (res.success) {
-                    if (typeof smShowNotification === 'function') smShowNotification('تم تحديث جميع بيانات الطالب الـ 30 بنجاح');
+                    if (typeof smShowNotification === 'function') smShowNotification('✓ تم تحديث جميع بيانات الطالب الـ 30 بنجاح');
                     closeUnifiedEditStudentModal();
                     setTimeout(() => location.reload(), 500);
                 } else {
-                    alert('خطأ أثناء التحديث: ' + res.data);
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'حفظ وتحديث السجل الكامل'; }
+                    alert('خطأ أثناء التحديث: ' + (res.data || 'فشل حفظ بيانات الطالب.'));
                 }
+            })
+            .catch(err => {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'حفظ وتحديث السجل الكامل'; }
+                alert('حدث خطأ أثناء الاتصال بالخادم.');
             });
         });
     }
